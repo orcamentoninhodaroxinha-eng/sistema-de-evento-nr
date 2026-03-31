@@ -15,12 +15,20 @@ export default function EventScale({ event, employees, onBack }) {
   const getGroup = (emp) => {
     const role = (emp.role || "").toLowerCase();
     if (role.includes("cozinha") || role.includes("cozinheiro") || role.includes("auxiliar de cozinha")) return "cozinha";
+    if (role.includes("segurança") || role.includes("seguranca")) return "seguranca";
     return "salao";
   };
 
+  const GROUP_ORDER = { cozinha: 0, salao: 1, seguranca: 2 };
+  const GROUP_CONFIG = {
+    cozinha:   { label: "🍳 Cozinha",    color: "bg-orange-50 border-orange-200 text-orange-700" },
+    salao:     { label: "🍽️ Salão",       color: "bg-blue-50 border-blue-200 text-blue-700" },
+    seguranca: { label: "🛡️ Segurança",  color: "bg-slate-50 border-slate-300 text-slate-700" },
+  };
+
   const sortedEmployees = [...employees].sort((a, b) => {
-    const ga = getGroup(a) === "cozinha" ? 0 : 1;
-    const gb = getGroup(b) === "cozinha" ? 0 : 1;
+    const ga = GROUP_ORDER[getGroup(a)] ?? 1;
+    const gb = GROUP_ORDER[getGroup(b)] ?? 1;
     return ga - gb;
   });
 
@@ -271,8 +279,7 @@ export default function EventScale({ event, employees, onBack }) {
       {(() => {
         const group = getGroup(current);
         const isFirstOfGroup = completed.length === 0 || getGroup(completed[completed.length - 1]) !== group;
-        const groupLabel = group === "cozinha" ? "🍳 Cozinha" : "🍽️ Salão & Segurança";
-        const groupColor = group === "cozinha" ? "bg-orange-50 border-orange-200 text-orange-700" : "bg-blue-50 border-blue-200 text-blue-700";
+        const { label: groupLabel, color: groupColor } = GROUP_CONFIG[group] || GROUP_CONFIG.salao;
         return isFirstOfGroup ? (
           <div className={`flex items-center justify-center gap-2 py-2 px-4 rounded-xl border font-semibold text-sm mb-2 ${groupColor}`}>
             {groupLabel}
