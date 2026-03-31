@@ -7,8 +7,7 @@ export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { path: "/", label: "Funcionários", icon: Users },
-    { path: "/events", label: "Eventos", icon: CalendarDays },
+    { path: "/", label: "Eventos", icon: CalendarDays },
   ];
 
   return (
