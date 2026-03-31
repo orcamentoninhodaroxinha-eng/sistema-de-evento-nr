@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { 
   CalendarDays, Plus, MapPin, Users, Search, Loader2, 
-  ChevronRight, MoreVertical, Trash2, Edit 
+  ChevronRight, MoreVertical, Trash2, Edit, CheckCircle2
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -18,7 +18,7 @@ import {
 import EventForm from "../components/EventForm";
 import EventDetail from "../components/EventDetail";
 
-function EventCard({ event, statusColors, onSelect, onEdit, onDelete }) {
+function EventCard({ event, statusColors, onSelect, onEdit, onDelete, onFinish }) {
   return (
     <button
       onClick={() => onSelect(event)}
@@ -66,6 +66,12 @@ function EventCard({ event, statusColors, onSelect, onEdit, onDelete }) {
               <Edit className="w-4 h-4 mr-2" />
               Editar
             </DropdownMenuItem>
+            {event.status !== "Concluído" && (
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onFinish(event); }} className="text-emerald-600">
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Finalizar Evento
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={(e) => onDelete(event, e)} className="text-destructive">
               <Trash2 className="w-4 h-4 mr-2" />
               Excluir
@@ -102,6 +108,13 @@ export default function Events() {
     e.stopPropagation();
     setEditingEvent(event);
     setShowForm(true);
+  };
+
+  const handleFinish = async (event) => {
+    if (confirm(`Finalizar o evento "${event.name}"?`)) {
+      await base44.entities.Event.update(event.id, { status: "Concluído" });
+      queryClient.invalidateQueries(["events"]);
+    }
   };
 
   const filtered = (events || []).filter((ev) => {
@@ -201,6 +214,7 @@ export default function Events() {
                     onSelect={setSelectedEvent}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    onFinish={handleFinish}
                   />
                 ))}
               </div>
@@ -225,6 +239,7 @@ export default function Events() {
                     onSelect={setSelectedEvent}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    onFinish={handleFinish}
                   />
                 ))}
               </div>
