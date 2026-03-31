@@ -12,8 +12,20 @@ import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
 
 export default function EventScale({ event, employees, onBack }) {
+  const getGroup = (emp) => {
+    const role = (emp.role || "").toLowerCase();
+    if (role.includes("cozinha") || role.includes("cozinheiro") || role.includes("auxiliar de cozinha")) return "cozinha";
+    return "salao";
+  };
+
+  const sortedEmployees = [...employees].sort((a, b) => {
+    const ga = getGroup(a) === "cozinha" ? 0 : 1;
+    const gb = getGroup(b) === "cozinha" ? 0 : 1;
+    return ga - gb;
+  });
+
   const [pending, setPending] = useState(
-    employees.map((emp, i) => ({ ...emp, _key: emp.id || `${emp.full_name}-${i}` }))
+    sortedEmployees.map((emp, i) => ({ ...emp, _key: emp.id || `${emp.full_name}-${i}` }))
   );
   const [completed, setCompleted] = useState([]);
   const [signatureFile, setSignatureFile] = useState(null);
@@ -254,6 +266,19 @@ export default function EventScale({ event, employees, onBack }) {
           style={{ width: `${(completed.length / (completed.length + pending.length)) * 100}%` }}
         />
       </div>
+
+      {/* Group indicator */}
+      {(() => {
+        const group = getGroup(current);
+        const isFirstOfGroup = completed.length === 0 || getGroup(completed[completed.length - 1]) !== group;
+        const groupLabel = group === "cozinha" ? "🍳 Cozinha" : "🍽️ Salão & Segurança";
+        const groupColor = group === "cozinha" ? "bg-orange-50 border-orange-200 text-orange-700" : "bg-blue-50 border-blue-200 text-blue-700";
+        return isFirstOfGroup ? (
+          <div className={`flex items-center justify-center gap-2 py-2 px-4 rounded-xl border font-semibold text-sm mb-2 ${groupColor}`}>
+            {groupLabel}
+          </div>
+        ) : null;
+      })()}
 
       {/* Current employee */}
       <div className="bg-card rounded-2xl border border-border p-6 shadow-sm space-y-6">
