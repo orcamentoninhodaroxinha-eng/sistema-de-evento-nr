@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import PullToRefresh from "@/components/PullToRefresh";
 import PageTransition from "@/components/PageTransition";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -7,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import {
   CalendarDays, MapPin, Users, Search, Loader2,
-  ChevronRight, MoreVertical, Trash2, CheckCircle2
+  ChevronRight, MoreVertical, Trash2, CheckCircle2, Plus
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -94,6 +95,7 @@ export default function Events() {
   const [activeTab, setActiveTab] = useState("proximos");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { data: events, isLoading } = useQuery({
     queryKey: ["events"],
@@ -122,19 +124,31 @@ export default function Events() {
   const activeEvents = filtered.filter(ev => ev.status !== "Concluído");
   const finishedEvents = filtered.filter(ev => ev.status === "Concluído");
 
+  const isAdmin = user?.role === 'admin';
+
   return (
     <PageTransition>
     <PullToRefresh onRefresh={() => queryClient.invalidateQueries(["events"])}>
     <div>
       <div className="mb-8">
         <div className="flex flex-col justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              Eventos
-            </h1>
-            <p className="text-muted-foreground mt-1 text-sm">Gerencie eventos e aloque funcionários</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                Eventos
+              </h1>
+              <p className="text-muted-foreground mt-1 text-sm">Gerencie eventos e aloque funcionários</p>
+            </div>
+            {isAdmin && (
+              <Button
+                onClick={() => navigate("/events/new")}
+                className="gap-2 h-11 rounded-xl font-semibold"
+              >
+                <Plus className="w-4 h-4" />
+                Novo Evento
+              </Button>
+            )}
           </div>
-
         </div>
       </div>
 

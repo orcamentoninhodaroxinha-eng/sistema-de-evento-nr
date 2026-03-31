@@ -7,6 +7,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import LoginGate from './components/LoginGate';
 import Layout from './components/Layout';
 import Events from './pages/Events';
+import EventFormPage from './pages/EventFormPage';
 import AccountDeletion from './pages/AccountDeletion';
 import EventDetailPage from './pages/EventDetailPage';
 import AuthSplash from './components/AuthSplash';
@@ -31,6 +32,7 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Events />} />
+        <Route path="/events/new" element={<EventFormPage />} />
         <Route path="/events/:id" element={<EventDetailPage />} />
         <Route path="/account/delete" element={<AccountDeletion />} />
       </Route>
