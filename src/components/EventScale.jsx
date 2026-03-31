@@ -303,14 +303,25 @@ export default function EventScale({ event, employees, onBack }) {
 
   return (
     <div className="max-w-lg mx-auto">
-      <Button
-        variant="ghost"
-        onClick={onBack}
-        className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Voltar
-      </Button>
+      <div className="flex items-center gap-3 mb-4">
+        <Button
+          variant="ghost"
+          onClick={onBack}
+          className="gap-2 -ml-2 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setSelectMode(true)}
+          className="gap-2 text-muted-foreground"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Trocar funcionário
+        </Button>
+      </div>
 
       {/* Progress */}
       <div className="flex items-center justify-between mb-6">
