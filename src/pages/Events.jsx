@@ -163,7 +163,7 @@ export default function Events() {
       ) : (
         <div className="space-y-8">
           {activeEvents.length > 0 && (
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3">
               {activeEvents.map((event) => (
                 <EventCard
                   key={event.id}
@@ -186,7 +186,7 @@ export default function Events() {
                 </span>
                 <div className="h-px flex-1 bg-border" />
               </div>
-              <div className="grid gap-3 opacity-70 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-3 opacity-70">
                 {finishedEvents.map((event) => (
                   <EventCard
                     key={event.id}
