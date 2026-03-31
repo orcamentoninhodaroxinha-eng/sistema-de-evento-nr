@@ -115,7 +115,7 @@ export default function EventScale({ event, employees, onBack }) {
     setPhotoConfirmed(false);
     setSaving(false);
     setSelectMode(true);
-    toast({ title: `${empName} registrado!`, duration: 2000 });
+    toast({ title: `${empName} registrado!`, duration: 1000 });
   };
 
   const toBase64FromUrl = async (url) => {
