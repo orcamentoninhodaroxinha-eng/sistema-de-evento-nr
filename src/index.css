@@ -4,6 +4,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Auto dark mode detection */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+  html:not(.light) {
+    @apply dark;
+  }
+}
+
 @layer base {
   :root {
     --font-inter: 'Inter', sans-serif;
@@ -71,6 +81,11 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  /* Disable text selection on interactive elements for native feel */
+  button, [role="button"], a, input[type="checkbox"], input[type="radio"], label {
+    -webkit-user-select: none;
+    user-select: none;
   }
   .pb-safe {
     padding-bottom: calc(4rem + env(safe-area-inset-bottom));
