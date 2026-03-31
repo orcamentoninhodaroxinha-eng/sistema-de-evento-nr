@@ -2,6 +2,8 @@ import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { ArrowLeft, CheckCircle, FileDown, Loader2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import SignaturePad from "./SignaturePad";
 import CameraCapture from "./CameraCapture";
@@ -18,6 +20,7 @@ export default function EventScale({ event, employees, onBack }) {
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
   const [signatureUrl, setSignatureUrl] = useState(null);
   const [photoUrl, setPhotoUrl] = useState(null);
+  const [valor, setValor] = useState("");
   const [saving, setSaving] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
 
@@ -55,6 +58,7 @@ export default function EventScale({ event, employees, onBack }) {
       ...current,
       signatureUrl: sUrl,
       photoUrl: pUrl,
+      valor,
     };
 
     const empName = current.full_name;
@@ -64,6 +68,7 @@ export default function EventScale({ event, employees, onBack }) {
     setPhotoFile(null);
     setSignatureConfirmed(false);
     setPhotoConfirmed(false);
+    setValor("");
     setSaving(false);
     toast({ title: `${empName} registrado!` });
   };
@@ -108,11 +113,12 @@ export default function EventScale({ event, employees, onBack }) {
         y = 20;
       }
 
+      const cardHeight = 90;
       // Card background
       doc.setFillColor(248, 248, 252);
-      doc.roundedRect(margin, y, pageW - margin * 2, 52, 3, 3, "F");
+      doc.roundedRect(margin, y, pageW - margin * 2, cardHeight, 3, 3, "F");
       doc.setDrawColor(220, 220, 235);
-      doc.roundedRect(margin, y, pageW - margin * 2, 52, 3, 3, "S");
+      doc.roundedRect(margin, y, pageW - margin * 2, cardHeight, 3, 3, "S");
 
       // Photo
       if (emp.photoUrl) {
@@ -132,22 +138,33 @@ export default function EventScale({ event, employees, onBack }) {
       doc.setTextColor(100, 100, 120);
       doc.text(`${emp.role}  |  ${emp.department || ""}`, margin + 28, y + 19);
 
+      // Declaration text
+      const dateStr2 = event.date
+        ? format(new Date(event.date), "dd/MM/yyyy")
+        : "___/___/______";
+      const declaration = `${emp.full_name}, aqui denominado Free Lancer, Declaro ter Recebido da empresa Ninho da Roxinha Eventos, a quantia de R$ ${emp.valor || "________"}, referente prestação de serviços - Extras no evento do dia ${dateStr2} (${event.name}) e declaro ainda não haver de minha parte nenhuma obrigação de serviços solicitada esporadicamente, sendo a mim facultada decisão de aceitar ou não o serviço e Horários propostos. Sem mais para o momento, firmo o presente.`;
+      doc.setFontSize(7.5);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(50, 50, 70);
+      const lines = doc.splitTextToSize(declaration, pageW - margin * 2 - 28);
+      doc.text(lines, margin + 28, y + 26);
+
       // Signature
       if (emp.signatureUrl) {
         try {
           const sigData = await toBase64FromUrl(emp.signatureUrl);
-          doc.addImage(sigData, "PNG", margin + 28, y + 24, 50, 20, undefined, "FAST");
+          doc.addImage(sigData, "PNG", margin + 3, y + cardHeight - 28, 50, 18, undefined, "FAST");
         } catch (e) {}
       }
 
       // Line under signature
       doc.setDrawColor(180, 180, 200);
-      doc.line(margin + 28, y + 46, margin + 78, y + 46);
+      doc.line(margin + 3, y + cardHeight - 10, margin + 55, y + cardHeight - 10);
       doc.setFontSize(7);
       doc.setTextColor(150, 150, 170);
-      doc.text("Assinatura", margin + 48, y + 50, { align: "center" });
+      doc.text("Assinatura", margin + 29, y + cardHeight - 6, { align: "center" });
 
-      y += 58;
+      y += cardHeight + 6;
     }
 
     // Footer
@@ -243,6 +260,18 @@ export default function EventScale({ event, employees, onBack }) {
             <h2 className="text-lg font-bold">{current.full_name}</h2>
             <p className="text-sm text-muted-foreground">{current.role} · {current.department}</p>
           </div>
+        </div>
+
+        {/* Valor */}
+        <div>
+          <Label htmlFor="valor" className="text-sm font-medium">Valor Recebido (R$)</Label>
+          <Input
+            id="valor"
+            placeholder="Ex: 200,00"
+            value={valor}
+            onChange={(e) => setValor(e.target.value)}
+            className="mt-1.5"
+          />
         </div>
 
         <SignaturePad key={`sig-${current.id}`} onSave={handleSignatureSave} />
