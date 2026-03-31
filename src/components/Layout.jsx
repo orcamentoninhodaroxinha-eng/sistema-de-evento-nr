@@ -1,16 +1,12 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 import { CalendarDays, Trash2 } from "lucide-react";
 
 export default function Layout() {
-  const location = useLocation();
-
-  const isEventRoute = location.pathname.startsWith("/events/");
 
   return (
     <div className="min-h-screen bg-background flex flex-col" style={{ paddingTop: "env(safe-area-inset-top)" }}>
-      {/* Header — only show on main screens */}
-      {!isEventRoute && (
-        <header className="sticky top-0 z-50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-b border-border/50 shadow-sm shadow-black/5">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-b border-border/50 shadow-sm shadow-black/5">
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3 group">
               <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform">
@@ -27,7 +23,6 @@ export default function Layout() {
             </Link>
           </div>
         </header>
-      )}
 
       {/* Main content */}
       <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-safe">
@@ -36,9 +31,8 @@ export default function Layout() {
         </div>
       </main>
 
-      {/* Bottom Nav — only show on main screens */}
-      {!isEventRoute && (
-        <nav
+      {/* Bottom Nav */}
+      <nav
           className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-t border-border/50"
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
@@ -63,7 +57,6 @@ export default function Layout() {
             </Link>
           </div>
         </nav>
-      )}
     </div>
   );
 }

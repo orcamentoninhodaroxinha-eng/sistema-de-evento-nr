@@ -129,7 +129,7 @@ export default function Events() {
     <PullToRefresh onRefresh={() => queryClient.invalidateQueries(["events"])}>
     <div>
       <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex flex-col justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
               Eventos
