@@ -14,16 +14,17 @@ import jsPDF from "jspdf";
 export default function EventScale({ event, employees, onBack }) {
   const getGroup = (emp) => {
     const role = (emp.role || "").toLowerCase();
-    if (role.includes("cozinha") || role.includes("cozinheiro") || role.includes("auxiliar de cozinha")) return "cozinha";
-    if (role.includes("segurança") || role.includes("seguranca")) return "seguranca";
+    if (
+      role.includes("cozinha") || role.includes("cozinheiro") ||
+      role.includes("ajudante") || role.includes("auxiliar")
+    ) return "cozinha";
     return "salao";
   };
 
-  const GROUP_ORDER = { cozinha: 0, salao: 1, seguranca: 2 };
+  const GROUP_ORDER = { cozinha: 0, salao: 1 };
   const GROUP_CONFIG = {
-    cozinha:   { label: "🍳 Cozinha",    color: "bg-orange-50 border-orange-200 text-orange-700" },
-    salao:     { label: "🍽️ Salão",       color: "bg-blue-50 border-blue-200 text-blue-700" },
-    seguranca: { label: "🛡️ Segurança",  color: "bg-slate-50 border-slate-300 text-slate-700" },
+    cozinha: { label: "🍳 Cozinha & Ajudantes", color: "bg-orange-50 border-orange-200 text-orange-700" },
+    salao:   { label: "🍽️ Salão & Segurança",   color: "bg-blue-50 border-blue-200 text-blue-700" },
   };
 
   const sortedEmployees = [...employees].sort((a, b) => {
