@@ -12,7 +12,9 @@ import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
 
 export default function EventScale({ event, employees, onBack }) {
-  const [pending, setPending] = useState([...employees]);
+  const [pending, setPending] = useState(
+    employees.map((emp, i) => ({ ...emp, _key: emp.id || `${emp.full_name}-${i}` }))
+  );
   const [completed, setCompleted] = useState([]);
   const [signatureFile, setSignatureFile] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
@@ -281,7 +283,7 @@ export default function EventScale({ event, employees, onBack }) {
           </div>
         )}
 
-        <SignaturePad key={`sig-${current.id}`} onSave={handleSignatureSave} />
+        <SignaturePad key={`sig-${current._key}`} onSave={handleSignatureSave} />
 
         {signatureConfirmed && (
           <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 rounded-lg px-4 py-2 border border-emerald-200">
@@ -290,7 +292,7 @@ export default function EventScale({ event, employees, onBack }) {
           </div>
         )}
 
-        <CameraCapture key={`cam-${current.id}`} onCapture={handlePhotoCapture} />
+        <CameraCapture key={`cam-${current._key}`} onCapture={handlePhotoCapture} />
 
         {photoConfirmed && (
           <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 rounded-lg px-4 py-2 border border-emerald-200">
@@ -319,7 +321,7 @@ export default function EventScale({ event, employees, onBack }) {
           <p className="text-xs text-muted-foreground font-medium mb-2 uppercase tracking-wide">Aguardando</p>
           <div className="space-y-2">
             {pending.slice(1).map((emp) => (
-              <div key={emp.id} className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div key={emp._key} className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="w-6 h-6 rounded-md bg-muted flex items-center justify-center text-xs font-bold">
                   {emp.full_name?.charAt(0).toUpperCase()}
                 </div>
