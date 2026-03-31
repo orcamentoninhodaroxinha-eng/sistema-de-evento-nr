@@ -3,7 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, MapPin, CalendarDays, FileText, Users,
-  Plus, X, Search, Loader2, UserCheck, CheckCircle2, ShieldCheck, PlayCircle
+  Plus, X, Search, Loader2, UserCheck, CheckCircle2, ShieldCheck, PlayCircle,
+  Paperclip, ExternalLink, Upload
 } from "lucide-react";
 import EventScale from "./EventScale";
 import { format } from "date-fns";
@@ -25,6 +26,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [teamConfirmed, setTeamConfirmed] = useState(event.team_confirmed || false);
   const [confirming, setConfirming] = useState(false);
   const [showScale, setShowScale] = useState(false);
+  const [scalePdfUrl, setScalePdfUrl] = useState(event.scale_pdf_url || "");
+  const [uploadingPdf, setUploadingPdf] = useState(false);
 
   const { data: allEmployees } = useQuery({
     queryKey: ["employees"],
@@ -36,6 +39,19 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const assignedEmployees = (allEmployees || []).filter(emp => 
     eventEmployeeIds.includes(emp.id)
   );
+
+  const handlePdfUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingPdf(true);
+    const res = await base44.integrations.Core.UploadFile({ file });
+    await base44.entities.Event.update(event.id, { scale_pdf_url: res.file_url });
+    event.scale_pdf_url = res.file_url;
+    setScalePdfUrl(res.file_url);
+    onRefresh();
+    setUploadingPdf(false);
+    toast({ title: "PDF da escala anexado!" });
+  };
 
   if (showScale) {
     return (
@@ -266,6 +282,49 @@ export default function EventDetail({ event, onBack, onRefresh }) {
             )}
             {confirming ? "Confirmando..." : "Confirmar Equipe do Evento"}
           </Button>
+        )}
+      </div>
+
+      {/* PDF da Escala */}
+      <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
+        <div className="flex items-center gap-2 mb-3">
+          <Paperclip className="w-5 h-5 text-primary" />
+          <h2 className="font-semibold">PDF da Escala</h2>
+        </div>
+
+        {scalePdfUrl ? (
+          <div className="flex items-center gap-3">
+            <div className="flex-1 flex items-center gap-2 bg-muted/60 rounded-xl px-4 py-3">
+              <FileText className="w-4 h-4 text-primary shrink-0" />
+              <span className="text-sm truncate text-muted-foreground">Escala anexada</span>
+            </div>
+            <a
+              href={scalePdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 h-10 px-4 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:opacity-90"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Abrir
+            </a>
+            <label className="cursor-pointer inline-flex items-center gap-2 h-10 px-4 border border-border rounded-xl text-sm font-medium hover:bg-muted transition-colors">
+              <Upload className="w-4 h-4" />
+              Trocar
+              <input type="file" accept="application/pdf" className="hidden" onChange={handlePdfUpload} />
+            </label>
+          </div>
+        ) : (
+          <label className="cursor-pointer flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-xl py-6 hover:border-primary/40 hover:bg-accent/30 transition-colors">
+            {uploadingPdf ? (
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            ) : (
+              <Upload className="w-6 h-6 text-muted-foreground" />
+            )}
+            <p className="text-sm text-muted-foreground">
+              {uploadingPdf ? "Enviando..." : "Clique para anexar o PDF da escala"}
+            </p>
+            <input type="file" accept="application/pdf" className="hidden" onChange={handlePdfUpload} disabled={uploadingPdf} />
+          </label>
         )}
       </div>
 

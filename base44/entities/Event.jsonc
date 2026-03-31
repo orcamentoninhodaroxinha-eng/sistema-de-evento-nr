@@ -41,6 +41,10 @@
       "type": "boolean",
       "title": "Equipe Confirmada",
       "default": false
+    },
+    "scale_pdf_url": {
+      "type": "string",
+      "title": "PDF da Escala"
     }
   },
   "required": [
