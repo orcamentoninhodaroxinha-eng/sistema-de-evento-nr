@@ -23,18 +23,14 @@ export default function EventScale({ event, employees, onBack }) {
 
   const current = pending[0];
 
-  const handleSignatureSave = async (file) => {
+  const handleSignatureSave = (file) => {
     setSignatureFile(file);
     setSignatureConfirmed(true);
-    const res = await base44.integrations.Core.UploadFile({ file });
-    setSignatureUrl(res.file_url);
   };
 
-  const handlePhotoCapture = async (file) => {
+  const handlePhotoCapture = (file) => {
     setPhotoFile(file);
     setPhotoConfirmed(true);
-    const res = await base44.integrations.Core.UploadFile({ file });
-    setPhotoUrl(res.file_url);
   };
 
   const handleConfirmEmployee = async () => {
@@ -43,21 +39,33 @@ export default function EventScale({ event, employees, onBack }) {
       return;
     }
     setSaving(true);
+
+    let sUrl = "";
+    let pUrl = "";
+    if (signatureFile) {
+      const res = await base44.integrations.Core.UploadFile({ file: signatureFile });
+      sUrl = res.file_url;
+    }
+    if (photoFile) {
+      const res = await base44.integrations.Core.UploadFile({ file: photoFile });
+      pUrl = res.file_url;
+    }
+
     const record = {
       ...current,
-      signatureUrl,
-      photoUrl,
+      signatureUrl: sUrl,
+      photoUrl: pUrl,
     };
+
+    const empName = current.full_name;
     setCompleted((prev) => [...prev, record]);
     setPending((prev) => prev.slice(1));
     setSignatureFile(null);
     setPhotoFile(null);
     setSignatureConfirmed(false);
     setPhotoConfirmed(false);
-    setSignatureUrl(null);
-    setPhotoUrl(null);
     setSaving(false);
-    toast({ title: `${current.full_name} registrado!` });
+    toast({ title: `${empName} registrado!` });
   };
 
   const toBase64FromUrl = async (url) => {
