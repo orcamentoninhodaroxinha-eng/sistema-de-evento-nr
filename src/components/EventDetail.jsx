@@ -3,8 +3,9 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, MapPin, CalendarDays, FileText, Users,
-  Plus, X, Search, Loader2, UserCheck, CheckCircle2, ShieldCheck
+  Plus, X, Search, Loader2, UserCheck, CheckCircle2, ShieldCheck, PlayCircle
 } from "lucide-react";
+import EventScale from "./EventScale";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [saving, setSaving] = useState(false);
   const [teamConfirmed, setTeamConfirmed] = useState(event.team_confirmed || false);
   const [confirming, setConfirming] = useState(false);
+  const [showScale, setShowScale] = useState(false);
 
   const { data: allEmployees } = useQuery({
     queryKey: ["employees"],
@@ -34,6 +36,16 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const assignedEmployees = (allEmployees || []).filter(emp => 
     eventEmployeeIds.includes(emp.id)
   );
+
+  if (showScale) {
+    return (
+      <EventScale
+        event={event}
+        employees={assignedEmployees}
+        onBack={() => setShowScale(false)}
+      />
+    );
+  }
 
   const availableEmployees = (allEmployees || []).filter(emp => 
     !eventEmployeeIds.includes(emp.id) &&
@@ -256,6 +268,19 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           </Button>
         )}
       </div>
+
+      {/* Start Scale Button */}
+      {teamConfirmed && (
+        <div className="mt-4">
+          <Button
+            onClick={() => setShowScale(true)}
+            className="w-full h-14 text-base font-semibold rounded-2xl gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30 hover:opacity-90"
+          >
+            <PlayCircle className="w-6 h-6" />
+            Iniciar Escala (Assinaturas & Fotos)
+          </Button>
+        </div>
+      )}
 
       {/* Add Employee Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
