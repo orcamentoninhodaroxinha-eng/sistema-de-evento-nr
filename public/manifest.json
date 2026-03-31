@@ -26,6 +26,12 @@
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "https://media.base44.com/images/public/69cbd80727489d185bf14962/cb2dd031c_images.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [
@@ -34,14 +40,20 @@
       "sizes": "540x720",
       "type": "image/png",
       "form_factor": "narrow"
+    },
+    {
+      "src": "https://media.base44.com/images/public/69cbd80727489d185bf14962/cb2dd031c_images.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
     }
   ],
   "shortcuts": [
     {
-      "name": "Novo Evento",
-      "short_name": "Novo",
-      "description": "Criar um novo evento",
-      "url": "/events/new",
+      "name": "Eventos",
+      "short_name": "Eventos",
+      "description": "Ver lista de eventos",
+      "url": "/",
       "icons": [
         {
           "src": "https://media.base44.com/images/public/69cbd80727489d185bf14962/cb2dd031c_images.png",
