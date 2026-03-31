@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import PullToRefresh from "@/components/PullToRefresh";
+import PageTransition from "@/components/PageTransition";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
@@ -123,6 +125,8 @@ export default function Events() {
   const finishedEvents = filtered.filter(ev => ev.status === "Concluído");
 
   return (
+    <PageTransition>
+    <PullToRefresh onRefresh={() => queryClient.invalidateQueries(["events"])}>
     <div>
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -208,5 +212,7 @@ export default function Events() {
         </div>
       )}
     </div>
+    </PullToRefresh>
+    </PageTransition>
   );
 }

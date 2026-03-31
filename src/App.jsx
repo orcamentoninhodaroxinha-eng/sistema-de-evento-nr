@@ -7,6 +7,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import LoginGate from './components/LoginGate';
 import Layout from './components/Layout';
 import Events from './pages/Events';
+import AccountDeletion from './pages/AccountDeletion';
 import EventDetailPage from './pages/EventDetailPage';
 import EventFormPage from './pages/EventFormPage';
 
@@ -22,6 +23,7 @@ function App() {
               <Route path="/events/new" element={<EventFormPage />} />
               <Route path="/events/:id" element={<EventDetailPage />} />
               <Route path="/events/:id/edit" element={<EventFormPage />} />
+              <Route path="/account/delete" element={<AccountDeletion />} />
             </Route>
           </Routes>
         </Router>
