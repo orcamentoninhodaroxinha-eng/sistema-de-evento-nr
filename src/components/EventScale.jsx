@@ -274,16 +274,12 @@ export default function EventScale({ event, employees, onBack }) {
         </div>
 
         {/* Valor */}
-        <div>
-          <Label htmlFor="valor" className="text-sm font-medium">Valor Recebido (R$)</Label>
-          <Input
-            id="valor"
-            placeholder="Ex: 200,00"
-            value={valor}
-            onChange={(e) => setValor(e.target.value)}
-            className="mt-1.5"
-          />
-        </div>
+        {current.valor && (
+          <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+            <span className="text-sm font-medium text-emerald-800">Valor do Serviço</span>
+            <span className="text-lg font-bold text-emerald-700">R$ {current.valor}</span>
+          </div>
+        )}
 
         <SignaturePad key={`sig-${current.id}`} onSave={handleSignatureSave} />
 
