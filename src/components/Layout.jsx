@@ -11,7 +11,7 @@ export default function Layout() {
             <Link to="/" className="flex items-center gap-3 group">
               <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform">
                 <img
-                  src="https://media.base44.com/images/public/69cbd80727489d185bf14962/cb2dd031c_images.png"
+                  src="https://media.base44.com/images/public/69cbd80727489d185bf14962/7cb5516e1_download.png"
                   alt="Ninho da Roxinha"
                   className="w-full h-full object-cover"
                 />
