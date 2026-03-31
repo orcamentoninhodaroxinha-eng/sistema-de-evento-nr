@@ -187,8 +187,9 @@ export default function EventScale({ event, employees, onBack }) {
     }
 
     doc.save(`recibos_${event.name.replace(/\s+/g, "_")}.pdf`);
+    await base44.entities.Event.update(event.id, { status: "Concluído" });
     setGeneratingPdf(false);
-    toast({ title: "PDF gerado com sucesso!" });
+    toast({ title: "PDF gerado e evento finalizado!" });
   };
 
   // All done
