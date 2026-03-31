@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import PullToRefresh from "@/components/PullToRefresh";
 import PageTransition from "@/components/PageTransition";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import {
   CalendarDays, MapPin, Users, Search, Loader2,
@@ -90,6 +91,7 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish }) {
 
 export default function Events() {
   const [search, setSearch] = useState("");
+  const [activeTab, setActiveTab] = useState("proximos");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -151,32 +153,45 @@ export default function Events() {
           <Loader2 className="w-7 h-7 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="space-y-8">
-          {activeEvents.length > 0 && (
-            <div className="grid gap-3">
-              {activeEvents.map((event) => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  onClick={() => navigate(`/events/${event.id}`, { state: { event } })}
-                  onEdit={(ev) => navigate(`/events/${ev.id}/edit`, { state: { event: ev } })}
-                  onDelete={handleDelete}
-                  onFinish={handleFinish}
-                />
-              ))}
-            </div>
-          )}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="proximos" className="flex items-center gap-2">
+              Próximos Eventos
+              {activeEvents.length > 0 && <span className="text-xs font-semibold bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center">{activeEvents.length}</span>}
+            </TabsTrigger>
+            <TabsTrigger value="concluidos" className="flex items-center gap-2">
+              Concluídos
+              {finishedEvents.length > 0 && <span className="text-xs font-semibold bg-muted text-muted-foreground rounded-full w-5 h-5 flex items-center justify-center">{finishedEvents.length}</span>}
+            </TabsTrigger>
+          </TabsList>
 
-          {finishedEvents.length > 0 && (
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-px flex-1 bg-border" />
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-2">
-                  Eventos Finalizados ({finishedEvents.length})
-                </span>
-                <div className="h-px flex-1 bg-border" />
+          <TabsContent value="proximos" className="space-y-3">
+            {activeEvents.length > 0 ? (
+              <div className="grid gap-3">
+                {activeEvents.map((event) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    onClick={() => navigate(`/events/${event.id}`, { state: { event } })}
+                    onEdit={(ev) => navigate(`/events/${ev.id}/edit`, { state: { event: ev } })}
+                    onDelete={handleDelete}
+                    onFinish={handleFinish}
+                  />
+                ))}
               </div>
-              <div className="grid gap-3 opacity-70">
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center mb-4">
+                  <CalendarDays className="w-8 h-8 text-primary/40" />
+                </div>
+                <h3 className="font-semibold text-lg">Nenhum evento agendado</h3>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="concluidos" className="space-y-3">
+            {finishedEvents.length > 0 ? (
+              <div className="grid gap-3">
                 {finishedEvents.map((event) => (
                   <EventCard
                     key={event.id}
@@ -188,18 +203,16 @@ export default function Events() {
                   />
                 ))}
               </div>
-            </div>
-          )}
-
-          {activeEvents.length === 0 && finishedEvents.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center mb-4">
-                <CalendarDays className="w-8 h-8 text-primary/40" />
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center mb-4">
+                  <CalendarDays className="w-8 h-8 text-primary/40" />
+                </div>
+                <h3 className="font-semibold text-lg">Nenhum evento concluído</h3>
               </div>
-              <h3 className="font-semibold text-lg">Nenhum evento encontrado</h3>
-            </div>
-          )}
-        </div>
+            )}
+          </TabsContent>
+        </Tabs>
       )}
     </div>
     </PullToRefresh>
