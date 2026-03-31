@@ -1,91 +1,60 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { Users, UserPlus, Menu, X, CalendarDays } from "lucide-react";
-import { useState } from "react";
+import { CalendarDays } from "lucide-react";
 
 export default function Layout() {
   const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navItems = [
-    { path: "/", label: "Eventos", icon: CalendarDays },
-  ];
+  const isEventRoute = location.pathname.startsWith("/events/");
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-2xl border-b border-border/50 shadow-sm shadow-black/5">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform">
-              <img src="https://media.base44.com/images/public/69cbd80727489d185bf14962/525f1e0b3_generated_image.png" alt="Ninho da Roxinha" className="w-full h-full object-cover" />
-            </div>
-            <div className="hidden sm:block">
-              <span className="font-bold text-base tracking-tight text-foreground">Ninho da Roxinha</span>
-              <p className="text-[10px] text-muted-foreground leading-none -mt-0.5">Sistema de Confirmação de Evento</p>
-            </div>
-          </Link>
-
-          {/* Desktop Nav */}
-          <nav className="hidden sm:flex items-center gap-1 bg-muted/60 rounded-xl p-1">
-            {navItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? "bg-white text-foreground shadow-sm shadow-black/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-white/60"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="sm:hidden p-2 rounded-xl hover:bg-accent transition-colors"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
-
-        {/* Mobile Nav */}
-        {mobileMenuOpen && (
-          <div className="sm:hidden border-t border-border/50 bg-white/90 backdrop-blur-xl px-4 py-3 space-y-1">
-            {navItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                    isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {item.label}
-                </Link>
-              );
-            })}
+    <div className="min-h-screen bg-background flex flex-col" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+      {/* Header — only show on main screens */}
+      {!isEventRoute && (
+        <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-2xl border-b border-border/50 shadow-sm shadow-black/5">
+          <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform">
+                <img
+                  src="https://media.base44.com/images/public/69cbd80727489d185bf14962/525f1e0b3_generated_image.png"
+                  alt="Ninho da Roxinha"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <span className="font-bold text-base tracking-tight text-foreground">Ninho da Roxinha</span>
+                <p className="text-[10px] text-muted-foreground leading-none -mt-0.5">Sistema de Confirmação de Evento</p>
+              </div>
+            </Link>
           </div>
-        )}
-      </header>
+        </header>
+      )}
 
-      {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      {/* Main content */}
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 pb-safe">
         <Outlet />
       </main>
+
+      {/* Bottom Nav — only show on main screens */}
+      {!isEventRoute && (
+        <nav
+          className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-t border-border/50"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
+          <div className="flex items-center justify-around h-16 max-w-5xl mx-auto">
+            <Link
+              to="/"
+              className={`flex flex-col items-center gap-1 px-6 py-2 rounded-xl transition-colors ${
+                location.pathname === "/"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <CalendarDays className="w-5 h-5" />
+              <span className="text-[11px] font-medium">Eventos</span>
+            </Link>
+          </div>
+        </nav>
+      )}
     </div>
   );
 }

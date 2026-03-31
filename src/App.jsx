@@ -7,9 +7,9 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './components/Layout';
 import LoginGate from './components/LoginGate';
-import EmployeeList from './pages/EmployeeList';
-import EmployeeRegister from './pages/EmployeeRegister';
 import Events from './pages/Events';
+import EventDetailPage from './pages/EventDetailPage';
+import EventFormPage from './pages/EventFormPage';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -39,7 +39,9 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Events />} />
-        <Route path="*" element={<PageNotFound />} />
+        <Route path="/events/new" element={<EventFormPage />} />
+        <Route path="/events/:id" element={<EventDetailPage />} />
+        <Route path="/events/:id/edit" element={<EventFormPage />} />
       </Route>
     </Routes>
   );

@@ -81,4 +81,5 @@ module.exports = {
   	}
   },
   plugins: [require("tailwindcss-animate")],
+  safelist: ['pb-safe'],
 }

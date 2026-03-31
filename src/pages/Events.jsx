@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { 
-  CalendarDays, Plus, MapPin, Users, Search, Loader2, 
+import { useNavigate } from "react-router-dom";
+import {
+  CalendarDays, Plus, MapPin, Users, Search, Loader2,
   ChevronRight, MoreVertical, Trash2, Edit, CheckCircle2
 } from "lucide-react";
 import { format } from "date-fns";
@@ -15,13 +16,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import EventForm from "../components/EventForm";
-import EventDetail from "../components/EventDetail";
 
-function EventCard({ event, statusColors, onSelect, onEdit, onDelete, onFinish }) {
+const statusColors = {
+  "Planejado": "bg-blue-50 text-blue-700 border-blue-200",
+  "Em Andamento": "bg-amber-50 text-amber-700 border-amber-200",
+  "Concluído": "bg-emerald-50 text-emerald-700 border-emerald-200",
+  "Cancelado": "bg-slate-50 text-slate-500 border-slate-200",
+};
+
+function EventCard({ event, onClick, onEdit, onDelete, onFinish }) {
   return (
     <button
-      onClick={() => onSelect(event)}
+      onClick={onClick}
       className="w-full text-left bg-white rounded-2xl border border-border/60 p-4 hover:shadow-xl hover:shadow-black/5 hover:-translate-y-0.5 hover:border-primary/20 transition-all duration-300 group"
     >
       <div className="flex items-center gap-4">
@@ -34,7 +40,7 @@ function EventCard({ event, statusColors, onSelect, onEdit, onDelete, onFinish }
           </span>
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
               {event.name}
             </h3>
@@ -62,7 +68,7 @@ function EventCard({ event, statusColors, onSelect, onEdit, onDelete, onFinish }
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={(e) => onEdit(event, e)}>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(event); }}>
               <Edit className="w-4 h-4 mr-2" />
               Editar
             </DropdownMenuItem>
@@ -72,7 +78,7 @@ function EventCard({ event, statusColors, onSelect, onEdit, onDelete, onFinish }
                 Finalizar Evento
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={(e) => onDelete(event, e)} className="text-destructive">
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDelete(event); }} className="text-destructive">
               <Trash2 className="w-4 h-4 mr-2" />
               Excluir
             </DropdownMenuItem>
@@ -86,9 +92,7 @@ function EventCard({ event, statusColors, onSelect, onEdit, onDelete, onFinish }
 
 export default function Events() {
   const [search, setSearch] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [editingEvent, setEditingEvent] = useState(null);
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { data: events, isLoading } = useQuery({
@@ -96,18 +100,11 @@ export default function Events() {
     queryFn: () => base44.entities.Event.list("-date", 100),
   });
 
-  const handleDelete = async (event, e) => {
-    e.stopPropagation();
+  const handleDelete = async (event) => {
     if (confirm(`Excluir o evento "${event.name}"?`)) {
       await base44.entities.Event.delete(event.id);
       queryClient.invalidateQueries(["events"]);
     }
-  };
-
-  const handleEdit = (event, e) => {
-    e.stopPropagation();
-    setEditingEvent(event);
-    setShowForm(true);
   };
 
   const handleFinish = async (event) => {
@@ -119,64 +116,24 @@ export default function Events() {
 
   const filtered = (events || []).filter((ev) => {
     const q = search.toLowerCase();
-    return (
-      ev.name?.toLowerCase().includes(q) ||
-      ev.location?.toLowerCase().includes(q)
-    );
+    return ev.name?.toLowerCase().includes(q) || ev.location?.toLowerCase().includes(q);
   });
 
   const activeEvents = filtered.filter(ev => ev.status !== "Concluído");
   const finishedEvents = filtered.filter(ev => ev.status === "Concluído");
 
-  const statusColors = {
-    "Planejado": "bg-blue-50 text-blue-700 border-blue-200",
-    "Em Andamento": "bg-amber-50 text-amber-700 border-amber-200",
-    "Concluído": "bg-emerald-50 text-emerald-700 border-emerald-200",
-    "Cancelado": "bg-slate-50 text-slate-500 border-slate-200",
-  };
-
-  if (showForm) {
-    return (
-      <EventForm 
-        event={editingEvent}
-        onClose={() => {
-          setShowForm(false);
-          setEditingEvent(null);
-        }} 
-        onSave={() => {
-          queryClient.invalidateQueries(["events"]);
-          setShowForm(false);
-          setEditingEvent(null);
-        }}
-      />
-    );
-  }
-
-  if (selectedEvent) {
-    return (
-      <EventDetail 
-        event={selectedEvent} 
-        onBack={() => setSelectedEvent(null)}
-        onRefresh={() => queryClient.invalidateQueries(["events"])}
-      />
-    );
-  }
-
   return (
     <div>
-      {/* Header */}
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
               Eventos
             </h1>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Gerencie eventos e aloque funcionários
-            </p>
+            <p className="text-muted-foreground mt-1 text-sm">Gerencie eventos e aloque funcionários</p>
           </div>
           <Button
-            onClick={() => setShowForm(true)}
+            onClick={() => navigate("/events/new")}
             className="gap-2 h-11 px-6 bg-gradient-to-r from-primary to-purple-600 rounded-xl font-semibold shadow-lg shadow-primary/30"
           >
             <Plus className="w-4 h-4" />
@@ -185,7 +142,6 @@ export default function Events() {
         </div>
       </div>
 
-      {/* Search */}
       <div className="relative mb-5">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
@@ -196,7 +152,6 @@ export default function Events() {
         />
       </div>
 
-      {/* List */}
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-7 h-7 animate-spin text-primary" />
@@ -204,20 +159,17 @@ export default function Events() {
       ) : (
         <div className="space-y-8">
           {activeEvents.length > 0 && (
-            <div>
-              <div className="grid gap-3">
-                {activeEvents.map((event) => (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    statusColors={statusColors}
-                    onSelect={setSelectedEvent}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    onFinish={handleFinish}
-                  />
-                ))}
-              </div>
+            <div className="grid gap-3">
+              {activeEvents.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onClick={() => navigate(`/events/${event.id}`, { state: { event } })}
+                  onEdit={(ev) => navigate(`/events/${ev.id}/edit`, { state: { event: ev } })}
+                  onDelete={handleDelete}
+                  onFinish={handleFinish}
+                />
+              ))}
             </div>
           )}
 
@@ -235,9 +187,8 @@ export default function Events() {
                   <EventCard
                     key={event.id}
                     event={event}
-                    statusColors={statusColors}
-                    onSelect={setSelectedEvent}
-                    onEdit={handleEdit}
+                    onClick={() => navigate(`/events/${event.id}`, { state: { event } })}
+                    onEdit={(ev) => navigate(`/events/${ev.id}/edit`, { state: { event: ev } })}
                     onDelete={handleDelete}
                     onFinish={handleFinish}
                   />
