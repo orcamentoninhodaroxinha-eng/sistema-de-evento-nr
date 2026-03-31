@@ -30,6 +30,9 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [uploadingPdf, setUploadingPdf] = useState(false);
   const [pdfEmployees, setPdfEmployees] = useState([]);
   const [extractingPdf, setExtractingPdf] = useState(false);
+  const [pdfReviewMode, setPdfReviewMode] = useState(false);
+  const [showAddPdfDialog, setShowAddPdfDialog] = useState(false);
+  const [searchPdfEmployee, setSearchPdfEmployee] = useState("");
 
   const { data: allEmployees } = useQuery({
     queryKey: ["employees"],
@@ -331,8 +334,59 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         )}
       </div>
 
-      {/* Start Scale Button */}
-      {(teamConfirmed || scalePdfUrl) && (
+      {/* PDF Review Mode */}
+      {pdfReviewMode && (
+        <div className="mt-6 bg-card rounded-2xl border border-border p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
+              <h2 className="font-semibold text-lg">Funcionários da Escala</h2>
+              <span className="text-sm text-muted-foreground">({pdfEmployees.length})</span>
+            </div>
+            <Button size="sm" onClick={() => setShowAddPdfDialog(true)} className="gap-2 rounded-xl">
+              <Plus className="w-4 h-4" />
+              Adicionar
+            </Button>
+          </div>
+
+          <div className="space-y-2 mb-5">
+            {pdfEmployees.map((emp, idx) => (
+              <div key={emp.id || `pdf-${idx}`} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 group">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center shrink-0">
+                  <span className="text-primary font-bold text-sm">{emp.full_name?.charAt(0).toUpperCase()}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{emp.full_name}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {emp.cpf && <span className="text-xs text-muted-foreground">{emp.cpf}</span>}
+                    {emp.valor && <span className="text-xs font-medium text-emerald-600">R$ {emp.valor}</span>}
+                    {emp.role && <span className={`text-xs font-medium px-2 py-0.5 rounded ${roleColors[emp.role] || 'bg-slate-50 text-slate-600'}`}>{emp.role}</span>}
+                  </div>
+                </div>
+                <Button
+                  variant="ghost" size="icon"
+                  onClick={() => setPdfEmployees(prev => prev.filter((_, i) => i !== idx))}
+                  className="opacity-0 group-hover:opacity-100 h-8 w-8 text-muted-foreground hover:text-destructive"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          <Button
+            onClick={() => setShowScale(true)}
+            disabled={pdfEmployees.length === 0}
+            className="w-full h-14 text-base font-semibold rounded-2xl gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30 hover:opacity-90"
+          >
+            <PlayCircle className="w-6 h-6" />
+            Confirmar Todos e Iniciar Escala
+          </Button>
+        </div>
+      )}
+
+      {/* Start Scale Button (when no PDF or already reviewed) */}
+      {!pdfReviewMode && (teamConfirmed || scalePdfUrl) && (
         <div className="mt-4">
           <Button
             onClick={async () => {
@@ -360,7 +414,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 setExtractingPdf(false);
                 if (result?.output?.employees?.length > 0) {
                   setPdfEmployees(result.output.employees);
-                  setShowScale(true);
+                  setPdfReviewMode(true);
                 } else {
                   toast({ title: "Não foi possível extrair os nomes do PDF", variant: "destructive" });
                 }
@@ -434,6 +488,60 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 </button>
               ))
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add to PDF Review Dialog */}
+      <Dialog open={showAddPdfDialog} onOpenChange={setShowAddPdfDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Adicionar à Escala</DialogTitle>
+          </DialogHeader>
+          
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar funcionário..."
+              value={searchPdfEmployee}
+              onChange={(e) => setSearchPdfEmployee(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          <div className="max-h-80 overflow-y-auto space-y-2">
+            {(allEmployees || [])
+              .filter(emp =>
+                emp.full_name?.toLowerCase().includes(searchPdfEmployee.toLowerCase()) ||
+                emp.role?.toLowerCase().includes(searchPdfEmployee.toLowerCase())
+              )
+              .map((emp) => (
+                <button
+                  key={emp.id}
+                  onClick={() => {
+                    setPdfEmployees(prev => [...prev, { full_name: emp.full_name, cpf: emp.cpf, role: emp.role, id: emp.id }]);
+                    setShowAddPdfDialog(false);
+                    setSearchPdfEmployee("");
+                  }}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-accent transition-colors text-left"
+                >
+                  {emp.photo_url ? (
+                    <img src={emp.photo_url} alt={emp.full_name} className="w-10 h-10 rounded-lg object-cover" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center">
+                      <span className="text-primary font-bold text-sm">{emp.full_name?.charAt(0).toUpperCase()}</span>
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{emp.full_name}</p>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded ${roleColors[emp.role] || 'bg-slate-50 text-slate-600'}`}>
+                      {emp.role}
+                    </span>
+                  </div>
+                  <Plus className="w-4 h-4 text-muted-foreground" />
+                </button>
+              ))
+            }
           </div>
         </DialogContent>
       </Dialog>
