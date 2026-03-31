@@ -329,7 +329,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       </div>
 
       {/* Start Scale Button */}
-      {teamConfirmed && (
+      {(teamConfirmed || scalePdfUrl) && (
         <div className="mt-4">
           <Button
             onClick={() => setShowScale(true)}
