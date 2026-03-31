@@ -10,8 +10,8 @@ export default function Layout() {
     <div className="min-h-screen bg-background flex flex-col" style={{ paddingTop: "env(safe-area-inset-top)" }}>
       {/* Header — only show on main screens */}
       {!isEventRoute && (
-        <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-2xl border-b border-border/50 shadow-sm shadow-black/5">
-          <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+        <header className="sticky top-0 z-50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-b border-border/50 shadow-sm shadow-black/5">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3 group">
               <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform">
                 <img
@@ -30,17 +30,19 @@ export default function Layout() {
       )}
 
       {/* Main content */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 pb-safe">
-        <Outlet />
+      <main className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-safe">
+        <div className="max-w-7xl mx-auto">
+          <Outlet />
+        </div>
       </main>
 
       {/* Bottom Nav — only show on main screens */}
       {!isEventRoute && (
         <nav
-          className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-t border-border/50"
+          className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-t border-border/50"
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
-          <div className="flex items-center justify-around h-16 max-w-5xl mx-auto">
+          <div className="flex items-center justify-around h-14 sm:h-16 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Link
               to="/"
               className={`flex flex-col items-center gap-1 px-6 py-2 rounded-xl transition-colors ${

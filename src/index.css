@@ -17,6 +17,9 @@
 @layer base {
   :root {
     --font-inter: 'Inter', sans-serif;
+    --max-content-width: 1200px;
+    --mobile-padding: 1rem;
+    --tablet-padding: 1.5rem;
     --background: 220 25% 96%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
@@ -96,5 +99,21 @@
   }
   body {
     @apply bg-background text-foreground font-inter;
+  }
+  /* Responsive sizing */
+  @media (max-width: 640px) {
+    :root {
+      --mobile-padding: 1rem;
+    }
+  }
+  @media (min-width: 641px) and (max-width: 1024px) {
+    :root {
+      --mobile-padding: 1.5rem;
+    }
+  }
+  @media (min-width: 1025px) {
+    :root {
+      --mobile-padding: 2rem;
+    }
   }
 }
