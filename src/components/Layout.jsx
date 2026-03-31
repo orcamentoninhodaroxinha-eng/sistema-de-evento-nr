@@ -17,12 +17,12 @@ export default function Layout() {
       <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-2xl border-b border-border/50 shadow-sm shadow-black/5">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-md shadow-primary/30 group-hover:scale-105 transition-transform">
-              <Users className="w-4 h-4 text-white" />
+            <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform">
+              <img src="https://media.base44.com/images/public/69cbd80727489d185bf14962/525f1e0b3_generated_image.png" alt="Ninho da Roxinha" className="w-full h-full object-cover" />
             </div>
             <div className="hidden sm:block">
-              <span className="font-bold text-base tracking-tight text-foreground">RH Digital</span>
-              <p className="text-[10px] text-muted-foreground leading-none -mt-0.5">Gestão de Pessoal</p>
+              <span className="font-bold text-base tracking-tight text-foreground">Ninho da Roxinha</span>
+              <p className="text-[10px] text-muted-foreground leading-none -mt-0.5">Sistema de Confirmação de Evento</p>
             </div>
           </Link>
 
