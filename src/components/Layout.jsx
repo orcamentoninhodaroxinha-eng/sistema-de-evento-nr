@@ -14,19 +14,20 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">
+      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-2xl border-b border-border/50 shadow-sm shadow-black/5">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
-              <Users className="w-5 h-5 text-primary-foreground" />
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-md shadow-primary/30 group-hover:scale-105 transition-transform">
+              <Users className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-lg tracking-tight hidden sm:block">
-              RH Digital
-            </span>
+            <div className="hidden sm:block">
+              <span className="font-bold text-base tracking-tight text-foreground">RH Digital</span>
+              <p className="text-[10px] text-muted-foreground leading-none -mt-0.5">Gestão de Pessoal</p>
+            </div>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden sm:flex items-center gap-1">
+          <nav className="hidden sm:flex items-center gap-1 bg-muted/60 rounded-xl p-1">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
@@ -36,8 +37,8 @@ export default function Layout() {
                   to={item.path}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      ? "bg-white text-foreground shadow-sm shadow-black/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-white/60"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -50,7 +51,7 @@ export default function Layout() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="sm:hidden p-2 rounded-lg hover:bg-accent transition-colors"
+            className="sm:hidden p-2 rounded-xl hover:bg-accent transition-colors"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -58,7 +59,7 @@ export default function Layout() {
 
         {/* Mobile Nav */}
         {mobileMenuOpen && (
-          <div className="sm:hidden border-t border-border bg-card px-4 py-3 space-y-1">
+          <div className="sm:hidden border-t border-border/50 bg-white/90 backdrop-blur-xl px-4 py-3 space-y-1">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
@@ -67,10 +68,10 @@ export default function Layout() {
                   key={item.path}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                     isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-accent"
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -83,7 +84,7 @@ export default function Layout() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-4 py-6">
+      <main className="max-w-5xl mx-auto px-4 py-8">
         <Outlet />
       </main>
     </div>

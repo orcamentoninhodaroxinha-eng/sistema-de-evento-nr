@@ -34,33 +34,59 @@ export default function EmployeeList() {
     );
   }
 
+  const counts = {
+    total: employees?.length || 0,
+    salao: employees?.filter(e => e.role === 'Salão').length || 0,
+    cozinha: employees?.filter(e => e.role === 'Cozinha').length || 0,
+    seguranca: employees?.filter(e => e.role === 'Segurança').length || 0,
+  };
+
   return (
     <div>
-      {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Funcionários</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {employees?.length || 0} registros cadastrados
-          </p>
+      {/* Hero Header */}
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              Funcionários
+            </h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Gerencie todos os colaboradores cadastrados
+            </p>
+          </div>
+          <Link
+            to="/register"
+            className="inline-flex items-center justify-center gap-2 h-11 px-6 bg-gradient-to-r from-primary to-purple-600 text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-primary/30"
+          >
+            <UserPlus className="w-4 h-4" />
+            Novo Registro
+          </Link>
         </div>
-        <Link
-          to="/register"
-          className="inline-flex items-center justify-center gap-2 h-11 px-6 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-primary/20"
-        >
-          <UserPlus className="w-4 h-4" />
-          Novo Registro
-        </Link>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+          {[
+            { label: "Total", value: counts.total, color: "from-primary/10 to-purple-100", text: "text-primary" },
+            { label: "Salão", value: counts.salao, color: "from-blue-50 to-blue-100", text: "text-blue-600" },
+            { label: "Cozinha", value: counts.cozinha, color: "from-orange-50 to-orange-100", text: "text-orange-600" },
+            { label: "Segurança", value: counts.seguranca, color: "from-red-50 to-red-100", text: "text-red-600" },
+          ].map(stat => (
+            <div key={stat.label} className={`bg-gradient-to-br ${stat.color} rounded-2xl p-4 border border-white/80`}>
+              <p className={`text-2xl font-bold ${stat.text}`}>{stat.value}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 font-medium">{stat.label}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Search */}
-      <div className="relative mb-6">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <div className="relative mb-5">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           placeholder="Buscar por nome, cargo ou departamento..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 h-11 rounded-xl bg-card"
+          className="pl-11 h-12 rounded-2xl bg-white border-border/50 shadow-sm focus-visible:ring-primary/20"
         />
       </div>
 
@@ -72,13 +98,11 @@ export default function EmployeeList() {
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center mb-4">
-            <Users className="w-8 h-8 text-muted-foreground" />
+            <Users className="w-8 h-8 text-primary/40" />
           </div>
           <h3 className="font-semibold text-lg">Nenhum funcionário encontrado</h3>
           <p className="text-sm text-muted-foreground mt-1 mb-5">
-            {search
-              ? "Tente mudar os termos de busca"
-              : "Comece registrando o primeiro funcionário"}
+            {search ? "Tente mudar os termos de busca" : "Comece registrando o primeiro funcionário"}
           </p>
           {!search && (
             <Link
@@ -91,7 +115,7 @@ export default function EmployeeList() {
           )}
         </div>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-2.5">
           {filtered.map((emp) => (
             <EmployeeCard
               key={emp.id}
