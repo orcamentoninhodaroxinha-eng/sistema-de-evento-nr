@@ -68,7 +68,6 @@ export default function EventScale({ event, employees, onBack }) {
     setPhotoFile(null);
     setSignatureConfirmed(false);
     setPhotoConfirmed(false);
-    setValor("");
     setSaving(false);
     toast({ title: `${empName} registrado!` });
   };
