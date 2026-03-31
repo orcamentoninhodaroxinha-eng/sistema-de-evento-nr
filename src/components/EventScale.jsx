@@ -237,7 +237,7 @@ export default function EventScale({ event, employees, onBack }) {
           </div>
         </div>
 
-        <SignaturePad onSave={handleSignatureSave} />
+        <SignaturePad key={`sig-${current.id}`} onSave={handleSignatureSave} />
 
         {signatureConfirmed && (
           <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 rounded-lg px-4 py-2 border border-emerald-200">
@@ -246,7 +246,7 @@ export default function EventScale({ event, employees, onBack }) {
           </div>
         )}
 
-        <CameraCapture onCapture={handlePhotoCapture} />
+        <CameraCapture key={`cam-${current.id}`} onCapture={handlePhotoCapture} />
 
         {photoConfirmed && (
           <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 rounded-lg px-4 py-2 border border-emerald-200">
