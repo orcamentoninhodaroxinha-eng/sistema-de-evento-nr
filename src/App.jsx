@@ -6,6 +6,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './components/Layout';
+import LoginGate from './components/LoginGate';
 import EmployeeList from './pages/EmployeeList';
 import EmployeeRegister from './pages/EmployeeRegister';
 import Events from './pages/Events';
@@ -48,6 +49,7 @@ const AuthenticatedApp = () => {
 function App() {
 
   return (
+    <LoginGate>
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
@@ -56,6 +58,7 @@ function App() {
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>
+    </LoginGate>
   )
 }
 
