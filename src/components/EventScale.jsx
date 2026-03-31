@@ -4,7 +4,7 @@ import { ArrowLeft, CheckCircle, FileDown, Loader2, Users, Lock } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import SignaturePad from "./SignaturePad";
 import CameraCapture from "./CameraCapture";
 import { format } from "date-fns";
@@ -84,7 +84,7 @@ export default function EventScale({ event, employees, onBack }) {
 
   const handleConfirmEmployee = async () => {
     if (!signatureConfirmed || !photoConfirmed) {
-      toast({ title: "Complete a assinatura e a foto antes de confirmar", variant: "destructive" });
+      toast.error("Complete a assinatura e a foto antes de confirmar", { duration: 2000 });
       return;
     }
     setSaving(true);
@@ -115,7 +115,7 @@ export default function EventScale({ event, employees, onBack }) {
     setPhotoConfirmed(false);
     setSaving(false);
     setSelectMode(true);
-    toast({ title: `${empName} registrado!`, duration: 1000 });
+    toast(`${empName} registrado!`, { duration: 1000 });
   };
 
   const toBase64FromUrl = async (url) => {
@@ -235,7 +235,7 @@ export default function EventScale({ event, employees, onBack }) {
     doc.save(`recibos_${event.name.replace(/\s+/g, "_")}.pdf`);
     await base44.entities.Event.update(event.id, { status: "Concluído" });
     setGeneratingPdf(false);
-    toast({ title: "PDF gerado e evento finalizado!" });
+    toast("PDF gerado e evento finalizado!");
   };
 
   // Auth screen
