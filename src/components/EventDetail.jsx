@@ -24,6 +24,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [searchEmployee, setSearchEmployee] = useState("");
   const [saving, setSaving] = useState(false);
   const [teamConfirmed, setTeamConfirmed] = useState(event.team_confirmed || false);
+  const [localEmployeeIds, setLocalEmployeeIds] = useState(event.employees || []);
   const [confirming, setConfirming] = useState(false);
   const [showScale, setShowScale] = useState(false);
   const [scalePdfUrl, setScalePdfUrl] = useState(event.scale_pdf_url || "");
@@ -39,7 +40,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
     queryFn: () => base44.entities.Employee.list("full_name", 500),
   });
 
-  const eventEmployeeIds = event.employees || [];
+  const eventEmployeeIds = localEmployeeIds;
   
   const assignedEmployees = (allEmployees || []).filter(emp => 
     eventEmployeeIds.includes(emp.id)
@@ -76,27 +77,24 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   );
 
   const addEmployee = async (employeeId) => {
-    setSaving(true);
-    const updatedEmployees = [...eventEmployeeIds, employeeId];
-    await base44.entities.Event.update(event.id, { employees: updatedEmployees });
-    event.employees = updatedEmployees;
-    onRefresh();
-    setSaving(false);
+    // Optimistic update
+    const updated = [...localEmployeeIds, employeeId];
+    setLocalEmployeeIds(updated);
+    event.employees = updated;
     toast({ title: "Funcionário adicionado ao evento!" });
+    base44.entities.Event.update(event.id, { employees: updated }).then(onRefresh);
   };
 
   const removeEmployee = async (employeeId) => {
-    setSaving(true);
-    const updatedEmployees = eventEmployeeIds.filter(id => id !== employeeId);
-    await base44.entities.Event.update(event.id, { employees: updatedEmployees });
-    event.employees = updatedEmployees;
-    if (teamConfirmed) {
-      setTeamConfirmed(false);
-      await base44.entities.Event.update(event.id, { team_confirmed: false });
-    }
-    onRefresh();
-    setSaving(false);
+    // Optimistic update
+    const updated = localEmployeeIds.filter(id => id !== employeeId);
+    setLocalEmployeeIds(updated);
+    event.employees = updated;
+    if (teamConfirmed) setTeamConfirmed(false);
     toast({ title: "Funcionário removido do evento" });
+    const ops = [base44.entities.Event.update(event.id, { employees: updated })];
+    if (teamConfirmed) ops.push(base44.entities.Event.update(event.id, { team_confirmed: false }));
+    Promise.all(ops).then(onRefresh);
   };
 
   const handleConfirmTeam = async () => {
