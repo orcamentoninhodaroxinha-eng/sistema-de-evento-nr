@@ -176,6 +176,15 @@ export default function EventScale({ event, employees, onBack }) {
         y += 5;
         doc.text(emp.cpf, margin, y);
       }
+      y += 10;
+
+      // --- Photo ---
+      if (emp.photoUrl) {
+        try {
+          const photoData = await toBase64FromUrl(emp.photoUrl);
+          doc.addImage(photoData, "JPEG", margin, y, 40, 50, undefined, "FAST");
+        } catch (e) {}
+      }
     }
 
     doc.save(`recibos_${event.name.replace(/\s+/g, "_")}.pdf`);
