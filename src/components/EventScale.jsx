@@ -87,96 +87,98 @@ export default function EventScale({ event, employees, onBack }) {
     setGeneratingPdf(true);
     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     const pageW = 210;
-    const margin = 14;
+    const margin = 20;
+    const contentW = pageW - margin * 2;
 
-    // Header
-    doc.setFillColor(99, 57, 255);
-    doc.rect(0, 0, pageW, 30, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
-    doc.setFont("helvetica", "bold");
-    doc.text(event.name, margin, 13);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    const dateStr = event.date
-      ? format(new Date(event.date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
-      : "";
-    doc.text(`Data: ${dateStr}   Local: ${event.location || "-"}`, margin, 22);
-
-    let y = 38;
+    const eventDateStr = event.date
+      ? format(new Date(event.date), "dd/MM/yyyy")
+      : "___/___/______";
+    const todayStr = format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
 
     for (let i = 0; i < completed.length; i++) {
       const emp = completed[i];
+      if (i > 0) doc.addPage();
 
-      if (y > 240) {
-        doc.addPage();
-        y = 20;
-      }
+      let y = 18;
 
-      const cardHeight = 90;
-      // Card background
-      doc.setFillColor(248, 248, 252);
-      doc.roundedRect(margin, y, pageW - margin * 2, cardHeight, 3, 3, "F");
-      doc.setDrawColor(220, 220, 235);
-      doc.roundedRect(margin, y, pageW - margin * 2, cardHeight, 3, 3, "S");
-
-      // Photo
-      if (emp.photoUrl) {
-        try {
-          const imgData = await toBase64FromUrl(emp.photoUrl);
-          doc.addImage(imgData, "JPEG", margin + 3, y + 4, 22, 28, undefined, "FAST");
-        } catch (e) {}
-      }
-
-      // Name and role
-      doc.setTextColor(30, 30, 50);
-      doc.setFontSize(13);
-      doc.setFont("helvetica", "bold");
-      doc.text(emp.full_name, margin + 28, y + 12);
+      // --- LOGO area (left) ---
+      doc.setFont("helvetica", "bolditalic");
       doc.setFontSize(9);
+      doc.setTextColor(120, 40, 60);
+      doc.text("ninho da roxinha", margin, y + 4);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(100, 100, 120);
-      doc.text(`${emp.role}  |  ${emp.department || ""}`, margin + 28, y + 19);
+      doc.setFontSize(6);
+      doc.text("RESTAURANTE & EVENTOS", margin, y + 8);
 
-      // Declaration text
-      const dateStr2 = event.date
-        ? format(new Date(event.date), "dd/MM/yyyy")
-        : "___/___/______";
-      const declaration = `${emp.full_name}, aqui denominado Free Lancer, Declaro ter Recebido da empresa Ninho da Roxinha Eventos, a quantia de R$ ${emp.valor || "________"}, referente prestação de serviços - Extras no evento do dia ${dateStr2} (${event.name}) e declaro ainda não haver de minha parte nenhuma obrigação de serviços solicitada esporadicamente, sendo a mim facultada decisão de aceitar ou não o serviço e Horários propostos. Sem mais para o momento, firmo o presente.`;
-      doc.setFontSize(7.5);
+      // --- RECIBO title (center) ---
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.setTextColor(30, 30, 30);
+      doc.text("RECIBO", pageW / 2, y + 6, { align: "center" });
+
+      // --- VALOR (right) ---
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(30, 30, 30);
+      doc.text("VALOR:", pageW - margin, y + 2, { align: "right" });
+      doc.setFontSize(11);
+      doc.text(`R$  ${emp.valor || "________"}`, pageW - margin, y + 8, { align: "right" });
+
+      // --- Divider ---
+      y += 18;
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, y, pageW - margin, y);
+      y += 12;
+
+      // --- Declaration body ---
+      const pixInfo = emp.cpf ? ` / PIX ${emp.cpf}` : "";
+      const declaration =
+        `Eu ${emp.full_name}${pixInfo}, aqui denominado Free Lancer, Declaro ter Recebido da empresa ` +
+        `Ninho da Roxinha Eventos, a quantia de R$ ${emp.valor || "________"}, referente prestação de serviços -Extras ` +
+        `no evento do dia ${eventDateStr} ( ${event.name} ) e declaro ainda não haver de minha parte nenhuma obrigação ` +
+        `de de serviços solicitada esporadicamente, sendo a mim facultada decisão de aceitar ou não o serviço e Horarios ` +
+        `propostos.`;
+
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(50, 50, 70);
-      const lines = doc.splitTextToSize(declaration, pageW - margin * 2 - 28);
-      doc.text(lines, margin + 28, y + 26);
+      doc.setFontSize(11);
+      doc.setTextColor(30, 30, 30);
+      const bodyLines = doc.splitTextToSize(declaration, contentW);
+      doc.text(bodyLines, margin, y);
+      y += bodyLines.length * 6 + 8;
 
-      // Signature
+      // --- "sem mais..." ---
+      doc.text("sem mais para o momento, firmo o presente.", margin, y);
+      y += 24;
+
+      // --- City / Date (right aligned) ---
+      doc.text(`Serra, Espírito Santo ${todayStr}`, pageW - margin, y, { align: "right" });
+      y += 28;
+
+      // --- Signature image ---
       if (emp.signatureUrl) {
         try {
           const sigData = await toBase64FromUrl(emp.signatureUrl);
-          doc.addImage(sigData, "PNG", margin + 3, y + cardHeight - 28, 50, 18, undefined, "FAST");
+          doc.addImage(sigData, "PNG", margin, y - 18, 70, 18, undefined, "FAST");
         } catch (e) {}
       }
 
-      // Line under signature
-      doc.setDrawColor(180, 180, 200);
-      doc.line(margin + 3, y + cardHeight - 10, margin + 55, y + cardHeight - 10);
-      doc.setFontSize(7);
-      doc.setTextColor(150, 150, 170);
-      doc.text("Assinatura", margin + 29, y + cardHeight - 6, { align: "center" });
+      // --- Signature line ---
+      doc.setDrawColor(60, 60, 60);
+      doc.line(margin, y, margin + 100, y);
+      y += 6;
 
-      y += cardHeight + 6;
+      // --- Name / PIX below line ---
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(30, 30, 30);
+      doc.text(`${emp.full_name}${pixInfo}`, margin, y);
+      if (emp.cpf) {
+        y += 5;
+        doc.text(emp.cpf, margin, y);
+      }
     }
 
-    // Footer
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.setTextColor(150, 150, 170);
-      doc.text(`Gerado em ${format(new Date(), "dd/MM/yyyy HH:mm")} — ${i}/${pageCount}`, pageW / 2, 292, { align: "center" });
-    }
-
-    doc.save(`escala_${event.name.replace(/\s+/g, "_")}.pdf`);
+    doc.save(`recibos_${event.name.replace(/\s+/g, "_")}.pdf`);
     setGeneratingPdf(false);
     toast({ title: "PDF gerado com sucesso!" });
   };
