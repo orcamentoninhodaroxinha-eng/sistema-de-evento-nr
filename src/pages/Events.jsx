@@ -70,10 +70,6 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish }) {
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(event); }}>
-              <Edit className="w-4 h-4 mr-2" />
-              Editar
-            </DropdownMenuItem>
             {event.status !== "Concluído" && (
               <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onFinish(event); }} className="text-emerald-600">
                 <CheckCircle2 className="w-4 h-4 mr-2" />
