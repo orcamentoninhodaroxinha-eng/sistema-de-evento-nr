@@ -181,7 +181,6 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       {/* PDF da Escala */}
       <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
-          <Paperclip className="w-5 h-5 text-primary" />
           <h2 className="font-semibold">PDF da Escala</h2>
         </div>
 
