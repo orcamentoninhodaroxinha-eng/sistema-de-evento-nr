@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, MapPin, CalendarDays, FileText, Users,
-  Plus, X, Search, Loader2, UserCheck
+  Plus, X, Search, Loader2, UserCheck, CheckCircle2, ShieldCheck
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -21,6 +21,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchEmployee, setSearchEmployee] = useState("");
   const [saving, setSaving] = useState(false);
+  const [teamConfirmed, setTeamConfirmed] = useState(event.team_confirmed || false);
+  const [confirming, setConfirming] = useState(false);
 
   const { data: allEmployees } = useQuery({
     queryKey: ["employees"],
@@ -54,9 +56,27 @@ export default function EventDetail({ event, onBack, onRefresh }) {
     const updatedEmployees = eventEmployeeIds.filter(id => id !== employeeId);
     await base44.entities.Event.update(event.id, { employees: updatedEmployees });
     event.employees = updatedEmployees;
+    if (teamConfirmed) {
+      setTeamConfirmed(false);
+      await base44.entities.Event.update(event.id, { team_confirmed: false });
+    }
     onRefresh();
     setSaving(false);
     toast({ title: "Funcionário removido do evento" });
+  };
+
+  const handleConfirmTeam = async () => {
+    if (assignedEmployees.length === 0) {
+      toast({ title: "Adicione ao menos um funcionário antes de confirmar", variant: "destructive" });
+      return;
+    }
+    setConfirming(true);
+    await base44.entities.Event.update(event.id, { team_confirmed: true });
+    event.team_confirmed = true;
+    setTeamConfirmed(true);
+    onRefresh();
+    setConfirming(false);
+    toast({ title: "Equipe confirmada com sucesso!" });
   };
 
   const statusColors = {
@@ -193,6 +213,47 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               </div>
             ))}
           </div>
+        )}
+      </div>
+
+      {/* Confirm Team Section */}
+      <div className="mt-6">
+        {teamConfirmed ? (
+          <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
+            <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6 text-emerald-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-emerald-800">Equipe Confirmada!</p>
+              <p className="text-sm text-emerald-600 mt-0.5">
+                {assignedEmployees.length} funcionário(s) alocado(s) para este evento.
+              </p>
+            </div>
+            <button
+              onClick={async () => {
+                await base44.entities.Event.update(event.id, { team_confirmed: false });
+                event.team_confirmed = false;
+                setTeamConfirmed(false);
+                onRefresh();
+              }}
+              className="text-xs text-emerald-600 underline hover:no-underline"
+            >
+              Desfazer
+            </button>
+          </div>
+        ) : (
+          <Button
+            onClick={handleConfirmTeam}
+            disabled={confirming || assignedEmployees.length === 0}
+            className="w-full h-14 text-base font-semibold rounded-2xl gap-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:opacity-90 shadow-lg shadow-emerald-500/30"
+          >
+            {confirming ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <CheckCircle2 className="w-6 h-6" />
+            )}
+            {confirming ? "Confirmando..." : "Confirmar Equipe do Evento"}
+          </Button>
         )}
       </div>
 

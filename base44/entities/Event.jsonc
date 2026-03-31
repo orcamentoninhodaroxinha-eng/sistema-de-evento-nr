@@ -36,6 +36,11 @@
       "items": {
         "type": "string"
       }
+    },
+    "team_confirmed": {
+      "type": "boolean",
+      "title": "Equipe Confirmada",
+      "default": false
     }
   },
   "required": [
