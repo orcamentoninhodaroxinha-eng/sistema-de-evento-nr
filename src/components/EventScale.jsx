@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, CheckCircle, FileDown, Loader2, Users } from "lucide-react";
+import { ArrowLeft, CheckCircle, FileDown, Loader2, Users, ArrowUp, ArrowDown, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,9 +33,28 @@ export default function EventScale({ event, employees, onBack }) {
     return ga - gb;
   });
 
+  const [orderMode, setOrderMode] = useState(true);
   const [pending, setPending] = useState(
     sortedEmployees.map((emp, i) => ({ ...emp, _key: emp.id || `${emp.full_name}-${i}` }))
   );
+
+  const moveUp = (idx) => {
+    if (idx === 0) return;
+    setPending(prev => {
+      const next = [...prev];
+      [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+      return next;
+    });
+  };
+
+  const moveDown = (idx) => {
+    setPending(prev => {
+      if (idx >= prev.length - 1) return prev;
+      const next = [...prev];
+      [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+      return next;
+    });
+  };
   const [completed, setCompleted] = useState([]);
   const [signatureFile, setSignatureFile] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
@@ -212,6 +231,60 @@ export default function EventScale({ event, employees, onBack }) {
     setGeneratingPdf(false);
     toast({ title: "PDF gerado e evento finalizado!" });
   };
+
+  // Order selection screen
+  if (orderMode) {
+    const groups = {};
+    pending.forEach((emp, idx) => {
+      const g = getGroup(emp);
+      if (!groups[g]) groups[g] = [];
+      groups[g].push({ emp, idx });
+    });
+    return (
+      <div className="max-w-lg mx-auto">
+        <Button variant="ghost" onClick={onBack} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </Button>
+        <h1 className="text-xl font-bold mb-1">Ordem de Assinatura</h1>
+        <p className="text-sm text-muted-foreground mb-5">Reordene os funcionários antes de iniciar.</p>
+        <div className="space-y-5">
+          {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
+            groups[groupKey] ? (
+              <div key={groupKey}>
+                <div className={`text-xs font-semibold px-3 py-1.5 rounded-lg border mb-2 inline-block ${config.color}`}>{config.label}</div>
+                <div className="space-y-2">
+                  {groups[groupKey].map(({ emp, idx }) => (
+                    <div key={emp._key} className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center shrink-0">
+                        <span className="text-primary font-bold text-sm">{emp.full_name?.charAt(0).toUpperCase()}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{emp.full_name}</p>
+                        <p className="text-xs text-muted-foreground">{emp.role}</p>
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <button onClick={() => moveUp(idx)} disabled={idx === 0} className="p-1 rounded hover:bg-muted disabled:opacity-30">
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => moveDown(idx)} disabled={idx === pending.length - 1} className="p-1 rounded hover:bg-muted disabled:opacity-30">
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null
+          )}
+        </div>
+        <Button onClick={() => setOrderMode(false)} className="w-full h-12 mt-6 text-base font-semibold rounded-xl gap-2 bg-gradient-to-r from-primary to-purple-600">
+          <Play className="w-5 h-5" />
+          Iniciar Assinaturas
+        </Button>
+      </div>
+    );
+  }
 
   // All done
   if (pending.length === 0) {
