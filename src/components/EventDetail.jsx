@@ -28,6 +28,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [showScale, setShowScale] = useState(false);
   const [scalePdfUrl, setScalePdfUrl] = useState(event.scale_pdf_url || "");
   const [uploadingPdf, setUploadingPdf] = useState(false);
+  const [pdfEmployees, setPdfEmployees] = useState([]);
+  const [extractingPdf, setExtractingPdf] = useState(false);
 
   const { data: allEmployees } = useQuery({
     queryKey: ["employees"],
@@ -54,10 +56,11 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   };
 
   if (showScale) {
+    const scaleEmployees = pdfEmployees.length > 0 ? pdfEmployees : assignedEmployees;
     return (
       <EventScale
         event={event}
-        employees={assignedEmployees}
+        employees={scaleEmployees}
         onBack={() => setShowScale(false)}
       />
     );
@@ -332,11 +335,48 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       {(teamConfirmed || scalePdfUrl) && (
         <div className="mt-4">
           <Button
-            onClick={() => setShowScale(true)}
+            onClick={async () => {
+              if (scalePdfUrl && pdfEmployees.length === 0) {
+                setExtractingPdf(true);
+                const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+                  file_url: scalePdfUrl,
+                  json_schema: {
+                    type: "object",
+                    properties: {
+                      employees: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            full_name: { type: "string" },
+                            cpf: { type: "string" },
+                            valor: { type: "string" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                });
+                setExtractingPdf(false);
+                if (result?.output?.employees?.length > 0) {
+                  setPdfEmployees(result.output.employees);
+                  setShowScale(true);
+                } else {
+                  toast({ title: "Não foi possível extrair os nomes do PDF", variant: "destructive" });
+                }
+              } else {
+                setShowScale(true);
+              }
+            }}
+            disabled={extractingPdf}
             className="w-full h-14 text-base font-semibold rounded-2xl gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30 hover:opacity-90"
           >
-            <PlayCircle className="w-6 h-6" />
-            Iniciar Escala (Assinaturas & Fotos)
+            {extractingPdf ? (
+              <Loader2 className="w-6 h-6 animate-spin" />
+            ) : (
+              <PlayCircle className="w-6 h-6" />
+            )}
+            {extractingPdf ? "Lendo PDF..." : "Iniciar Escala (Assinaturas & Fotos)"}
           </Button>
         </div>
       )}
