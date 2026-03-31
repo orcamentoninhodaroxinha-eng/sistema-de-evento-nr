@@ -136,13 +136,7 @@ export default function Events() {
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">Gerencie eventos e aloque funcionários</p>
           </div>
-          <Button
-            onClick={() => navigate("/events/new")}
-            className="gap-2 h-11 px-6 bg-gradient-to-r from-primary to-purple-600 rounded-xl font-semibold shadow-lg shadow-primary/30"
-          >
-            <Plus className="w-4 h-4" />
-            Novo Evento
-          </Button>
+
         </div>
       </div>
 
