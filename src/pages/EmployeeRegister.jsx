@@ -93,6 +93,7 @@ export default function EmployeeRegister() {
     toast({
       title: "Funcionário registrado!",
       description: `${form.full_name} foi cadastrado com sucesso.`,
+      duration: 2000,
     });
     navigate("/");
   };
