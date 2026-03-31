@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { Users, UserPlus, Menu, X } from "lucide-react";
+import { Users, UserPlus, Menu, X, CalendarDays } from "lucide-react";
 import { useState } from "react";
 
 export default function Layout() {
@@ -8,7 +8,7 @@ export default function Layout() {
 
   const navItems = [
     { path: "/", label: "Funcionários", icon: Users },
-    { path: "/register", label: "Novo Registro", icon: UserPlus },
+    { path: "/events", label: "Eventos", icon: CalendarDays },
   ];
 
   return (
