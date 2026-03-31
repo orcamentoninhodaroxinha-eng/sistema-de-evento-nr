@@ -5,8 +5,8 @@ import PageTransition from "@/components/PageTransition";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
-  CalendarDays, Plus, MapPin, Users, Search, Loader2,
-  ChevronRight, MoreVertical, Trash2, Edit, CheckCircle2
+  CalendarDays, MapPin, Users, Search, Loader2,
+  ChevronRight, MoreVertical, Trash2, CheckCircle2
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";

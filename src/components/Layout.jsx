@@ -1,5 +1,5 @@
 import { Outlet, Link } from "react-router-dom";
-import { CalendarDays, Trash2 } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 
 export default function Layout() {
 
@@ -47,13 +47,6 @@ export default function Layout() {
             >
               <CalendarDays className="w-5 h-5" />
               <span className="text-[11px] font-medium">Eventos</span>
-            </Link>
-            <Link
-              to="/account/delete"
-              className="flex flex-col items-center gap-1 px-6 py-2 rounded-xl transition-colors text-muted-foreground hover:text-destructive"
-            >
-              <Trash2 className="w-5 h-5" />
-              <span className="text-[11px] font-medium">Excluir Conta</span>
             </Link>
           </div>
         </nav>
