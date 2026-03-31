@@ -22,7 +22,6 @@ export default function EventScale({ event, employees, onBack }) {
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
   const [signatureUrl, setSignatureUrl] = useState(null);
   const [photoUrl, setPhotoUrl] = useState(null);
-  const [valor, setValor] = useState("");
   const [saving, setSaving] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
 
@@ -60,7 +59,6 @@ export default function EventScale({ event, employees, onBack }) {
       ...current,
       signatureUrl: sUrl,
       photoUrl: pUrl,
-      valor,
     };
 
     const empName = current.full_name;
@@ -184,7 +182,7 @@ export default function EventScale({ event, employees, onBack }) {
       if (emp.photoUrl) {
         try {
           const photoData = await toBase64FromUrl(emp.photoUrl);
-          doc.addImage(photoData, "JPEG", margin, y, 40, 50, undefined, "FAST");
+          doc.addImage(photoData, "JPEG", margin, y, 55, 70, undefined, "FAST");
         } catch (e) {}
       }
     }

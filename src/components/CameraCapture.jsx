@@ -16,7 +16,7 @@ export default function CameraCapture({ onCapture }) {
       stream.getTracks().forEach((t) => t.stop());
     }
     const mediaStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: mode, width: { ideal: 720 }, height: { ideal: 960 } },
+      video: { facingMode: mode, width: { ideal: 1920 }, height: { ideal: 2560 } },
       audio: false,
     });
     setStream(mediaStream);
@@ -36,7 +36,7 @@ export default function CameraCapture({ onCapture }) {
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0);
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.97);
     setPhoto(dataUrl);
     if (stream) {
       stream.getTracks().forEach((t) => t.stop());
@@ -49,7 +49,7 @@ export default function CameraCapture({ onCapture }) {
     canvas.toBlob((blob) => {
       const file = new File([blob], "photo.jpg", { type: "image/jpeg" });
       onCapture(file);
-    }, "image/jpeg", 0.85);
+    }, "image/jpeg", 0.97);
   };
 
   const retakePhoto = () => {
