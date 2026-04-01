@@ -31,25 +31,7 @@ export default function Layout() {
         </div>
       </main>
 
-      {/* Bottom Nav */}
-      <nav
-          className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-t border-border/50"
-          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-        >
-          <div className="flex items-center justify-around h-14 sm:h-16 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Link
-              to="/"
-              className={`flex flex-col items-center gap-1 px-6 py-2 rounded-xl transition-colors ${
-                location.pathname === "/"
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <CalendarDays className="w-5 h-5" />
-              <span className="text-[11px] font-medium">Eventos</span>
-            </Link>
-          </div>
-        </nav>
+
     </div>
   );
 }
