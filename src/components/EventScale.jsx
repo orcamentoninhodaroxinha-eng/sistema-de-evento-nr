@@ -242,7 +242,7 @@ export default function EventScale({ event, employees, onBack }) {
         </Button>
         <h1 className="text-xl font-bold mb-1">Quem vai assinar agora?</h1>
         <p className="text-sm text-muted-foreground mb-5">Toque no funcionário para iniciar a assinatura.</p>
-        <div className="space-y-5 overflow-y-auto">
+        <div className="space-y-5 overflow-y-auto max-h-[60vh] pr-1">
           {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
             groups[groupKey] ? (
               <div key={groupKey}>
