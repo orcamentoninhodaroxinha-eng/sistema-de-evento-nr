@@ -49,6 +49,7 @@ export default function EventScale({ event, employees, onBack }) {
 
   const containerRef = useRef(null);
   const signatureRef = useRef(null);
+  const pendingListRef = useRef(null);
 
   const [touchStart, setTouchStart] = useState(0);
 
@@ -653,7 +654,18 @@ export default function EventScale({ event, employees, onBack }) {
         {pending.length > 1 && (
         <div className="mt-2 bg-muted/50 rounded-lg p-2 sm:p-3">
          <p className="text-xs text-muted-foreground font-medium mb-1 uppercase tracking-wide">Aguardando</p>
-         <div className="space-y-0.5 max-h-20 overflow-y-auto text-xs">
+         <div
+           ref={pendingListRef}
+           className="space-y-0.5 max-h-20 overflow-y-auto text-xs"
+           onTouchStart={(e) => setTouchStart(e.touches[0].clientY)}
+           onTouchEnd={(e) => {
+             const touchEnd = e.changedTouches[0].clientY;
+             const diff = touchStart - touchEnd;
+             if (Math.abs(diff) > 10 && pendingListRef.current) {
+               pendingListRef.current.scrollTop += diff * 0.5;
+             }
+           }}
+         >
            {pending.slice(1).map((emp) => (
              <div key={emp._key} className="flex items-center gap-1 text-muted-foreground">
                <div className="w-4 h-4 rounded-sm bg-muted flex items-center justify-center text-xs font-bold flex-shrink-0">
