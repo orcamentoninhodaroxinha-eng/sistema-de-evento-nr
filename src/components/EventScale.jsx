@@ -435,7 +435,7 @@ export default function EventScale({ event, employees, onBack }) {
   // Confirm team before generating PDF
   if (pending.length === 0 && confirmingTeam) {
     return (
-      <div className="w-full h-full flex flex-col relative">
+      <div className="w-full h-full flex flex-col relative pb-safe">
         <Button variant="ghost" onClick={() => setConfirmingTeam(false)} className="gap-2 mb-3 -ml-2 text-muted-foreground hover:text-foreground text-xs sm:text-sm h-8 sm:h-10">
           <ArrowLeft className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
           Voltar
@@ -443,8 +443,8 @@ export default function EventScale({ event, employees, onBack }) {
         <h1 className="text-base sm:text-lg font-bold mb-1">Confirmar Equipe</h1>
         <p className="text-xs text-muted-foreground mb-3 sm:mb-4">Revise os funcionários registrados.</p>
         
-        <div className="relative flex-1 min-h-0 overflow-y-auto mb-4">
-          <div className="space-y-2 sm:space-y-3">
+        <div className="flex-1 min-h-0 overflow-y-auto mb-4">
+          <div className="space-y-2 sm:space-y-3 pr-2">
             {completed.map((emp, idx) => (
               <div key={emp._key} className="flex items-start gap-3 bg-card border border-border rounded-lg sm:rounded-xl p-3 sm:p-4">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center flex-shrink-0 text-sm">
@@ -460,7 +460,7 @@ export default function EventScale({ event, employees, onBack }) {
           </div>
         </div>
         
-        <div className="flex gap-2 sm:gap-3">
+        <div className="sticky bottom-0 bg-background pt-2 sm:pt-3 flex gap-2 sm:gap-3 border-t border-border">
           <Button
             variant="outline"
             onClick={() => setConfirmingTeam(false)}
