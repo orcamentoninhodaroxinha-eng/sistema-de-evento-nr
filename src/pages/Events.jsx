@@ -92,8 +92,8 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish }) {
 export default function Events() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("proximos");
-  const [displayedCount, setDisplayedCount] = useState(10);
-  const sentinelRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -104,18 +104,8 @@ export default function Events() {
   });
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting) {
-          setDisplayedCount(prev => Math.min(prev + 5, events?.length || 0));
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sentinelRef.current) observer.observe(sentinelRef.current);
-    return () => observer.disconnect();
-  }, [events?.length]);
+    setCurrentPage(1);
+  }, [search, activeTab]);
 
   const handleDelete = async (event) => {
     if (confirm(`Excluir o evento "${event.name}"?`)) {
@@ -139,8 +129,11 @@ export default function Events() {
   const activeEvents = filtered.filter(ev => ev.status !== "Concluído");
   const finishedEvents = filtered.filter(ev => ev.status === "Concluído");
 
-  const displayedActiveEvents = activeEvents.slice(0, displayedCount);
-  const displayedFinishedEvents = finishedEvents.slice(0, displayedCount);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const displayedActiveEvents = activeEvents.slice(startIndex, startIndex + itemsPerPage);
+  const displayedFinishedEvents = finishedEvents.slice(startIndex, startIndex + itemsPerPage);
+  const totalActivePages = Math.ceil(activeEvents.length / itemsPerPage);
+  const totalFinishedPages = Math.ceil(finishedEvents.length / itemsPerPage);
 
   const isAdmin = user?.role === 'admin';
 
@@ -199,19 +192,43 @@ export default function Events() {
 
           <TabsContent value="proximos" className="space-y-3">
             {displayedActiveEvents.length > 0 ? (
-              <div className="grid gap-3">
-                {displayedActiveEvents.map((event) => (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    onClick={() => navigate(`/events/${event.id}`, { state: { event } })}
-                    onEdit={(ev) => navigate(`/events/${ev.id}/edit`, { state: { event: ev } })}
-                    onDelete={handleDelete}
-                    onFinish={handleFinish}
-                  />
-                ))}
-                {activeEvents.length > displayedCount && <div ref={sentinelRef} className="h-4" />}
-              </div>
+              <>
+                <div className="grid gap-3">
+                  {displayedActiveEvents.map((event) => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      onClick={() => navigate(`/events/${event.id}`, { state: { event } })}
+                      onEdit={(ev) => navigate(`/events/${ev.id}/edit`, { state: { event: ev } })}
+                      onDelete={handleDelete}
+                      onFinish={handleFinish}
+                    />
+                  ))}
+                </div>
+                {totalActivePages > 1 && (
+                  <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="rounded-lg"
+                    >
+                      Anterior
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      {currentPage} de {totalActivePages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(p => Math.min(totalActivePages, p + 1))}
+                      disabled={currentPage === totalActivePages}
+                      className="rounded-lg"
+                    >
+                      Próximo
+                    </Button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center mb-4">
@@ -224,19 +241,43 @@ export default function Events() {
 
           <TabsContent value="concluidos" className="space-y-3">
             {displayedFinishedEvents.length > 0 ? (
-              <div className="grid gap-3">
-                {displayedFinishedEvents.map((event) => (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    onClick={() => navigate(`/events/${event.id}`, { state: { event } })}
-                    onEdit={(ev) => navigate(`/events/${ev.id}/edit`, { state: { event: ev } })}
-                    onDelete={handleDelete}
-                    onFinish={handleFinish}
-                  />
-                ))}
-                {finishedEvents.length > displayedCount && <div ref={sentinelRef} className="h-4" />}
-              </div>
+              <>
+                <div className="grid gap-3">
+                  {displayedFinishedEvents.map((event) => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      onClick={() => navigate(`/events/${event.id}`, { state: { event } })}
+                      onEdit={(ev) => navigate(`/events/${ev.id}/edit`, { state: { event: ev } })}
+                      onDelete={handleDelete}
+                      onFinish={handleFinish}
+                    />
+                  ))}
+                </div>
+                {totalFinishedPages > 1 && (
+                  <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="rounded-lg"
+                    >
+                      Anterior
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      {currentPage} de {totalFinishedPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(p => Math.min(totalFinishedPages, p + 1))}
+                      disabled={currentPage === totalFinishedPages}
+                      className="rounded-lg"
+                    >
+                      Próximo
+                    </Button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center mb-4">
