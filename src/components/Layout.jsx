@@ -37,8 +37,7 @@ export default function Layout() {
     const touchEnd = e.changedTouches[0].clientY;
     const diff = touchStart - touchEnd;
     if (Math.abs(diff) > 30) {
-      const scroll = diff > 0 ? 1800 : -1800;
-      smoothScroll(scroll);
+      smoothScroll(diff * 2);
     }
     setTouchStart(null);
   };
