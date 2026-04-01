@@ -235,14 +235,14 @@ export default function EventScale({ event, employees, onBack }) {
       groups[g].push({ emp, idx });
     });
     return (
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-lg mx-auto w-full">
         <Button variant="ghost" onClick={onBack} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" />
           Voltar
         </Button>
         <h1 className="text-xl font-bold mb-1">Quem vai assinar agora?</h1>
         <p className="text-sm text-muted-foreground mb-5">Toque no funcionário para iniciar a assinatura.</p>
-        <div className="space-y-5">
+        <div className="space-y-5 overflow-y-auto">
           {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
             groups[groupKey] ? (
               <div key={groupKey}>
@@ -304,7 +304,7 @@ export default function EventScale({ event, employees, onBack }) {
   }
 
   return (
-    <div className="max-w-lg mx-auto">
+    <div className="max-w-lg mx-auto w-full">
       <div className="flex items-center gap-3 mb-4">
         <Button
           variant="ghost"
