@@ -253,28 +253,28 @@ export default function EventScale({ event, employees, onBack }) {
           <ArrowLeft className="w-4 h-4" />
           Voltar
         </Button>
-        <h1 className="text-xl font-bold mb-1">Quem vai assinar agora?</h1>
-        <p className="text-sm text-muted-foreground mb-5">Toque no funcionário para iniciar a assinatura.</p>
+        <h1 className="text-lg sm:text-xl font-bold mb-1">Quem vai assinar agora?</h1>
+        <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-5">Toque no funcionário para iniciar a assinatura.</p>
         
         <div className="relative">
-          <div ref={listRef} className="space-y-2 overflow-y-auto max-h-[50vh] sm:max-h-[60vh] pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
+          <div ref={listRef} className="space-y-1.5 sm:space-y-2 overflow-y-auto flex-1 pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
           {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
             groups[groupKey] ? (
               <div key={groupKey}>
-                <div className={`text-xs font-semibold px-3 py-1.5 rounded-lg border mb-2 inline-block ${config.color}`}>{config.label}</div>
+                <div className={`text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border mb-1.5 sm:mb-2 inline-block ${config.color}`}>{config.label}</div>
                 <div className="space-y-2">
                   {groups[groupKey].map(({ emp, idx }) => (
                     <button
                       key={emp._key}
                       onClick={() => selectEmployee(idx)}
-                      className="w-full flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:border-primary/40 hover:bg-accent/30 transition-all text-left"
+                      className="w-full flex items-center gap-2 sm:gap-3 bg-card border border-border rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 hover:border-primary/40 hover:bg-accent/30 transition-all text-left"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center shrink-0">
-                        <span className="text-primary font-bold">{emp.full_name?.charAt(0).toUpperCase()}</span>
+                      <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center shrink-0">
+                        <span className="text-primary font-bold text-sm">{emp.full_name?.charAt(0).toUpperCase()}</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm truncate">{emp.full_name}</p>
-                        <p className="text-xs text-muted-foreground">{emp.role}</p>
+                        <p className="font-semibold text-xs sm:text-sm truncate">{emp.full_name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{emp.role}</p>
                       </div>
                       <CheckCircle className="w-5 h-5 text-muted-foreground/30" />
                     </button>
@@ -288,18 +288,18 @@ export default function EventScale({ event, employees, onBack }) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => listRef.current?.scrollBy({ top: -100, behavior: 'smooth' })}
-              className="rounded-lg h-12 w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30"
+              onClick={() => listRef.current?.scrollBy({ top: -80, behavior: 'smooth' })}
+              className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
             >
-              <ChevronUp className="w-6 h-6 text-primary" />
+              <ChevronUp className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => listRef.current?.scrollBy({ top: 100, behavior: 'smooth' })}
-              className="rounded-lg h-12 w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30"
+              onClick={() => listRef.current?.scrollBy({ top: 80, behavior: 'smooth' })}
+              className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
             >
-              <ChevronDown className="w-6 h-6 text-primary" />
+              <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
             </Button>
           </div>
         </div>
@@ -339,7 +339,7 @@ export default function EventScale({ event, employees, onBack }) {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-2 sm:gap-3 mb-4">
         <Button
           variant="ghost"
           onClick={onBack}
@@ -360,21 +360,21 @@ export default function EventScale({ event, employees, onBack }) {
       </div>
 
       {/* Progress */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold">Escala — {event.name}</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {completed.length} de {completed.length + pending.length} registros concluídos
+      <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-lg sm:text-xl font-bold truncate">Escala — {event.name}</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            {completed.length} de {completed.length + pending.length} registros
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground flex-shrink-0">
           <Users className="w-4 h-4" />
           {pending.length} restante(s)
         </div>
       </div>
 
       {/* Progress bar */}
-      <div className="w-full h-2 bg-muted rounded-full mb-6">
+      <div className="w-full h-2 bg-muted rounded-full mb-4 sm:mb-6">
         <div
           className="h-2 bg-gradient-to-r from-primary to-purple-600 rounded-full transition-all duration-500"
           style={{ width: `${(completed.length / (completed.length + pending.length)) * 100}%` }}
@@ -394,7 +394,7 @@ export default function EventScale({ event, employees, onBack }) {
       })()}
 
       {/* Current employee */}
-      <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-6">
+      <div className="bg-card rounded-2xl border border-border p-3 sm:p-6 shadow-sm space-y-3 sm:space-y-6 flex-1 overflow-y-auto">
         <div className="flex items-center gap-3">
           {current.photo_url ? (
             <img src={current.photo_url} alt={current.full_name} className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover" />
@@ -453,7 +453,7 @@ export default function EventScale({ event, employees, onBack }) {
 
       {/* Pending list */}
       {pending.length > 1 && (
-        <div className="mt-4 bg-muted/50 rounded-2xl p-4">
+        <div className="mt-3 sm:mt-4 bg-muted/50 rounded-2xl p-3 sm:p-4">
           <p className="text-xs text-muted-foreground font-medium mb-2 uppercase tracking-wide">Aguardando</p>
           <div className="space-y-2">
             {pending.slice(1).map((emp) => (
