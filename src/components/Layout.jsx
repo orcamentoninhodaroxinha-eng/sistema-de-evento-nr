@@ -4,7 +4,7 @@ import { CalendarDays } from "lucide-react";
 export default function Layout() {
 
   return (
-    <div className="flex flex-col bg-background" style={{ minHeight: '100dvh' }} style={{ paddingTop: "env(safe-area-inset-top)" }}>
+    <div className="flex flex-col bg-background" style={{ height: '100dvh', paddingTop: "env(safe-area-inset-top)", overflow: 'hidden' }}>
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-b border-border/50 shadow-sm shadow-black/5">
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
