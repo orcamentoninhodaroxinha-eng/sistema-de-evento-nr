@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import {
   CalendarDays, MapPin, Users, Search, Loader2,
-  ChevronRight, MoreVertical, Trash2, CheckCircle2, Plus
+  MoreVertical, Trash2, CheckCircle2, Plus
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -84,8 +84,7 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish }) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-      </div>
+        </div>
     </button>
   );
 }
