@@ -292,8 +292,8 @@ export default function EventScale({ event, employees, onBack }) {
           <h1 className="text-lg sm:text-xl font-bold mb-1">Quem vai assinar agora?</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-5">Toque no funcionário para iniciar a assinatura.</p>
           
-          <div className="relative flex-1 min-h-0 flex gap-2">
-            <div ref={listRef} className="space-y-1.5 sm:space-y-2 overflow-y-auto h-full flex-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-primary/50 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-primary" style={{ scrollBehavior: 'smooth' }}>
+          <div className="relative flex-1 min-h-0 flex gap-3">
+            <div ref={listRef} className="space-y-1.5 sm:space-y-2 overflow-y-auto h-full flex-1 [&::-webkit-scrollbar]:w-0" style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none' }}>
               {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
                 groups[groupKey] ? (
                   <div key={groupKey}>
@@ -320,6 +320,7 @@ export default function EventScale({ event, employees, onBack }) {
                 ) : null
               )}
             </div>
+            <div className="w-2 bg-primary/20 rounded-full hover:bg-primary/40 transition-colors flex-shrink-0" />
           </div>
         </div>
       </>
