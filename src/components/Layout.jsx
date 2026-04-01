@@ -3,23 +3,14 @@ import { Outlet, Link } from "react-router-dom";
 import { ArrowUp } from "lucide-react";
 
 export default function Layout() {
-  const [showTop, setShowTop] = useState(false);
   const mainRef = useRef(null);
 
-  const handleScroll = (e) => {
-    setShowTop(e.target.scrollTop > 100);
-  };
-
-  const scrollToTop = () => {
-    mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollUp = () => {
+    mainRef.current?.scrollBy({ top: -300, behavior: "smooth" });
   };
 
   const scrollDown = () => {
     mainRef.current?.scrollBy({ top: 300, behavior: "smooth" });
-  };
-
-  const scrollUp = () => {
-    mainRef.current?.scrollBy({ top: -300, behavior: "smooth" });
   };
 
   return (
@@ -55,7 +46,6 @@ export default function Layout() {
 
       <main
         ref={mainRef}
-        onScroll={handleScroll}
         className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 overflow-y-auto overflow-x-hidden"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
@@ -65,8 +55,7 @@ export default function Layout() {
       </main>
 
       {/* Scroll buttons - left side */}
-      {showTop && (
-        <div className="fixed left-3 bottom-1/3 z-50 flex flex-col gap-2 sm:hidden">
+      <div className="fixed left-3 bottom-1/3 z-50 flex flex-col gap-2 sm:hidden">
           <button
             onClick={scrollUp}
             className="w-8 h-8 rounded-full bg-white/70 dark:bg-slate-800/70 backdrop-blur border border-border/40 text-muted-foreground shadow flex items-center justify-center hover:bg-white hover:text-primary transition-all active:scale-95"
@@ -80,7 +69,6 @@ export default function Layout() {
             <ArrowUp className="w-4 h-4 rotate-180" />
           </button>
         </div>
-      )}
     </div>
   );
 }
