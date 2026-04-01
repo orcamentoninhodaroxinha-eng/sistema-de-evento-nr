@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { ArrowLeft, CheckCircle, FileDown, Loader2, Users, Lock, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,13 +36,19 @@ export default function EventScale({ event, employees, onBack }) {
 
 
   const listRef = useRef(null);
-  const scrollUp = useCallback(() => listRef.current?.scrollBy({ top: -200, behavior: 'smooth' }), []);
-  const scrollDown = useCallback(() => listRef.current?.scrollBy({ top: 200, behavior: 'smooth' }), []);
 
   const [selectMode, setSelectMode] = useState(true);
   const [pending, setPending] = useState(
     sortedEmployees.map((emp, i) => ({ ...emp, _key: emp.id || `${emp.full_name}-${i}` }))
   );
+
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (selectMode && containerRef.current) {
+      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [selectMode]);
 
   const selectEmployee = (idx) => {
     setPending(prev => {
@@ -240,7 +246,7 @@ export default function EventScale({ event, employees, onBack }) {
     });
 
     return (
-      <div className="max-w-lg mx-auto w-full relative">
+      <div ref={containerRef} className="max-w-lg mx-auto w-full relative">
         <Button variant="ghost" onClick={onBack} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" />
           Voltar
