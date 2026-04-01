@@ -178,6 +178,50 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       </div>
 
+      {/* Funcionários do Evento */}
+      <div className="bg-card rounded-2xl border border-border p-5 shadow-sm mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-primary" />
+            <h2 className="font-semibold">Equipe</h2>
+            <span className="text-sm text-muted-foreground">({assignedEmployees.length})</span>
+          </div>
+          <Button size="sm" onClick={() => setShowAddDialog(true)} className="gap-2 rounded-xl">
+            <Plus className="w-4 h-4" />
+            Adicionar
+          </Button>
+        </div>
+
+        {assignedEmployees.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-4">Nenhum funcionário adicionado</p>
+        ) : (
+          <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+            {assignedEmployees.map((emp) => (
+              <div key={emp.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 group">
+                {emp.photo_url ? (
+                  <img src={emp.photo_url} alt={emp.full_name} className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                ) : (
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center shrink-0">
+                    <span className="text-primary font-bold text-sm">{emp.full_name?.charAt(0).toUpperCase()}</span>
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{emp.full_name}</p>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded ${roleColors[emp.role] || 'bg-slate-50 text-slate-600'}`}>{emp.role}</span>
+                </div>
+                <Button
+                  variant="ghost" size="icon"
+                  onClick={() => removeEmployee(emp.id)}
+                  className="opacity-0 group-hover:opacity-100 h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* PDF da Escala */}
       <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-3">

@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import LoginGate from './components/LoginGate';
-import Layout from './components/Layout';
+import Layout from './components/Layout.jsx';
 import Events from './pages/Events';
 import EventFormPage from './pages/EventFormPage';
 import AccountDeletion from './pages/AccountDeletion';
