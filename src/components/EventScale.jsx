@@ -33,19 +33,7 @@ export default function EventScale({ event, employees, onBack }) {
     return ga - gb;
   });
 
-  const [authPassed, setAuthPassed] = useState(false);
-  const [authName, setAuthName] = useState("");
-  const [authPassword, setAuthPassword] = useState("");
-  const [authError, setAuthError] = useState("");
 
-  const CORRECT_PASSWORD = "ninho2025";
-
-  const handleAuth = () => {
-    if (!authName.trim()) { setAuthError("Digite seu nome."); return; }
-    if (authPassword !== CORRECT_PASSWORD) { setAuthError("Senha incorreta."); return; }
-    setAuthError("");
-    setAuthPassed(true);
-  };
 
   const [selectMode, setSelectMode] = useState(true);
   const [pending, setPending] = useState(
@@ -237,51 +225,6 @@ export default function EventScale({ event, employees, onBack }) {
     setGeneratingPdf(false);
     toast("PDF gerado e evento finalizado!");
   };
-
-  // Auth screen
-  if (!authPassed) {
-    return (
-      <div className="max-w-sm mx-auto mt-10">
-        <Button variant="ghost" onClick={onBack} className="gap-2 mb-6 -ml-2 text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="w-4 h-4" />
-          Voltar
-        </Button>
-        <div className="bg-card rounded-2xl border border-border p-8 shadow-sm">
-          <div className="flex flex-col items-center mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
-              <Lock className="w-7 h-7 text-primary" />
-            </div>
-            <h2 className="text-xl font-bold">Acesso Restrito</h2>
-            <p className="text-sm text-muted-foreground mt-1 text-center">Identifique-se para iniciar a escala</p>
-          </div>
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label>Seu nome</Label>
-              <Input
-                placeholder="Digite seu nome"
-                value={authName}
-                onChange={e => setAuthName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Senha</Label>
-              <Input
-                type="password"
-                placeholder="Digite a senha"
-                value={authPassword}
-                onChange={e => setAuthPassword(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && handleAuth()}
-              />
-            </div>
-            {authError && <p className="text-sm text-destructive">{authError}</p>}
-            <Button onClick={handleAuth} className="w-full h-11 font-semibold rounded-xl">
-              Entrar
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Select who signs next
   if (selectMode) {
