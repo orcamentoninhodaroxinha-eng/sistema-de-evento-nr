@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import PullToRefresh from "@/components/PullToRefresh";
@@ -93,6 +93,8 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish }) {
 export default function Events() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("proximos");
+  const [displayedCount, setDisplayedCount] = useState(10);
+  const sentinelRef = useRef(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -101,6 +103,17 @@ export default function Events() {
     queryKey: ["events"],
     queryFn: () => base44.entities.Event.list("-date", 100),
   });
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && displayedCount < (events?.length || 0)) {
+        setDisplayedCount(prev => Math.min(prev + 5, events.length));
+      }
+    }, { threshold: 0.1 });
+
+    if (sentinelRef.current) observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [displayedCount, events?.length]);
 
   const handleDelete = async (event) => {
     if (confirm(`Excluir o evento "${event.name}"?`)) {
@@ -123,6 +136,9 @@ export default function Events() {
 
   const activeEvents = filtered.filter(ev => ev.status !== "Concluído");
   const finishedEvents = filtered.filter(ev => ev.status === "Concluído");
+
+  const displayedActiveEvents = activeEvents.slice(0, displayedCount);
+  const displayedFinishedEvents = finishedEvents.slice(0, displayedCount);
 
   const isAdmin = user?.role === 'admin';
 
@@ -180,9 +196,9 @@ export default function Events() {
           </TabsList>
 
           <TabsContent value="proximos" className="space-y-3">
-            {activeEvents.length > 0 ? (
+            {displayedActiveEvents.length > 0 ? (
               <div className="grid gap-3">
-                {activeEvents.map((event) => (
+                {displayedActiveEvents.map((event) => (
                   <EventCard
                     key={event.id}
                     event={event}
@@ -192,6 +208,7 @@ export default function Events() {
                     onFinish={handleFinish}
                   />
                 ))}
+                {activeEvents.length > displayedCount && <div ref={sentinelRef} className="h-4" />}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -204,9 +221,9 @@ export default function Events() {
           </TabsContent>
 
           <TabsContent value="concluidos" className="space-y-3">
-            {finishedEvents.length > 0 ? (
+            {displayedFinishedEvents.length > 0 ? (
               <div className="grid gap-3">
-                {finishedEvents.map((event) => (
+                {displayedFinishedEvents.map((event) => (
                   <EventCard
                     key={event.id}
                     event={event}
@@ -216,6 +233,7 @@ export default function Events() {
                     onFinish={handleFinish}
                   />
                 ))}
+                {finishedEvents.length > displayedCount && <div ref={sentinelRef} className="h-4" />}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
