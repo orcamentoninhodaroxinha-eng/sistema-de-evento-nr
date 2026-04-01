@@ -45,6 +45,8 @@ export default function EventScale({ event, employees, onBack }) {
   const containerRef = useRef(null);
   const signatureRef = useRef(null);
 
+  const [touchStart, setTouchStart] = useState(0);
+
   const handleWheel = (e) => {
     const ref = selectMode ? containerRef.current : signatureRef.current;
     if (ref) {
@@ -52,18 +54,38 @@ export default function EventScale({ event, employees, onBack }) {
     }
   };
 
+  const handleTouchStart = (e) => {
+    setTouchStart(e.touches[0].clientY);
+  };
+
+  const handleTouchEnd = (e) => {
+    const ref = selectMode ? containerRef.current : signatureRef.current;
+    if (!ref) return;
+    const touchEnd = e.changedTouches[0].clientY;
+    const diff = touchStart - touchEnd;
+    if (Math.abs(diff) > 10) {
+      ref.scrollBy({ top: diff * 0.5, behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
     const ref = selectMode ? containerRef.current : signatureRef.current;
     if (ref) {
       ref.addEventListener('wheel', handleWheel, { passive: true });
-      return () => ref.removeEventListener('wheel', handleWheel);
+      ref.addEventListener('touchstart', handleTouchStart, { passive: true });
+      ref.addEventListener('touchend', handleTouchEnd, { passive: true });
+      return () => {
+        ref.removeEventListener('wheel', handleWheel);
+        ref.removeEventListener('touchstart', handleTouchStart);
+        ref.removeEventListener('touchend', handleTouchEnd);
+      };
     }
     if (selectMode && containerRef.current) {
       containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else if (!selectMode) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [selectMode, handleWheel]);
+  }, [selectMode, handleWheel, touchStart]);
 
   const selectEmployee = (idx) => {
     setPending(prev => {
