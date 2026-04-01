@@ -391,13 +391,13 @@ export default function EventScale({ event, employees, onBack }) {
            <div
              ref={listRef}
              className="space-y-1 sm:space-y-2 overflow-y-auto h-full flex-1 [&::-webkit-scrollbar]:w-0 pr-1"
-             style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none', touchAction: 'auto' }}
+             style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none' }}
              onTouchStart={(e) => setTouchStart(e.touches[0].clientY)}
              onTouchEnd={(e) => {
                const touchEnd = e.changedTouches[0].clientY;
                const diff = touchStart - touchEnd;
-               if (Math.abs(diff) > 10 && listRef.current) {
-                 listRef.current.scrollBy({ top: diff, behavior: 'smooth' });
+               if (Math.abs(diff) > 50 && listRef.current) {
+                 listRef.current.scrollTop += diff * 0.8;
                }
              }}
            >
