@@ -284,24 +284,6 @@ export default function EventScale({ event, employees, onBack }) {
 
     return (
       <>
-        <div className="fixed left-2 top-2/3 flex flex-col gap-2 z-20 pointer-events-auto">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => listRef.current?.scrollBy({ top: -120, behavior: 'smooth' })}
-            className="rounded-lg h-16 sm:h-20 w-16 sm:w-20 bg-white/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 transition-all border border-border/20 flex-shrink-0"
-          >
-            <ChevronUp className="w-10 sm:w-12 h-10 sm:h-12 text-primary" />
-          </Button>
-          <Button
-           variant="ghost"
-           size="icon"
-           onClick={() => listRef.current?.scrollBy({ top: 120, behavior: 'smooth' })}
-           className="rounded-lg h-16 sm:h-20 w-16 sm:w-20 bg-white/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 transition-all border border-border/20 flex-shrink-0"
-          >
-            <ChevronDown className="w-10 sm:w-12 h-10 sm:h-12 text-primary" />
-          </Button>
-        </div>
         <div ref={containerRef} className="w-full flex-1 md:h-auto md:max-w-lg md:mx-auto relative flex flex-col overflow-hidden">
           <Button variant="ghost" onClick={onBack} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-4 h-4" />
@@ -376,24 +358,6 @@ export default function EventScale({ event, employees, onBack }) {
 
   return (
     <div className="w-full h-full flex flex-col relative">
-      <div className="fixed left-2 top-2/3 flex flex-col gap-2 z-20 pointer-events-auto">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => signatureRef.current?.scrollBy({ top: -120, behavior: 'smooth' })}
-          className="rounded-lg h-16 sm:h-20 w-16 sm:w-20 bg-white/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 transition-all border border-border/20 flex-shrink-0"
-        >
-          <ChevronUp className="w-10 sm:w-12 h-10 sm:h-12 text-primary" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => signatureRef.current?.scrollBy({ top: 120, behavior: 'smooth' })}
-          className="rounded-lg h-16 sm:h-20 w-16 sm:w-20 bg-white/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 transition-all border border-border/20 flex-shrink-0"
-        >
-          <ChevronDown className="w-10 sm:w-12 h-10 sm:h-12 text-primary" />
-        </Button>
-      </div>
       <div className="flex items-center gap-2 sm:gap-3 mb-4">
         <Button
           variant="ghost"
