@@ -1,11 +1,8 @@
 import { useRef } from "react";
 import { Outlet, Link } from "react-router-dom";
-import { ArrowUp } from "lucide-react";
 
 export default function Layout() {
   const mainRef = useRef(null);
-  const scrollUp = () => mainRef.current?.scrollBy({ top: -300, behavior: 'smooth' });
-  const scrollDown = () => mainRef.current?.scrollBy({ top: 300, behavior: 'smooth' });
 
   return (
     <div
@@ -40,7 +37,7 @@ export default function Layout() {
 
       <main
         ref={mainRef}
-        className="flex-1 w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-6 overflow-y-scroll overflow-x-hidden"
+        className="flex-1 w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-6 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <div className="max-w-7xl mx-auto">
@@ -48,21 +45,6 @@ export default function Layout() {
         </div>
       </main>
 
-      {/* Scroll buttons */}
-      <div className="fixed left-3 bottom-1/3 z-50 flex flex-col gap-4">
-        <button
-          onClick={scrollUp}
-          className="w-16 h-16 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur border border-border/40 text-muted-foreground shadow-lg flex items-center justify-center hover:bg-white hover:text-primary transition-all active:scale-95"
-        >
-          <ArrowUp className="w-9 h-9" />
-        </button>
-        <button
-          onClick={scrollDown}
-          className="w-16 h-16 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur border border-border/40 text-muted-foreground shadow-lg flex items-center justify-center hover:bg-white hover:text-primary transition-all active:scale-95"
-        >
-          <ArrowUp className="w-9 h-9 rotate-180" />
-        </button>
-      </div>
     </div>
   );
 }
