@@ -1,6 +1,18 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 
-export default function MobileCustomScrollbar({
+interface MobileCustomScrollbarProps {
+  children: React.ReactNode;
+  height?: string;
+  className?: string;
+  trackColor?: string;
+  thumbColor?: string;
+  thumbHoverColor?: string;
+  showOnHover?: boolean;
+  autoHide?: boolean;
+  maxHeight?: string;
+}
+
+const MobileCustomScrollbar: React.FC<MobileCustomScrollbarProps> = ({
   children,
   height = 'h-96 md:h-[500px] lg:h-[600px]',
   className = '',
@@ -10,10 +22,10 @@ export default function MobileCustomScrollbar({
   showOnHover = true,
   autoHide = true,
   maxHeight = 'max-h-[80vh] md:max-h-[90vh]',
-}) {
-  const scrollContainerRef = useRef(null);
-  const scrollbarRef = useRef(null);
-  const thumbRef = useRef(null);
+}) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollbarRef = useRef<HTMLDivElement>(null);
+  const thumbRef = useRef<HTMLDivElement>(null);
   const [isHovering, setIsHovering] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
   const [scrollTop, setScrollTop] = useState(0);
@@ -22,6 +34,7 @@ export default function MobileCustomScrollbar({
   const [thumbTop, setThumbTop] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Detectar scroll ativo
   const updateThumbPosition = useCallback(() => {
     if (!scrollContainerRef.current || !scrollbarRef.current || !thumbRef.current) return;
 
@@ -40,10 +53,12 @@ export default function MobileCustomScrollbar({
     if (maxScrollTop > 0) {
       setIsScrolling(true);
       
+      // Altura do thumb proporcional (mínimo 20px)
       const ratio = clientHeight / scrollHeight;
       const newThumbHeight = Math.max(20, ratio * scrollbar.clientHeight);
       setThumbHeight(newThumbHeight);
 
+      // Posição do thumb
       const thumbPositionPercent = (scrollTopVal / maxScrollTop) * 100;
       const newThumbTop = (scrollbar.clientHeight - newThumbHeight) * (thumbPositionPercent / 100);
       setThumbTop(newThumbTop);
@@ -53,7 +68,8 @@ export default function MobileCustomScrollbar({
     }
   }, []);
 
-  const scrollToPosition = useCallback((positionPercent) => {
+  // Scroll do container pelo thumb
+  const scrollToPosition = useCallback((positionPercent: number) => {
     if (!scrollContainerRef.current) return;
     
     const maxScrollTop = scrollContainerRef.current.scrollHeight - 
@@ -61,13 +77,14 @@ export default function MobileCustomScrollbar({
     scrollContainerRef.current.scrollTop = (positionPercent / 100) * maxScrollTop;
   }, []);
 
-  const handleStartDrag = useCallback(() => {
+  // Drag do thumb (Desktop + Mobile)
+  const handleStartDrag = useCallback((clientY: number) => {
     setIsDragging(true);
     document.body.style.userSelect = 'none';
     document.body.style.touchAction = 'none';
   }, []);
 
-  const handleDrag = useCallback((clientY) => {
+  const handleDrag = useCallback((clientY: number) => {
     if (!scrollbarRef.current || !isDragging) return;
 
     const rect = scrollbarRef.current.getBoundingClientRect();
@@ -82,16 +99,19 @@ export default function MobileCustomScrollbar({
     document.body.style.touchAction = '';
   }, []);
 
-  const getClientY = (e) => {
-    return e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
+  // Eventos unificados (Mouse + Touch)
+  const getClientY = (e: React.MouseEvent | React.TouchEvent): number => {
+    return 'touches' in e && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
   };
 
+  // Efeitos principais
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
     const handleScroll = () => {
       updateThumbPosition();
+      // Reset scroll indicator após 1s de inatividade
       setTimeout(() => setIsScrolling(false), 1000);
     };
 
@@ -106,10 +126,11 @@ export default function MobileCustomScrollbar({
     };
   }, [updateThumbPosition]);
 
+  // Cleanup drag events
   useEffect(() => {
-    const handleGlobalMove = (e) => {
+    const handleGlobalMove = (e: MouseEvent | TouchEvent) => {
       if (isDragging) {
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
         handleDrag(clientY);
       }
     };
@@ -133,22 +154,30 @@ export default function MobileCustomScrollbar({
     };
   }, [isDragging, handleDrag, handleEndDrag]);
 
-  const visibilityClass = (showOnHover || isScrolling || isDragging) 
-    ? 'opacity-100 w-2 sm:w-2.5 md:w-2 scale-x-100' 
-    : 'opacity-0 w-0 scale-x-0';
-
   return (
     <div
-      className={`w-full relative flex flex-col ${height} ${maxHeight} ${className} sm:rounded-xl md:rounded-2xl overflow-hidden`}
+      className={`
+        w-full relative flex flex-col
+        ${height} ${maxHeight}
+        ${className}
+        sm:rounded-xl md:rounded-2xl
+        overflow-hidden
+      `}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
+      {/* Container Principal de Scroll */}
       <div
         ref={scrollContainerRef}
-        className={`w-full h-full flex-1 overflow-hidden relative scrollbar-none ${showOnHover ? 'hover:pr-3 sm:hover:pr-4 md:hover:pr-2' : 'pr-2'} transition-all duration-300 ease-out`}
+        className={`
+          w-full h-full flex-1 overflow-hidden relative
+          scrollbar-none
+          ${showOnHover ? 'hover:pr-3 sm:hover:pr-4 md:hover:pr-2' : 'pr-2'}
+          transition-all duration-300 ease-out
+        `}
         style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
+          scrollbarWidth: 'none' as const,
+          msOverflowStyle: 'none' as const,
           WebkitOverflowScrolling: 'touch',
         }}
       >
@@ -157,13 +186,36 @@ export default function MobileCustomScrollbar({
         </div>
       </div>
 
+      {/* Scrollbar Customizada */}
       <div
         ref={scrollbarRef}
-        className={`absolute right-1 sm:right-2 md:right-1 top-0 h-full w-1.5 sm:w-2 md:w-1.5 bg-transparent/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-full transition-all duration-300 group ${trackColor} ${visibilityClass} hover:opacity-100 hover:w-2.5 sm:hover:w-3 md:hover:w-2.5`}
+        className={`
+          absolute right-1 sm:right-2 md:right-1 top-0
+          h-full w-1.5 sm:w-2 md:w-1.5
+          bg-transparent/50 dark:bg-gray-800/50
+          backdrop-blur-sm rounded-full
+          transition-all duration-300
+          group
+          ${trackColor}
+          ${(showOnHover || isScrolling || isDragging) 
+            ? 'opacity-100 w-2 sm:w-2.5 md:w-2 scale-x-100' 
+            : 'opacity-0 w-0 scale-x-0'}
+          hover:opacity-100 hover:w-2.5 sm:hover:w-3 md:hover:w-2.5
+        `}
       >
+        {/* Thumb da Scrollbar */}
         <div
           ref={thumbRef}
-          className={`absolute left-0 w-full rounded-full transition-all duration-200 ease-out active:scale-110 shadow-lg cursor-grab active:cursor-grabbing select-none touch-none ${thumbColor} group-hover:${thumbHoverColor} ${isDragging ? `${thumbHoverColor} scale-110 shadow-xl` : ''}`}
+          className={`
+            absolute left-0 w-full rounded-full
+            transition-all duration-200 ease-out
+            active:scale-110
+            shadow-lg
+            cursor-grab active:cursor-grabbing
+            select-none touch-none
+            ${thumbColor} group-hover:${thumbHoverColor}
+            ${isDragging ? `${thumbHoverColor} scale-110 shadow-xl` : ''}
+          `}
           style={{
             height: `${thumbHeight}px`,
             top: 0,
@@ -179,10 +231,13 @@ export default function MobileCustomScrollbar({
           }}
         />
         
+        {/* Indicador de scroll ativo */}
         {isScrolling && (
           <div className="absolute inset-0 bg-gradient-to-b from-blue-400/30 to-purple-400/30 animate-pulse rounded-full blur-sm" />
         )}
       </div>
     </div>
   );
-}
+};
+
+export default MobileCustomScrollbar;
