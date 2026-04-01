@@ -55,18 +55,18 @@ export default function Layout() {
       </main>
 
       {/* Scroll buttons - left side */}
-      <div className="fixed left-3 bottom-1/3 z-50 flex flex-col gap-2 sm:hidden">
+      <div className="fixed left-3 bottom-1/3 z-50 flex flex-col gap-3 sm:hidden">
           <button
             onClick={scrollUp}
-            className="w-8 h-8 rounded-full bg-white/70 dark:bg-slate-800/70 backdrop-blur border border-border/40 text-muted-foreground shadow flex items-center justify-center hover:bg-white hover:text-primary transition-all active:scale-95"
+            className="w-12 h-12 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-border/40 text-muted-foreground shadow-md flex items-center justify-center hover:bg-white hover:text-primary transition-all active:scale-95"
           >
-            <ArrowUp className="w-4 h-4" />
+            <ArrowUp className="w-6 h-6" />
           </button>
           <button
             onClick={scrollDown}
-            className="w-8 h-8 rounded-full bg-white/70 dark:bg-slate-800/70 backdrop-blur border border-border/40 text-muted-foreground shadow flex items-center justify-center hover:bg-white hover:text-primary transition-all active:scale-95"
+            className="w-12 h-12 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-border/40 text-muted-foreground shadow-md flex items-center justify-center hover:bg-white hover:text-primary transition-all active:scale-95"
           >
-            <ArrowUp className="w-4 h-4 rotate-180" />
+            <ArrowUp className="w-6 h-6 rotate-180" />
           </button>
         </div>
     </div>
