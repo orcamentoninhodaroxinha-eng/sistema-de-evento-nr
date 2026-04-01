@@ -289,17 +289,17 @@ export default function EventScale({ event, employees, onBack }) {
               variant="ghost"
               size="icon"
               onClick={() => listRef.current?.scrollBy({ top: -100, behavior: 'smooth' })}
-              className="rounded-lg h-12 w-12 opacity-40 hover:opacity-70 transition-opacity"
+              className="rounded-lg h-12 w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30"
             >
-              <ChevronUp className="w-6 h-6" />
+              <ChevronUp className="w-6 h-6 text-primary" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => listRef.current?.scrollBy({ top: 100, behavior: 'smooth' })}
-              className="rounded-lg h-12 w-12 opacity-40 hover:opacity-70 transition-opacity"
+              className="rounded-lg h-12 w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30"
             >
-              <ChevronDown className="w-6 h-6" />
+              <ChevronDown className="w-6 h-6 text-primary" />
             </Button>
           </div>
         </div>
