@@ -38,6 +38,11 @@ export default function LoginGate({ children }) {
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Ninho da Roxinha</h1>
           <p className="text-sm text-muted-foreground mt-1">Sistema de Confirmação de Evento</p>
+          <div className="flex items-center justify-center gap-3 mt-3 text-xs text-primary/70">
+            <span>🌐 Web</span>
+            <span className="text-muted-foreground/50">•</span>
+            <span>📱 Mobile</span>
+          </div>
         </div>
 
         <div className="bg-card rounded-2xl border border-border p-6 shadow-sm space-y-4">
