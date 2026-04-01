@@ -248,7 +248,7 @@ export default function EventScale({ event, employees, onBack }) {
     });
 
     return (
-      <div ref={containerRef} className="w-full h-full relative flex flex-col">
+      <div ref={containerRef} className="w-full h-full md:h-auto md:max-w-lg md:mx-auto relative flex flex-col">
         <Button variant="ghost" onClick={onBack} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" />
           Voltar
