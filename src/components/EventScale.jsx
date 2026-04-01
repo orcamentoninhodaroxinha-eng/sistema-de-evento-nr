@@ -262,17 +262,17 @@ export default function EventScale({ event, employees, onBack }) {
               variant="ghost"
               size="icon"
               onClick={() => listRef.current?.scrollBy({ top: -100, behavior: 'smooth' })}
-              className="rounded-lg h-10 w-10 opacity-40 hover:opacity-70 transition-opacity"
+              className="rounded-lg h-12 w-12 opacity-40 hover:opacity-70 transition-opacity"
             >
-              <ChevronUp className="w-5 h-5" />
+              <ChevronUp className="w-6 h-6" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => listRef.current?.scrollBy({ top: 100, behavior: 'smooth' })}
-              className="rounded-lg h-10 w-10 opacity-40 hover:opacity-70 transition-opacity"
+              className="rounded-lg h-12 w-12 opacity-40 hover:opacity-70 transition-opacity"
             >
-              <ChevronDown className="w-5 h-5" />
+              <ChevronDown className="w-6 h-6" />
             </Button>
           </div>
           <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto max-h-[50vh] sm:max-h-[60vh] pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
