@@ -470,7 +470,6 @@ export default function EventScale({ event, employees, onBack }) {
           >
             <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
           </Button>
-          </div>
         </div>
         <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-10 pointer-events-auto">
           <Button
@@ -490,6 +489,7 @@ export default function EventScale({ event, employees, onBack }) {
             <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
           </Button>
         </div>
+      </div>
       </div>
 
       {/* Pending list */}
