@@ -8,10 +8,10 @@ export default function Layout() {
   const mainRef = useRef(null);
   useDeviceDetection(); // Ativa detecção de dispositivo para todos os usuários
 
-  const smoothScroll = (target) => {
+  const smoothScroll = (delta) => {
     if (!mainRef.current) return;
     const start = mainRef.current.scrollTop;
-    const distance = target - start;
+    const distance = delta;
     const duration = 1500; // Duração em ms
     const startTime = Date.now();
 
@@ -70,21 +70,22 @@ export default function Layout() {
 
       {/* Scroll Navigation Buttons */}
       <div className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20 pointer-events-auto">
+
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => smoothScroll(0)}
+          onClick={() => smoothScroll(-180)}
           className="rounded-lg h-12 w-12 bg-white/40 dark:bg-slate-950/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 dark:hover:bg-slate-950/60 transition-all border border-border/20"
-          aria-label="Ir para o início"
+          aria-label="Rolar para cima"
         >
           <ChevronUp className="w-6 h-6 text-primary" />
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => smoothScroll(mainRef.current.scrollHeight)}
+          onClick={() => smoothScroll(180)}
           className="rounded-lg h-12 w-12 bg-white/40 dark:bg-slate-950/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 dark:hover:bg-slate-950/60 transition-all border border-border/20"
-          aria-label="Ir para o final"
+          aria-label="Rolar para baixo"
         >
           <ChevronDown className="w-6 h-6 text-primary" />
         </Button>
