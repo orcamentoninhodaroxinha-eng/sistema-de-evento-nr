@@ -273,8 +273,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
 
 
 
-      {/* Start Scale Button (when no PDF or already reviewed) */}
-      {!pdfReviewMode && (teamConfirmed || scalePdfUrl) && (
+      {/* Start Scale Button */}
+      {!pdfReviewMode && (teamConfirmed || scalePdfUrl || assignedEmployees.length > 0) && (
         <div className="mt-4">
           <Button
             onClick={async () => {
