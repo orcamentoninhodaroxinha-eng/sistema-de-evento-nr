@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, CheckCircle, FileDown, Loader2, Users, Lock, ArrowUp } from "lucide-react";
+import { ArrowLeft, CheckCircle, FileDown, Loader2, Users, Lock, ArrowUp, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -255,7 +255,25 @@ export default function EventScale({ event, employees, onBack }) {
         </Button>
         <h1 className="text-xl font-bold mb-1">Quem vai assinar agora?</h1>
         <p className="text-sm text-muted-foreground mb-5">Toque no funcionário para iniciar a assinatura.</p>
-        {/* Scroll buttons removed - using Layout arrows */}
+        
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => listRef.current?.scrollBy({ top: -100, behavior: 'smooth' })}
+            className="rounded-lg"
+          >
+            <ChevronUp className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => listRef.current?.scrollBy({ top: 100, behavior: 'smooth' })}
+            className="rounded-lg"
+          >
+            <ChevronDown className="w-4 h-4" />
+          </Button>
+        </div>
 
         <div ref={listRef} className="space-y-5 overflow-y-auto max-h-[60vh] pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
           {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
