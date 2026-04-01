@@ -47,6 +47,8 @@ export default function EventScale({ event, employees, onBack }) {
   useEffect(() => {
     if (selectMode && containerRef.current) {
       containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (!selectMode) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [selectMode]);
 
