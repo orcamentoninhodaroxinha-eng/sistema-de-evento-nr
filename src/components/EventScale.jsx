@@ -256,26 +256,8 @@ export default function EventScale({ event, employees, onBack }) {
         <h1 className="text-xl font-bold mb-1">Quem vai assinar agora?</h1>
         <p className="text-sm text-muted-foreground mb-5">Toque no funcionário para iniciar a assinatura.</p>
         
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => listRef.current?.scrollBy({ top: -100, behavior: 'smooth' })}
-            className="rounded-lg"
-          >
-            <ChevronUp className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => listRef.current?.scrollBy({ top: 100, behavior: 'smooth' })}
-            className="rounded-lg"
-          >
-            <ChevronDown className="w-4 h-4" />
-          </Button>
-        </div>
-
-        <div ref={listRef} className="space-y-5 overflow-y-auto max-h-[60vh] pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
+        <div className="flex gap-3">
+          <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto max-h-[60vh] pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
           {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
             groups[groupKey] ? (
               <div key={groupKey}>
@@ -301,6 +283,25 @@ export default function EventScale({ event, employees, onBack }) {
               </div>
             ) : null
           )}
+          </div>
+          <div className="flex flex-col items-center justify-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => listRef.current?.scrollBy({ top: -100, behavior: 'smooth' })}
+              className="rounded-lg h-8 w-8 opacity-40 hover:opacity-70 transition-opacity"
+            >
+              <ChevronUp className="w-3.5 h-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => listRef.current?.scrollBy({ top: 100, behavior: 'smooth' })}
+              className="rounded-lg h-8 w-8 opacity-40 hover:opacity-70 transition-opacity"
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
+            </Button>
+          </div>
         </div>
       </div>
     );
