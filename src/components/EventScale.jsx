@@ -388,7 +388,19 @@ export default function EventScale({ event, employees, onBack }) {
           <p className="text-xs text-muted-foreground mb-3 sm:mb-4 leading-snug">Toque para assinar.</p>
 
           <div className="relative flex-1 min-h-0 flex gap-2 sm:gap-3">
-           <div ref={listRef} className="space-y-1 sm:space-y-2 overflow-y-auto h-full flex-1 [&::-webkit-scrollbar]:w-0 pr-1" style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none', touchAction: 'auto' }}>
+           <div
+             ref={listRef}
+             className="space-y-1 sm:space-y-2 overflow-y-auto h-full flex-1 [&::-webkit-scrollbar]:w-0 pr-1"
+             style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none', touchAction: 'auto' }}
+             onTouchStart={(e) => setTouchStart(e.touches[0].clientY)}
+             onTouchEnd={(e) => {
+               const touchEnd = e.changedTouches[0].clientY;
+               const diff = touchStart - touchEnd;
+               if (Math.abs(diff) > 10 && listRef.current) {
+                 listRef.current.scrollBy({ top: diff, behavior: 'smooth' });
+               }
+             }}
+           >
              {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
                groups[groupKey] ? (
                  <div key={groupKey}>
