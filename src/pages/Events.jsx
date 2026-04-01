@@ -104,15 +104,18 @@ export default function Events() {
   });
 
   useEffect(() => {
-    const observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && displayedCount < (events?.length || 0)) {
-        setDisplayedCount(prev => Math.min(prev + 5, events.length));
-      }
-    }, { threshold: 0.1 });
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting) {
+          setDisplayedCount(prev => Math.min(prev + 5, events?.length || 0));
+        }
+      },
+      { threshold: 0.1 }
+    );
 
     if (sentinelRef.current) observer.observe(sentinelRef.current);
     return () => observer.disconnect();
-  }, [displayedCount, events?.length]);
+  }, [events?.length]);
 
   const handleDelete = async (event) => {
     if (confirm(`Excluir o evento "${event.name}"?`)) {
