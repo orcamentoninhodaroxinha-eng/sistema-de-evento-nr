@@ -341,7 +341,7 @@ export default function EventScale({ event, employees, onBack }) {
   }
 
   return (
-    <>
+    <div className="w-full h-full flex flex-col relative">
       <div className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-20 pointer-events-auto">
         <Button
           variant="ghost"
@@ -360,8 +360,7 @@ export default function EventScale({ event, employees, onBack }) {
           <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
         </Button>
       </div>
-      <div className="w-full h-full flex flex-col">
-        <div className="flex items-center gap-2 sm:gap-3 mb-4">
+      <div className="flex items-center gap-2 sm:gap-3 mb-4">
         <Button
           variant="ghost"
           onClick={onBack}
@@ -488,8 +487,7 @@ export default function EventScale({ event, employees, onBack }) {
           </div>
         </div>
       )}
-    </div>
-    </div>
-    </>
-  );
-}
+      </div>
+      </div>
+      );
+      }
