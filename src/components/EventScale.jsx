@@ -36,8 +36,11 @@ export default function EventScale({ event, employees, onBack }) {
 
 
   const listRef = useRef(null);
+  const scrollbarThumbRef = useRef(null);
 
   const [selectMode, setSelectMode] = useState(true);
+  const [thumbTop, setThumbTop] = useState(0);
+  const [isDraggingScroll, setIsDraggingScroll] = useState(false);
   const [pending, setPending] = useState(
     sortedEmployees.map((emp, i) => ({ ...emp, _key: emp.id || `${emp.full_name}-${i}` }))
   );
@@ -68,6 +71,38 @@ export default function EventScale({ event, employees, onBack }) {
     }
   };
 
+  const updateScrollbarPosition = () => {
+    if (!listRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+    const maxScroll = scrollHeight - clientHeight;
+    if (maxScroll > 0) {
+      const percentage = (scrollTop / maxScroll) * 100;
+      setThumbTop(percentage);
+    }
+  };
+
+  const handleScrollbarMouseDown = (e) => {
+    setIsDraggingScroll(true);
+    e.preventDefault();
+  };
+
+  useEffect(() => {
+    if (!isDraggingScroll) return;
+    const handleMouseMove = (e) => {
+      if (!listRef.current) return;
+      const rect = listRef.current.getBoundingClientRect();
+      const percentage = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+      listRef.current.scrollTop = (percentage / 100) * (listRef.current.scrollHeight - listRef.current.clientHeight);
+    };
+    const handleMouseUp = () => setIsDraggingScroll(false);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingScroll]);
+
   useEffect(() => {
     const ref = selectMode ? containerRef.current : signatureRef.current;
     if (ref) {
@@ -86,6 +121,13 @@ export default function EventScale({ event, employees, onBack }) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [selectMode, handleWheel, touchStart]);
+
+  useEffect(() => {
+    const listElement = listRef.current;
+    if (!listElement) return;
+    listElement.addEventListener('scroll', updateScrollbarPosition);
+    return () => listElement.removeEventListener('scroll', updateScrollbarPosition);
+  }, []);
 
   const selectEmployee = (idx) => {
     setPending(prev => {
@@ -320,7 +362,17 @@ export default function EventScale({ event, employees, onBack }) {
                 ) : null
               )}
             </div>
-            <div className="w-0.5 bg-primary/40 sm:bg-primary/20 rounded-full hover:bg-primary/60 sm:hover:bg-primary/40 transition-colors flex-shrink-0" />
+            <div className="w-0.5 bg-primary/40 sm:bg-primary/20 rounded-full hover:bg-primary/60 sm:hover:bg-primary/40 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing relative">
+              <div
+                ref={scrollbarThumbRef}
+                onMouseDown={handleScrollbarMouseDown}
+                className="absolute left-0 w-full bg-primary/60 rounded-full transition-colors hover:bg-primary/80 cursor-grab active:cursor-grabbing"
+                style={{
+                  height: '12px',
+                  top: `calc(${thumbTop}% - 6px)`,
+                }}
+              />
+            </div>
           </div>
         </div>
       </>
