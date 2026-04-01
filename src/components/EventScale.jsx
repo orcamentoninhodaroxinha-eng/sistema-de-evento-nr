@@ -86,6 +86,11 @@ export default function EventScale({ event, employees, onBack }) {
     e.preventDefault();
   };
 
+  const handleScrollbarTouchStart = (e) => {
+    setIsDraggingScroll(true);
+    e.preventDefault();
+  };
+
   useEffect(() => {
     if (!isDraggingScroll) return;
     const handleMouseMove = (e) => {
@@ -94,12 +99,22 @@ export default function EventScale({ event, employees, onBack }) {
       const percentage = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
       listRef.current.scrollTop = (percentage / 100) * (listRef.current.scrollHeight - listRef.current.clientHeight);
     };
-    const handleMouseUp = () => setIsDraggingScroll(false);
+    const handleTouchMove = (e) => {
+      if (!listRef.current) return;
+      const rect = listRef.current.getBoundingClientRect();
+      const percentage = Math.max(0, Math.min(100, ((e.touches[0].clientY - rect.top) / rect.height) * 100));
+      listRef.current.scrollTop = (percentage / 100) * (listRef.current.scrollHeight - listRef.current.clientHeight);
+    };
+    const handleEnd = () => setIsDraggingScroll(false);
     document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('mouseup', handleEnd);
+    document.addEventListener('touchend', handleEnd);
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('mouseup', handleEnd);
+      document.removeEventListener('touchend', handleEnd);
     };
   }, [isDraggingScroll]);
 
@@ -366,6 +381,7 @@ export default function EventScale({ event, employees, onBack }) {
               <div
                 ref={scrollbarThumbRef}
                 onMouseDown={handleScrollbarMouseDown}
+                onTouchStart={handleScrollbarTouchStart}
                 className="absolute left-0 w-full bg-primary/60 rounded-full transition-colors hover:bg-primary/80 cursor-grab active:cursor-grabbing"
                 style={{
                   height: '12px',
