@@ -32,6 +32,14 @@ export default function Layout() {
     setTouchStart(e.touches[0].clientY);
   };
 
+  const handleTouchMove = (e) => {
+    if (touchStart === null || !mainRef.current) return;
+    const currentY = e.touches[0].clientY;
+    const diff = touchStart - currentY;
+    mainRef.current.scrollTop += diff * 0.5;
+    setTouchStart(currentY);
+  };
+
   const handleTouchEnd = (e) => {
     if (touchStart === null) return;
     const touchEnd = e.changedTouches[0].clientY;
@@ -76,6 +84,7 @@ export default function Layout() {
       <main
         ref={mainRef}
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full"
         style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--border)) transparent' }}
