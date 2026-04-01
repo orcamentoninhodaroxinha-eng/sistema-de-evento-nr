@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { ChevronUp, ChevronDown } from "lucide-react";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Layout() {
   const mainRef = useRef(null);
+  const [touchStart, setTouchStart] = useState(null);
   useDeviceDetection(); // Ativa detecção de dispositivo para todos os usuários
 
   const smoothScroll = (delta) => {
@@ -25,6 +26,20 @@ export default function Layout() {
       if (progress < 1) requestAnimationFrame(scroll);
     };
     requestAnimationFrame(scroll);
+  };
+
+  const handleTouchStart = (e) => {
+    setTouchStart(e.touches[0].clientY);
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStart === null) return;
+    const touchEnd = e.changedTouches[0].clientY;
+    const diff = touchStart - touchEnd;
+    if (Math.abs(diff) > 30) {
+      smoothScroll(diff);
+    }
+    setTouchStart(null);
   };
 
   return (
@@ -60,6 +75,8 @@ export default function Layout() {
 
       <main
         ref={mainRef}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full"
         style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--border)) transparent' }}
       >
