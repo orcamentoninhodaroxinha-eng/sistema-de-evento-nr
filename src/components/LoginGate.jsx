@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Lock } from "lucide-react";
 
-const USERNAME = "ninho";
+const USERNAME = "Ninho";
 const PASSWORD = "123";
 const SESSION_KEY = "ninho_auth";
 
