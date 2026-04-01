@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, CheckCircle, FileDown, Loader2, Users, Lock } from "lucide-react";
+import { ArrowLeft, CheckCircle, FileDown, Loader2, Users, Lock, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +34,10 @@ export default function EventScale({ event, employees, onBack }) {
   });
 
 
+
+  const listRef = useRef(null);
+  const scrollUp = useCallback(() => listRef.current?.scrollBy({ top: -200, behavior: 'smooth' }), []);
+  const scrollDown = useCallback(() => listRef.current?.scrollBy({ top: 200, behavior: 'smooth' }), []);
 
   const [selectMode, setSelectMode] = useState(true);
   const [pending, setPending] = useState(
@@ -234,15 +238,32 @@ export default function EventScale({ event, employees, onBack }) {
       if (!groups[g]) groups[g] = [];
       groups[g].push({ emp, idx });
     });
+
     return (
-      <div className="max-w-lg mx-auto w-full">
+      <div className="max-w-lg mx-auto w-full relative">
         <Button variant="ghost" onClick={onBack} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" />
           Voltar
         </Button>
         <h1 className="text-xl font-bold mb-1">Quem vai assinar agora?</h1>
         <p className="text-sm text-muted-foreground mb-5">Toque no funcionário para iniciar a assinatura.</p>
-        <div className="space-y-5 overflow-y-auto max-h-[60vh] pr-1">
+        {/* Scroll buttons */}
+        <div className="fixed left-3 z-50 flex flex-col gap-2" style={{ top: '50%', transform: 'translateY(-50%)' }}>
+          <button
+            onClick={scrollUp}
+            className="w-8 h-8 rounded-full bg-white/70 dark:bg-slate-800/70 backdrop-blur border border-border/40 text-muted-foreground shadow flex items-center justify-center hover:bg-white hover:text-primary transition-all active:scale-95"
+          >
+            <ArrowUp className="w-4 h-4" />
+          </button>
+          <button
+            onClick={scrollDown}
+            className="w-8 h-8 rounded-full bg-white/70 dark:bg-slate-800/70 backdrop-blur border border-border/40 text-muted-foreground shadow flex items-center justify-center hover:bg-white hover:text-primary transition-all active:scale-95"
+          >
+            <ArrowUp className="w-4 h-4 rotate-180" />
+          </button>
+        </div>
+
+        <div ref={listRef} className="space-y-5 overflow-y-auto max-h-[60vh] pr-1">
           {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
             groups[groupKey] ? (
               <div key={groupKey}>
