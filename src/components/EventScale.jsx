@@ -428,19 +428,16 @@ export default function EventScale({ event, employees, onBack }) {
                ) : null
              )}
            </div>
-           <div className="w-1 sm:w-0.5 bg-primary/40 rounded-full hover:bg-primary/60 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing relative" onTouchStart={(e) => e.preventDefault()}>
+           <div className="w-1 sm:w-0.5 bg-primary/40 rounded-full hover:bg-primary/60 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing relative">
              <div
                ref={scrollbarThumbRef}
                onMouseDown={handleScrollbarMouseDown}
-               onTouchStart={(e) => {
-                 e.preventDefault();
-                 handleScrollbarTouchStart(e);
-               }}
+               onTouchStart={handleScrollbarTouchStart}
                className="absolute left-0 w-full bg-primary/60 rounded-full transition-colors hover:bg-primary/80 cursor-grab active:cursor-grabbing"
                style={{
-                  height: '12px',
-                  top: `${thumbTop}px`,
-                }}
+                 height: '12px',
+                 top: `${thumbTop}px`,
+               }}
              />
            </div>
           </div>
