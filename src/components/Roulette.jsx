@@ -12,6 +12,7 @@ const SEGMENTS = [
 ];
 
 export default function Roulette() {
+  const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -124,8 +125,7 @@ export default function Roulette() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={spin}
-          disabled={isSpinning}
+          onClick={() => containerRef.current?.scrollBy({ top: -120, behavior: 'smooth' })}
           className="rounded-lg h-16 sm:h-20 w-16 sm:w-20 bg-white/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 transition-all border border-border/20 flex-shrink-0"
         >
           <ChevronUp className="w-10 sm:w-12 h-10 sm:h-12 text-primary" />
@@ -133,43 +133,42 @@ export default function Roulette() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={spin}
-          disabled={isSpinning}
+          onClick={() => containerRef.current?.scrollBy({ top: 120, behavior: 'smooth' })}
           className="rounded-lg h-16 sm:h-20 w-16 sm:w-20 bg-white/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 transition-all border border-border/20 flex-shrink-0"
         >
           <ChevronDown className="w-10 sm:w-12 h-10 sm:h-12 text-primary" />
         </Button>
       </div>
 
-    <div className="flex flex-col items-center justify-center gap-6 py-6 px-4">
-      <h2 className="text-2xl font-bold">Roda da Sorte</h2>
+      <div ref={containerRef} className="w-full h-full overflow-y-auto flex flex-col items-center justify-center gap-6 py-6 px-4">
+        <h2 className="text-2xl font-bold">Roda da Sorte</h2>
       
-      <div className="bg-white rounded-2xl p-4 shadow-lg">
-        <canvas
-          ref={canvasRef}
-          width={300}
-          height={300}
-          className="w-full max-w-xs"
-        />
-      </div>
-
-      <Button
-        onClick={spin}
-        disabled={isSpinning}
-        size="lg"
-        className="gap-2"
-      >
-        <RotateCw className={`w-5 h-5 ${isSpinning ? 'animate-spin' : ''}`} />
-        {isSpinning ? 'Girando...' : 'Girar Roleta'}
-      </Button>
-
-      {winner && (
-        <div className="bg-emerald-50 border border-emerald-300 rounded-xl px-6 py-4 text-center w-full">
-          <p className="text-sm text-emerald-700 font-medium">Parabéns! Você ganhou:</p>
-          <p className="text-2xl font-bold text-emerald-900">{winner.name}</p>
+        <div className="bg-white rounded-2xl p-4 shadow-lg">
+          <canvas
+            ref={canvasRef}
+            width={300}
+            height={300}
+            className="w-full max-w-xs"
+          />
         </div>
-      )}
-    </div>
+
+        <Button
+          onClick={spin}
+          disabled={isSpinning}
+          size="lg"
+          className="gap-2"
+        >
+          <RotateCw className={`w-5 h-5 ${isSpinning ? 'animate-spin' : ''}`} />
+          {isSpinning ? 'Girando...' : 'Girar Roleta'}
+        </Button>
+
+        {winner && (
+          <div className="bg-emerald-50 border border-emerald-300 rounded-xl px-6 py-4 text-center w-full">
+            <p className="text-sm text-emerald-700 font-medium">Parabéns! Você ganhou:</p>
+            <p className="text-2xl font-bold text-emerald-900">{winner.name}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
