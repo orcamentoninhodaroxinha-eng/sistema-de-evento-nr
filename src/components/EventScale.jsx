@@ -452,44 +452,6 @@ export default function EventScale({ event, employees, onBack }) {
           {saving ? "Salvando..." : `Próximo`}
         </Button>
       </div>
-        </div>
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-10 pointer-events-auto">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => signatureRef.current?.scrollBy({ top: -80, behavior: 'smooth' })}
-            className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
-          >
-            <ChevronUp className="w-5 sm:w-6 h-5 sm:w-6 text-primary" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => signatureRef.current?.scrollBy({ top: 80, behavior: 'smooth' })}
-            className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
-          >
-            <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
-          </Button>
-        </div>
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-10 pointer-events-auto">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => signatureRef.current?.scrollBy({ top: -80, behavior: 'smooth' })}
-            className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
-          >
-            <ChevronUp className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => signatureRef.current?.scrollBy({ top: 80, behavior: 'smooth' })}
-            className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
-          >
-            <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
-          </Button>
-        </div>
-      </div>
       </div>
 
       {/* Pending list */}
