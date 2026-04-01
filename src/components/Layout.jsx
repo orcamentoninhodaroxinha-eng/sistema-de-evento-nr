@@ -1,8 +1,10 @@
 import { useRef } from "react";
 import { Outlet, Link } from "react-router-dom";
+import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 
 export default function Layout() {
   const mainRef = useRef(null);
+  useDeviceDetection(); // Ativa detecção de dispositivo para todos os usuários
 
   return (
     <div
