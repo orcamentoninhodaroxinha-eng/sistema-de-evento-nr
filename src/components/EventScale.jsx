@@ -284,7 +284,7 @@ export default function EventScale({ event, employees, onBack }) {
 
     return (
       <>
-        <div className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20 pointer-events-auto">
+        <div className="fixed left-2 top-2/3 flex flex-col gap-2 z-20 pointer-events-auto">
           <Button
             variant="ghost"
             size="icon"
@@ -376,7 +376,7 @@ export default function EventScale({ event, employees, onBack }) {
 
   return (
     <div className="w-full h-full flex flex-col relative">
-      <div className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20 pointer-events-auto">
+      <div className="fixed left-2 top-2/3 flex flex-col gap-2 z-20 pointer-events-auto">
         <Button
           variant="ghost"
           size="icon"
