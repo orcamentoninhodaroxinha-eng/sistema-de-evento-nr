@@ -256,7 +256,7 @@ export default function EventScale({ event, employees, onBack }) {
         <h1 className="text-xl font-bold mb-1">Quem vai assinar agora?</h1>
         <p className="text-sm text-muted-foreground mb-5">Toque no funcionário para iniciar a assinatura.</p>
         
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3">
           <div className="flex flex-col items-center justify-center gap-1">
             <Button
               variant="ghost"
@@ -275,7 +275,7 @@ export default function EventScale({ event, employees, onBack }) {
               <ChevronDown className="w-3.5 h-3.5" />
             </Button>
           </div>
-          <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto max-h-[60vh] pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
+          <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto max-h-[50vh] sm:max-h-[60vh] pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
           {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
             groups[groupKey] ? (
               <div key={groupKey}>
@@ -394,20 +394,20 @@ export default function EventScale({ event, employees, onBack }) {
       })()}
 
       {/* Current employee */}
-      <div className="bg-card rounded-2xl border border-border p-6 shadow-sm space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-6">
+        <div className="flex items-center gap-3">
           {current.photo_url ? (
-            <img src={current.photo_url} alt={current.full_name} className="w-14 h-14 rounded-xl object-cover" />
+            <img src={current.photo_url} alt={current.full_name} className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover" />
           ) : (
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center">
-              <span className="text-primary font-bold text-lg">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center">
+              <span className="text-primary font-bold text-base sm:text-lg">
                 {current.full_name?.charAt(0).toUpperCase()}
               </span>
             </div>
           )}
-          <div>
-            <h2 className="text-lg font-bold">{current.full_name}</h2>
-            <p className="text-sm text-muted-foreground">{current.role} · {current.department}</p>
+          <div className="min-w-0">
+            <h2 className="text-base sm:text-lg font-bold truncate">{current.full_name}</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">{current.role} · {current.department}</p>
           </div>
         </div>
 
@@ -440,7 +440,7 @@ export default function EventScale({ event, employees, onBack }) {
         <Button
           onClick={handleConfirmEmployee}
           disabled={!signatureConfirmed || !photoConfirmed || saving}
-          className="w-full h-12 text-base font-semibold rounded-xl gap-2"
+          className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold rounded-xl gap-2"
         >
           {saving ? (
             <Loader2 className="w-5 h-5 animate-spin" />
