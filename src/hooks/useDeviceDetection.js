@@ -3,7 +3,11 @@ import { useAuth } from '@/lib/AuthContext';
 
 export function useDeviceDetection() {
   const { user } = useAuth();
-  const [deviceInfo, setDeviceInfo] = useState(null);
+  const [deviceInfo, setDeviceInfo] = useState({
+    isMobile: false,
+    isWeb: true,
+    deviceType: 'web'
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -15,11 +19,12 @@ export function useDeviceDetection() {
       userId: user.id,
       userEmail: user.email,
       deviceType,
+      isMobile,
+      isWeb: !isMobile,
       userAgent: navigator.userAgent,
       screenWidth: window.innerWidth,
       screenHeight: window.innerHeight,
-      timestamp: new Date().toISOString(),
-      isMobile
+      timestamp: new Date().toISOString()
     };
 
     setDeviceInfo(info);
@@ -27,7 +32,7 @@ export function useDeviceDetection() {
     // Armazenar última conexão
     if (user.email === 'ninho@example.com' || user.email?.includes('ninho')) {
       localStorage.setItem('ninho_last_connection', JSON.stringify(info));
-      console.log(`[Ninho Connected] Device: ${deviceType}, User: ${user.email}`);
+      console.log(`[Ninho Connected] Device: ${deviceType}, Screen: ${window.innerWidth}x${window.innerHeight}`);
     }
   }, [user]);
 

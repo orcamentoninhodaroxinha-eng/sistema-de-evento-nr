@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { ArrowLeft, CheckCircle, FileDown, Loader2, Users, Lock, ArrowUp, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
 
 export default function EventScale({ event, employees, onBack }) {
+  const deviceInfo = useDeviceDetection();
   const getGroup = (emp) => {
     const role = (emp.role || "").toLowerCase();
     if (
@@ -51,6 +53,7 @@ export default function EventScale({ event, employees, onBack }) {
   const [touchStart, setTouchStart] = useState(0);
 
   const handleWheel = (e) => {
+    if (!deviceInfo?.isWeb) return; // Apenas web usa scroll de roda
     const ref = selectMode ? containerRef.current : signatureRef.current;
     if (ref) {
       ref.scrollBy({ top: e.deltaY, behavior: 'smooth' });
@@ -58,10 +61,12 @@ export default function EventScale({ event, employees, onBack }) {
   };
 
   const handleTouchStart = (e) => {
+    if (!deviceInfo?.isMobile) return; // Apenas mobile usa touch
     setTouchStart(e.touches[0].clientY);
   };
 
   const handleTouchEnd = (e) => {
+    if (!deviceInfo?.isMobile) return; // Apenas mobile usa touch
     const ref = selectMode ? containerRef.current : signatureRef.current;
     if (!ref) return;
     const touchEnd = e.changedTouches[0].clientY;
@@ -121,9 +126,13 @@ export default function EventScale({ event, employees, onBack }) {
   useEffect(() => {
     const ref = selectMode ? containerRef.current : signatureRef.current;
     if (ref) {
-      ref.addEventListener('wheel', handleWheel, { passive: true });
-      ref.addEventListener('touchstart', handleTouchStart, { passive: true });
-      ref.addEventListener('touchend', handleTouchEnd, { passive: true });
+      if (deviceInfo?.isWeb) {
+        ref.addEventListener('wheel', handleWheel, { passive: true });
+      }
+      if (deviceInfo?.isMobile) {
+        ref.addEventListener('touchstart', handleTouchStart, { passive: true });
+        ref.addEventListener('touchend', handleTouchEnd, { passive: true });
+      }
       return () => {
         ref.removeEventListener('wheel', handleWheel);
         ref.removeEventListener('touchstart', handleTouchStart);
@@ -135,7 +144,7 @@ export default function EventScale({ event, employees, onBack }) {
     } else if (!selectMode) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [selectMode, handleWheel, touchStart]);
+  }, [selectMode, handleWheel, touchStart, deviceInfo]);
 
   useEffect(() => {
     const listElement = listRef.current;
