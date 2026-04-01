@@ -249,62 +249,64 @@ export default function EventScale({ event, employees, onBack }) {
     });
 
     return (
-      <div ref={containerRef} className="w-full h-full md:h-auto md:max-w-lg md:mx-auto relative flex flex-col">
-        <Button variant="ghost" onClick={onBack} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="w-4 h-4" />
-          Voltar
-        </Button>
-        <h1 className="text-lg sm:text-xl font-bold mb-1">Quem vai assinar agora?</h1>
-        <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-5">Toque no funcionário para iniciar a assinatura.</p>
-        
-        <div className="relative">
-          <div ref={listRef} className="space-y-1.5 sm:space-y-2 overflow-y-auto flex-1 pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
-          {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
-            groups[groupKey] ? (
-              <div key={groupKey}>
-                <div className={`text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border mb-1.5 sm:mb-2 inline-block ${config.color}`}>{config.label}</div>
-                <div className="space-y-2">
-                  {groups[groupKey].map(({ emp, idx }) => (
-                    <button
-                      key={emp._key}
-                      onClick={() => selectEmployee(idx)}
-                      className="w-full flex items-center gap-2 sm:gap-3 bg-card border border-border rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 hover:border-primary/40 hover:bg-accent/30 transition-all text-left"
-                    >
-                      <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center shrink-0">
-                        <span className="text-primary font-bold text-sm">{emp.full_name?.charAt(0).toUpperCase()}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-xs sm:text-sm truncate">{emp.full_name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{emp.role}</p>
-                      </div>
-                      <CheckCircle className="w-5 h-5 text-muted-foreground/30" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null
-          )}
-          </div>
-          <div className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-20 pointer-events-auto">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => window.scrollBy({ top: -80, behavior: 'smooth' })}
-              className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
-            >
-              <ChevronUp className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => window.scrollBy({ top: 80, behavior: 'smooth' })}
-              className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
-            >
-              <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
-            </Button>
+      <>
+        <div className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-20 pointer-events-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => window.scrollBy({ top: -80, behavior: 'smooth' })}
+            className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
+          >
+            <ChevronUp className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => window.scrollBy({ top: 80, behavior: 'smooth' })}
+            className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
+          >
+            <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
+          </Button>
+        </div>
+        <div ref={containerRef} className="w-full h-full md:h-auto md:max-w-lg md:mx-auto relative flex flex-col">
+          <Button variant="ghost" onClick={onBack} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="w-4 h-4" />
+            Voltar
+          </Button>
+          <h1 className="text-lg sm:text-xl font-bold mb-1">Quem vai assinar agora?</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-5">Toque no funcionário para iniciar a assinatura.</p>
+          
+          <div className="relative">
+            <div ref={listRef} className="space-y-1.5 sm:space-y-2 overflow-y-auto flex-1 pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
+              {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
+                groups[groupKey] ? (
+                  <div key={groupKey}>
+                    <div className={`text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border mb-1.5 sm:mb-2 inline-block ${config.color}`}>{config.label}</div>
+                    <div className="space-y-2">
+                      {groups[groupKey].map(({ emp, idx }) => (
+                        <button
+                          key={emp._key}
+                          onClick={() => selectEmployee(idx)}
+                          className="w-full flex items-center gap-2 sm:gap-3 bg-card border border-border rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 hover:border-primary/40 hover:bg-accent/30 transition-all text-left"
+                        >
+                          <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center shrink-0">
+                            <span className="text-primary font-bold text-sm">{emp.full_name?.charAt(0).toUpperCase()}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-xs sm:text-sm truncate">{emp.full_name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{emp.role}</p>
+                          </div>
+                          <CheckCircle className="w-5 h-5 text-muted-foreground/30" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
