@@ -1,9 +1,11 @@
+import { useRef } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { ArrowUp } from "lucide-react";
 
 export default function Layout() {
-  const scrollUp = () => window.scrollBy({ top: -300, behavior: 'smooth' });
-  const scrollDown = () => window.scrollBy({ top: 300, behavior: 'smooth' });
+  const mainRef = useRef(null);
+  const scrollUp = () => mainRef.current?.scrollBy({ top: -300, behavior: 'smooth' });
+  const scrollDown = () => mainRef.current?.scrollBy({ top: 300, behavior: 'smooth' });
 
   return (
     <div
@@ -37,6 +39,7 @@ export default function Layout() {
       </header>
 
       <main
+        ref={mainRef}
         className="flex-1 w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-6 overflow-y-scroll overflow-x-hidden"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
