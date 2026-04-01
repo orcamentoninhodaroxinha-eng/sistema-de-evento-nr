@@ -74,7 +74,7 @@ export default function Layout() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => smoothScroll(-180)}
+          onClick={() => smoothScroll(-360)}
           className="rounded-lg h-12 w-12 bg-white/40 dark:bg-slate-950/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 dark:hover:bg-slate-950/60 transition-all border border-border/20"
           aria-label="Rolar para cima"
         >
@@ -83,7 +83,7 @@ export default function Layout() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => smoothScroll(180)}
+          onClick={() => smoothScroll(360)}
           className="rounded-lg h-12 w-12 bg-white/40 dark:bg-slate-950/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 dark:hover:bg-slate-950/60 transition-all border border-border/20"
           aria-label="Rolar para baixo"
         >
