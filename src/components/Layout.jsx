@@ -1,6 +1,19 @@
+import { useState, useRef } from "react";
 import { Outlet, Link } from "react-router-dom";
+import { ArrowUp } from "lucide-react";
 
 export default function Layout() {
+  const [showTop, setShowTop] = useState(false);
+  const mainRef = useRef(null);
+
+  const handleScroll = (e) => {
+    setShowTop(e.target.scrollTop > 200);
+  };
+
+  const scrollToTop = () => {
+    mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div
       className="flex flex-col bg-background"
@@ -32,6 +45,8 @@ export default function Layout() {
       </header>
 
       <main
+        ref={mainRef}
+        onScroll={handleScroll}
         className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 overflow-y-auto overflow-x-hidden"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
@@ -39,6 +54,15 @@ export default function Layout() {
           <Outlet />
         </div>
       </main>
+
+      {showTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-all"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
