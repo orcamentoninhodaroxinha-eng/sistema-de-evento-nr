@@ -100,7 +100,7 @@ export default function CameraCapture({ onCapture }) {
             playsInline
             muted
             className="w-full rounded-xl"
-            style={{ maxHeight: "360px", objectFit: "cover" }}
+            style={{ maxHeight: "500px", objectFit: "cover" }}
           />
           <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3">
             <Button
@@ -140,7 +140,7 @@ export default function CameraCapture({ onCapture }) {
               src={photo}
               alt="Foto capturada"
               className="w-full object-cover"
-              style={{ maxHeight: "360px" }}
+              style={{ maxHeight: "500px" }}
             />
           </div>
           <div className="flex gap-2">
