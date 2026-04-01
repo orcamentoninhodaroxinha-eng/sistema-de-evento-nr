@@ -46,7 +46,7 @@ export default function Layout() {
       </main>
 
       {/* Scroll buttons */}
-      <div className="fixed left-3 bottom-1/3 z-50 flex flex-col gap-4 sm:hidden">
+      <div className="fixed left-3 bottom-1/3 z-50 flex flex-col gap-4">
         <button
           onClick={scrollUp}
           className="w-16 h-16 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur border border-border/40 text-muted-foreground shadow-lg flex items-center justify-center hover:bg-white hover:text-primary transition-all active:scale-95"
