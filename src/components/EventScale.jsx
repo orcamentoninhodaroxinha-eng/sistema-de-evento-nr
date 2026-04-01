@@ -288,7 +288,7 @@ export default function EventScale({ event, employees, onBack }) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => containerRef.current?.scrollBy({ top: -120, behavior: 'smooth' })}
+            onClick={() => listRef.current?.scrollBy({ top: -120, behavior: 'smooth' })}
             className="rounded-lg h-16 sm:h-20 w-16 sm:w-20 bg-white/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 transition-all border border-border/20 flex-shrink-0"
           >
             <ChevronUp className="w-10 sm:w-12 h-10 sm:h-12 text-primary" />
@@ -296,7 +296,7 @@ export default function EventScale({ event, employees, onBack }) {
           <Button
            variant="ghost"
            size="icon"
-           onClick={() => containerRef.current?.scrollBy({ top: 120, behavior: 'smooth' })}
+           onClick={() => listRef.current?.scrollBy({ top: 120, behavior: 'smooth' })}
            className="rounded-lg h-16 sm:h-20 w-16 sm:w-20 bg-white/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 transition-all border border-border/20 flex-shrink-0"
           >
             <ChevronDown className="w-10 sm:w-12 h-10 sm:h-12 text-primary" />
