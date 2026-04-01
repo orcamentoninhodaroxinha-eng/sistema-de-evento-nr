@@ -43,6 +43,7 @@ export default function EventScale({ event, employees, onBack }) {
   );
 
   const containerRef = useRef(null);
+  const signatureRef = useRef(null);
 
   useEffect(() => {
     if (selectMode && containerRef.current) {
@@ -394,8 +395,9 @@ export default function EventScale({ event, employees, onBack }) {
       })()}
 
       {/* Current employee */}
-      <div className="bg-card rounded-2xl border border-border p-3 sm:p-6 shadow-sm space-y-3 sm:space-y-6 flex-1 overflow-y-auto">
-        <div className="flex items-center gap-2 sm:gap-3">
+      <div className="relative flex-1">
+        <div ref={signatureRef} className="bg-card rounded-2xl border border-border p-3 sm:p-6 shadow-sm space-y-3 sm:space-y-6 overflow-y-auto h-full">
+          <div className="flex items-center gap-2 sm:gap-3">
           {current.photo_url ? (
             <img src={current.photo_url} alt={current.full_name} className="w-10 sm:w-12 h-10 sm:h-12 rounded-lg sm:rounded-xl object-cover flex-shrink-0" />
           ) : (
@@ -449,6 +451,45 @@ export default function EventScale({ event, employees, onBack }) {
           )}
           {saving ? "Salvando..." : `Próximo`}
         </Button>
+      </div>
+        </div>
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-10 pointer-events-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => signatureRef.current?.scrollBy({ top: -80, behavior: 'smooth' })}
+            className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
+          >
+            <ChevronUp className="w-5 sm:w-6 h-5 sm:w-6 text-primary" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => signatureRef.current?.scrollBy({ top: 80, behavior: 'smooth' })}
+            className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
+          >
+            <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
+          </Button>
+          </div>
+        </div>
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-10 pointer-events-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => signatureRef.current?.scrollBy({ top: -80, behavior: 'smooth' })}
+            className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
+          >
+            <ChevronUp className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => signatureRef.current?.scrollBy({ top: 80, behavior: 'smooth' })}
+            className="rounded-lg h-10 sm:h-12 w-10 sm:w-12 bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg hover:bg-white transition-all border border-border/30 flex-shrink-0"
+          >
+            <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-primary" />
+          </Button>
+        </div>
       </div>
 
       {/* Pending list */}
