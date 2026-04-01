@@ -452,9 +452,6 @@ export default function EventScale({ event, employees, onBack }) {
           {saving ? "Salvando..." : `Próximo`}
         </Button>
       </div>
-      </div>
-
-      {/* Pending list */}
       {pending.length > 1 && (
         <div className="mt-2 sm:mt-3 bg-muted/50 rounded-xl sm:rounded-2xl p-2.5 sm:p-4">
           <p className="text-xs text-muted-foreground font-medium mb-1.5 sm:mb-2 uppercase tracking-wide">Aguardando</p>
@@ -470,6 +467,7 @@ export default function EventScale({ event, employees, onBack }) {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }
