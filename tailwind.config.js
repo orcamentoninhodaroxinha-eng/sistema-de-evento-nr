@@ -4,6 +4,13 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
+  		screens: {
+  			'xs': '475px',
+  			'sm': '640px',
+  			'md': '768px',
+  			'lg': '1024px',
+  			'xl': '1280px',
+  		},
   		fontFamily: {
   			inter: ['var(--font-inter)']
   		},
@@ -76,12 +83,23 @@ module.exports = {
   			'accordion-up': {
   				from: { height: 'var(--radix-accordion-content-height)' },
   				to: { height: '0' }
+  			},
+  			scrollFade: {
+  				'0%': { opacity: '0', transform: 'scaleX(0)' },
+  				'100%': { opacity: '1', transform: 'scaleX(1)' }
+  			},
+  			thumbGrow: {
+  				'0%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(99, 102, 241, 0.5)' },
+  				'50%': { transform: 'scale(1.1)', boxShadow: '0 0 0 8px rgba(99, 102, 241, 0)' },
+  				'100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(99, 102, 241, 0)' }
   			}
   		},
   		animation: {
   		     'fade-in': 'fadeIn 0.3s ease-in-out',
   				'accordion-down': 'accordion-down 0.2s ease-out',
-  				'accordion-up': 'accordion-up 0.2s ease-out'
+  				'accordion-up': 'accordion-up 0.2s ease-out',
+  				'scroll-fade': 'scrollFade 0.4s ease-out',
+  				'thumb-grow': 'thumbGrow 0.2s ease-out'
   				}
   	}
   },
