@@ -167,11 +167,11 @@ export default function EventScale({ event, employees, onBack }) {
     };
     
     listElement.addEventListener('scroll', handleScroll, { passive: true });
-    listElement.addEventListener('touchmove', handleScroll, { passive: true });
+    window.addEventListener('touchmove', handleScroll, { passive: true });
     
     return () => {
       listElement.removeEventListener('scroll', handleScroll);
-      listElement.removeEventListener('touchmove', handleScroll);
+      window.removeEventListener('touchmove', handleScroll);
     };
   }, [updateScrollbarPosition]);
 
