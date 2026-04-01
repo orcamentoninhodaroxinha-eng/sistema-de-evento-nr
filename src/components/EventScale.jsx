@@ -93,28 +93,40 @@ export default function EventScale({ event, employees, onBack }) {
 
   const handleScrollbarTouchStart = (e) => {
     setIsDraggingScroll(true);
-    e.preventDefault();
+    if (e.cancelable) {
+      e.preventDefault();
+    }
   };
 
   useEffect(() => {
     if (!isDraggingScroll) return;
+    
     const handleMouseMove = (e) => {
       if (!listRef.current) return;
       const rect = listRef.current.getBoundingClientRect();
       const percentage = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
       listRef.current.scrollTop = (percentage / 100) * (listRef.current.scrollHeight - listRef.current.clientHeight);
     };
+    
     const handleTouchMove = (e) => {
-      if (!listRef.current) return;
+      if (!listRef.current || !e.touches[0]) return;
+      if (e.cancelable) {
+        e.preventDefault();
+      }
       const rect = listRef.current.getBoundingClientRect();
       const percentage = Math.max(0, Math.min(100, ((e.touches[0].clientY - rect.top) / rect.height) * 100));
       listRef.current.scrollTop = (percentage / 100) * (listRef.current.scrollHeight - listRef.current.clientHeight);
     };
-    const handleEnd = () => setIsDraggingScroll(false);
-    document.addEventListener('mousemove', handleMouseMove);
+    
+    const handleEnd = () => {
+      setIsDraggingScroll(false);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove, { passive: true });
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('mouseup', handleEnd);
-    document.addEventListener('touchend', handleEnd);
+    document.addEventListener('mouseup', handleEnd, { passive: true });
+    document.addEventListener('touchend', handleEnd, { passive: true });
+    
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('touchmove', handleTouchMove);
