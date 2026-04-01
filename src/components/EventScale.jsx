@@ -310,27 +310,27 @@ export default function EventScale({ event, employees, onBack }) {
   // All done
   if (pending.length === 0) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center text-center py-10">
-        <div className="w-20 h-20 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-5">
-          <CheckCircle className="w-10 h-10 text-emerald-600" />
+      <div className="w-full h-full flex flex-col items-center justify-center text-center px-4 sm:px-6 py-6 sm:py-10">
+        <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-4 sm:mb-5">
+          <CheckCircle className="w-8 sm:w-10 h-8 sm:h-10 text-emerald-600" />
         </div>
-        <h2 className="text-2xl font-bold">Escala Finalizada!</h2>
-        <p className="text-muted-foreground mt-2 mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold">Escala Finalizada!</h2>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-2 mb-4 sm:mb-6">
           Todos os {completed.length} funcionários foram registrados.
         </p>
         <Button
           onClick={generatePDF}
           disabled={generatingPdf}
-          className="w-full h-14 text-base font-semibold rounded-2xl gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30"
+          className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl gap-2 sm:gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30"
         >
           {generatingPdf ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin" />
           ) : (
-            <FileDown className="w-6 h-6" />
+            <FileDown className="w-5 sm:w-6 h-5 sm:h-6" />
           )}
-          {generatingPdf ? "Gerando PDF..." : "Baixar PDF da Escala"}
+          {generatingPdf ? "Gerando..." : "Baixar PDF"}
         </Button>
-        <Button variant="ghost" onClick={onBack} className="mt-3 w-full">
+        <Button variant="ghost" onClick={onBack} className="mt-2 sm:mt-3 w-full text-xs sm:text-sm">
           Voltar ao Evento
         </Button>
       </div>
@@ -395,35 +395,35 @@ export default function EventScale({ event, employees, onBack }) {
 
       {/* Current employee */}
       <div className="bg-card rounded-2xl border border-border p-3 sm:p-6 shadow-sm space-y-3 sm:space-y-6 flex-1 overflow-y-auto">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {current.photo_url ? (
-            <img src={current.photo_url} alt={current.full_name} className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover" />
+            <img src={current.photo_url} alt={current.full_name} className="w-10 sm:w-12 h-10 sm:h-12 rounded-lg sm:rounded-xl object-cover flex-shrink-0" />
           ) : (
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center">
-              <span className="text-primary font-bold text-base sm:text-lg">
+            <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center flex-shrink-0">
+              <span className="text-primary font-bold text-sm sm:text-base">
                 {current.full_name?.charAt(0).toUpperCase()}
               </span>
             </div>
           )}
-          <div className="min-w-0">
-            <h2 className="text-base sm:text-lg font-bold truncate">{current.full_name}</h2>
-            <p className="text-xs sm:text-sm text-muted-foreground truncate">{current.role} · {current.department}</p>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-sm sm:text-base font-bold truncate">{current.full_name}</h2>
+            <p className="text-xs text-muted-foreground truncate">{current.role} · {current.department}</p>
           </div>
         </div>
 
         {/* Valor */}
         {current.valor && (
-          <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
-            <span className="text-sm font-medium text-emerald-800">Valor do Serviço</span>
-            <span className="text-lg font-bold text-emerald-700">R$ {current.valor}</span>
+          <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3">
+            <span className="text-xs sm:text-sm font-medium text-emerald-800">Valor</span>
+            <span className="text-base sm:text-lg font-bold text-emerald-700">R$ {current.valor}</span>
           </div>
         )}
 
         <SignaturePad key={`sig-${current._key}`} onSave={handleSignatureSave} />
 
         {signatureConfirmed && (
-          <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 rounded-lg px-4 py-2 border border-emerald-200">
-            <CheckCircle className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-emerald-600 bg-emerald-50 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 border border-emerald-200">
+            <CheckCircle className="w-3.5 sm:w-4 h-3.5 sm:h-4 flex-shrink-0" />
             Assinatura confirmada
           </div>
         )}
@@ -431,8 +431,8 @@ export default function EventScale({ event, employees, onBack }) {
         <CameraCapture key={`cam-${current._key}`} onCapture={handlePhotoCapture} />
 
         {photoConfirmed && (
-          <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 rounded-lg px-4 py-2 border border-emerald-200">
-            <CheckCircle className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-emerald-600 bg-emerald-50 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 border border-emerald-200">
+            <CheckCircle className="w-3.5 sm:w-4 h-3.5 sm:h-4 flex-shrink-0" />
             Foto confirmada
           </div>
         )}
@@ -440,28 +440,28 @@ export default function EventScale({ event, employees, onBack }) {
         <Button
           onClick={handleConfirmEmployee}
           disabled={!signatureConfirmed || !photoConfirmed || saving}
-          className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold rounded-xl gap-2"
+          className="w-full h-10 sm:h-11 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl gap-2"
         >
           {saving ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin" />
           ) : (
-            <CheckCircle className="w-5 h-5" />
+            <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5" />
           )}
-          {saving ? "Salvando..." : `Confirmar e Próximo`}
+          {saving ? "Salvando..." : `Próximo`}
         </Button>
       </div>
 
       {/* Pending list */}
       {pending.length > 1 && (
-        <div className="mt-3 sm:mt-4 bg-muted/50 rounded-2xl p-3 sm:p-4">
-          <p className="text-xs text-muted-foreground font-medium mb-2 uppercase tracking-wide">Aguardando</p>
-          <div className="space-y-2">
+        <div className="mt-2 sm:mt-3 bg-muted/50 rounded-xl sm:rounded-2xl p-2.5 sm:p-4">
+          <p className="text-xs text-muted-foreground font-medium mb-1.5 sm:mb-2 uppercase tracking-wide">Aguardando</p>
+          <div className="space-y-1 sm:space-y-2">
             {pending.slice(1).map((emp) => (
-              <div key={emp._key} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <div className="w-6 h-6 rounded-md bg-muted flex items-center justify-center text-xs font-bold">
+              <div key={emp._key} className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                <div className="w-5 sm:w-6 h-5 sm:h-6 rounded-md bg-muted flex items-center justify-center text-xs font-bold flex-shrink-0">
                   {emp.full_name?.charAt(0).toUpperCase()}
                 </div>
-                {emp.full_name}
+                <span className="truncate">{emp.full_name}</span>
               </div>
             ))}
           </div>
