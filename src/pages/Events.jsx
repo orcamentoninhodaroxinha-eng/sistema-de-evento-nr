@@ -1,14 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import PullToRefresh from "@/components/PullToRefresh";
 import PageTransition from "@/components/PageTransition";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import {
   CalendarDays, MapPin, Users, Search, Loader2,
-  MoreVertical, Trash2, CheckCircle2, Plus
+  MoreVertical, Trash2, CheckCircle2, Plus, ChevronUp, ChevronDown
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -92,36 +92,20 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish }) {
 export default function Events() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("proximos");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const observerTarget = useRef(null);
 
-  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
+  const { data: events, isLoading } = useQuery({
     queryKey: ["events"],
-    queryFn: ({ pageParam = 0 }) => {
-      const allEvents = queryClient.getQueryData(["events"])?.pages?.flat() || [];
-      return base44.entities.Event.list("-date", 100);
-    },
-    getNextPageParam: (lastPage, pages) => pages.length,
-    initialPageParam: 0,
+    queryFn: () => base44.entities.Event.list("-date", 100),
   });
 
-  const events = data?.pages?.flat() || [];
-
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (observerTarget.current) observer.observe(observerTarget.current);
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+    setCurrentPage(1);
+  }, [search, activeTab]);
 
   const handleDelete = async (event) => {
     if (confirm(`Excluir o evento "${event.name}"?`)) {
@@ -144,6 +128,12 @@ export default function Events() {
 
   const activeEvents = filtered.filter(ev => ev.status !== "Concluído");
   const finishedEvents = filtered.filter(ev => ev.status === "Concluído");
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const displayedActiveEvents = activeEvents.slice(startIndex, startIndex + itemsPerPage);
+  const displayedFinishedEvents = finishedEvents.slice(startIndex, startIndex + itemsPerPage);
+  const totalActivePages = Math.ceil(activeEvents.length / itemsPerPage);
+  const totalFinishedPages = Math.ceil(finishedEvents.length / itemsPerPage);
 
   const isAdmin = user?.role === 'admin';
 
@@ -201,10 +191,10 @@ export default function Events() {
           </TabsList>
 
           <TabsContent value="proximos" className="space-y-3">
-            {activeEvents.length > 0 ? (
+            {displayedActiveEvents.length > 0 ? (
               <>
                 <div className="grid gap-3">
-                  {activeEvents.map((event) => (
+                  {displayedActiveEvents.map((event) => (
                     <EventCard
                       key={event.id}
                       event={event}
@@ -215,10 +205,29 @@ export default function Events() {
                     />
                   ))}
                 </div>
-                <div ref={observerTarget} className="h-4" />
-                {isFetchingNextPage && (
-                  <div className="flex justify-center py-4">
-                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                {totalActivePages > 1 && (
+                  <div className="flex items-center justify-center gap-3 mt-6 pt-4 border-t border-border">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="rounded-lg"
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      {currentPage} de {totalActivePages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCurrentPage(p => Math.min(totalActivePages, p + 1))}
+                      disabled={currentPage === totalActivePages}
+                      className="rounded-lg"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
                   </div>
                 )}
               </>
@@ -233,10 +242,10 @@ export default function Events() {
           </TabsContent>
 
           <TabsContent value="concluidos" className="space-y-3">
-            {finishedEvents.length > 0 ? (
+            {displayedFinishedEvents.length > 0 ? (
               <>
                 <div className="grid gap-3">
-                  {finishedEvents.map((event) => (
+                  {displayedFinishedEvents.map((event) => (
                     <EventCard
                       key={event.id}
                       event={event}
@@ -247,10 +256,29 @@ export default function Events() {
                     />
                   ))}
                 </div>
-                <div ref={observerTarget} className="h-4" />
-                {isFetchingNextPage && (
-                  <div className="flex justify-center py-4">
-                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                {totalFinishedPages > 1 && (
+                  <div className="flex items-center justify-center gap-3 mt-6 pt-4 border-t border-border">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="rounded-lg"
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      {currentPage} de {totalFinishedPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCurrentPage(p => Math.min(totalFinishedPages, p + 1))}
+                      disabled={currentPage === totalFinishedPages}
+                      className="rounded-lg"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
                   </div>
                 )}
               </>
