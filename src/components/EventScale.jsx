@@ -248,7 +248,7 @@ export default function EventScale({ event, employees, onBack }) {
     });
 
     return (
-      <div ref={containerRef} className="max-w-lg mx-auto w-full relative">
+      <div ref={containerRef} className="w-full h-full relative flex flex-col">
         <Button variant="ghost" onClick={onBack} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" />
           Voltar
@@ -310,7 +310,7 @@ export default function EventScale({ event, employees, onBack }) {
   // All done
   if (pending.length === 0) {
     return (
-      <div className="max-w-lg mx-auto text-center py-10">
+      <div className="w-full h-full flex flex-col items-center justify-center text-center py-10">
         <div className="w-20 h-20 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-5">
           <CheckCircle className="w-10 h-10 text-emerald-600" />
         </div>
@@ -338,7 +338,7 @@ export default function EventScale({ event, employees, onBack }) {
   }
 
   return (
-    <div className="max-w-lg mx-auto w-full">
+    <div className="w-full h-full flex flex-col">
       <div className="flex items-center gap-3 mb-4">
         <Button
           variant="ghost"
