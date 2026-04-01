@@ -222,54 +222,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
 
       {/* PDF Review Mode */}
       {pdfReviewMode && (
-        <div className="mt-6 bg-card rounded-2xl border border-border p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              <h2 className="font-semibold text-lg">Funcionários da Escala</h2>
-              <span className="text-sm text-muted-foreground">({pdfEmployees.length})</span>
-            </div>
-            <Button size="sm" onClick={() => setShowAddPdfDialog(true)} className="gap-2 rounded-xl">
-              <Plus className="w-4 h-4" />
-              Adicionar
-            </Button>
-          </div>
-
-          <div className="relative">
-            <div
-              className="space-y-2 mb-2 overflow-y-auto pr-1"
-              style={{ maxHeight: '55vh', scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--border)) transparent' }}
-            >
-              {pdfEmployees.map((emp, idx) => (
-                <div key={emp.id || `pdf-${idx}`} className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 group">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center shrink-0">
-                    <span className="text-primary font-bold text-sm">{emp.full_name?.charAt(0).toUpperCase()}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{emp.full_name}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      {emp.cpf && <span className="text-xs text-muted-foreground">{emp.cpf}</span>}
-                      {emp.valor && <span className="text-xs font-medium text-emerald-600">R$ {emp.valor}</span>}
-                      {emp.role && <span className={`text-xs font-medium px-2 py-0.5 rounded ${roleColors[emp.role] || 'bg-slate-50 text-slate-600'}`}>{emp.role}</span>}
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost" size="icon"
-                    onClick={() => setPdfEmployees(prev => prev.filter((_, i) => i !== idx))}
-                    className="opacity-0 group-hover:opacity-100 h-8 w-8 text-muted-foreground hover:text-destructive"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-            {/* Gradient fade at bottom to hint scrollability */}
-            {pdfEmployees.length > 4 && (
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card to-transparent rounded-b-xl" />
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground text-center mb-4">{pdfEmployees.length} funcionário(s) na escala — role para ver todos</p>
-
+        <div className="mt-4">
           <Button
             onClick={() => setShowScale(true)}
             disabled={pdfEmployees.length === 0}
