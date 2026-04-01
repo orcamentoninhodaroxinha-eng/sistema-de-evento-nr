@@ -8,6 +8,25 @@ export default function Layout() {
   const mainRef = useRef(null);
   useDeviceDetection(); // Ativa detecção de dispositivo para todos os usuários
 
+  const smoothScroll = (target) => {
+    if (!mainRef.current) return;
+    const start = mainRef.current.scrollTop;
+    const distance = target - start;
+    const duration = 1500; // Duração em ms
+    const startTime = Date.now();
+
+    const scroll = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeInOutQuad = progress < 0.5 
+        ? 2 * progress * progress 
+        : -1 + (4 - 2 * progress) * progress;
+      mainRef.current.scrollTop = start + distance * easeInOutQuad;
+      if (progress < 1) requestAnimationFrame(scroll);
+    };
+    requestAnimationFrame(scroll);
+  };
+
   return (
     <div
       className="flex flex-col bg-background"
@@ -54,7 +73,7 @@ export default function Layout() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={() => smoothScroll(0)}
           className="rounded-lg h-12 w-12 bg-white/40 dark:bg-slate-950/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 dark:hover:bg-slate-950/60 transition-all border border-border/20"
           aria-label="Ir para o início"
         >
@@ -63,7 +82,7 @@ export default function Layout() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => mainRef.current?.scrollTo({ top: mainRef.current.scrollHeight, behavior: 'smooth' })}
+          onClick={() => smoothScroll(mainRef.current.scrollHeight)}
           className="rounded-lg h-12 w-12 bg-white/40 dark:bg-slate-950/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 dark:hover:bg-slate-950/60 transition-all border border-border/20"
           aria-label="Ir para o final"
         >
