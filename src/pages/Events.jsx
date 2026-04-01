@@ -130,14 +130,14 @@ export default function Events() {
     <PageTransition>
     <PullToRefresh onRefresh={() => queryClient.invalidateQueries(["events"])}>
     <div>
-      <div className="mb-8">
+      <div className="mb-4">
         <div className="flex flex-col justify-between gap-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold tracking-tight">
                 Eventos
               </h1>
-              <p className="text-muted-foreground mt-1 text-sm">Gerencie eventos e aloque funcionários</p>
+              <p className="text-muted-foreground mt-0.5 text-xs">Gerencie eventos e aloque funcionários</p>
             </div>
             {isAdmin && (
               <Button
@@ -152,7 +152,7 @@ export default function Events() {
         </div>
       </div>
 
-      <div className="relative mb-5">
+      <div className="relative mb-3">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           placeholder="Buscar evento por nome ou local..."

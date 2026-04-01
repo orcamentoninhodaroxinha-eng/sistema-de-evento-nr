@@ -46,7 +46,7 @@ export default function Layout() {
 
       <main
         ref={mainRef}
-        className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 overflow-y-auto overflow-x-hidden"
+        className="flex-1 w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-6 overflow-y-scroll overflow-x-hidden"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <div className="max-w-7xl mx-auto">
