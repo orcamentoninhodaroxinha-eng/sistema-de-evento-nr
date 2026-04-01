@@ -77,12 +77,19 @@ export default function EventScale({ event, employees, onBack }) {
   };
 
   const updateScrollbarPosition = () => {
-    if (!listRef.current) return;
+    if (!listRef.current || !scrollbarThumbRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+    const scrollbar = scrollbarThumbRef.current.parentElement;
+    if (!scrollbar) return;
+    
     const maxScroll = scrollHeight - clientHeight;
+    const scrollbarHeight = scrollbar.clientHeight;
+    const thumbHeight = 12;
+    
     if (maxScroll > 0) {
       const percentage = (scrollTop / maxScroll) * 100;
-      setThumbTop(percentage);
+      const newThumbTop = (percentage / 100) * (scrollbarHeight - thumbHeight);
+      setThumbTop(newThumbTop);
     }
   };
 
@@ -415,9 +422,9 @@ export default function EventScale({ event, employees, onBack }) {
                onTouchStart={handleScrollbarTouchStart}
                className="absolute left-0 w-full bg-primary/60 rounded-full transition-colors hover:bg-primary/80 cursor-grab active:cursor-grabbing"
                style={{
-                 height: '12px',
-                 top: `calc(${thumbTop}% - 6px)`,
-               }}
+                  height: '12px',
+                  top: `${thumbTop}px`,
+                }}
              />
            </div>
           </div>
