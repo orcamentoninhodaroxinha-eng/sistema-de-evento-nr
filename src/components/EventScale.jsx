@@ -302,7 +302,7 @@ export default function EventScale({ event, employees, onBack }) {
             <ChevronDown className="w-10 sm:w-12 h-10 sm:h-12 text-primary" />
           </Button>
         </div>
-        <div ref={containerRef} className="w-full h-full md:h-auto md:max-w-lg md:mx-auto relative flex flex-col">
+        <div ref={containerRef} className="w-full h-full md:h-auto md:max-w-lg md:mx-auto relative flex flex-col overflow-hidden">
           <Button variant="ghost" onClick={onBack} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-4 h-4" />
             Voltar
@@ -310,8 +310,8 @@ export default function EventScale({ event, employees, onBack }) {
           <h1 className="text-lg sm:text-xl font-bold mb-1">Quem vai assinar agora?</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-5">Toque no funcionário para iniciar a assinatura.</p>
           
-          <div className="relative">
-            <div ref={listRef} className="space-y-1.5 sm:space-y-2 overflow-y-auto flex-1 pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
+          <div className="relative flex-1 min-h-0">
+            <div ref={listRef} className="space-y-1.5 sm:space-y-2 overflow-y-auto h-full pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
               {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
                 groups[groupKey] ? (
                   <div key={groupKey}>
