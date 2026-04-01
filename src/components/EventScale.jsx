@@ -391,8 +391,8 @@ export default function EventScale({ event, employees, onBack }) {
           <div className="relative flex-1 min-h-0 flex gap-2 sm:gap-3">
            <div
              ref={listRef}
-             className="space-y-1 sm:space-y-2 overflow-y-auto h-full flex-1 pr-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-primary/40 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-primary/60"
-             style={{ scrollBehavior: 'smooth', scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--primary) / 0.4) transparent' }}
+             className="space-y-1 sm:space-y-2 overflow-y-auto h-full flex-1 [&::-webkit-scrollbar]:w-0 pr-1"
+             style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none' }}
              onTouchStart={(e) => setTouchStart(e.touches[0].clientY)}
              onTouchEnd={(e) => {
                const touchEnd = e.changedTouches[0].clientY;
@@ -428,7 +428,6 @@ export default function EventScale({ event, employees, onBack }) {
                ) : null
              )}
            </div>
-           <div className="hidden"></div>
            <div className="w-1 sm:w-0.5 bg-primary/40 rounded-full hover:bg-primary/60 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing relative" onTouchStart={(e) => e.preventDefault()}>
              <div
                ref={scrollbarThumbRef}
