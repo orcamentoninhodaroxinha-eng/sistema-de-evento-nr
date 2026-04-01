@@ -45,13 +45,25 @@ export default function EventScale({ event, employees, onBack }) {
   const containerRef = useRef(null);
   const signatureRef = useRef(null);
 
+  const handleWheel = (e) => {
+    const ref = selectMode ? containerRef.current : signatureRef.current;
+    if (ref) {
+      ref.scrollBy({ top: e.deltaY, behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
+    const ref = selectMode ? containerRef.current : signatureRef.current;
+    if (ref) {
+      ref.addEventListener('wheel', handleWheel, { passive: true });
+      return () => ref.removeEventListener('wheel', handleWheel);
+    }
     if (selectMode && containerRef.current) {
       containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else if (!selectMode) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [selectMode]);
+  }, [selectMode, handleWheel]);
 
   const selectEmployee = (idx) => {
     setPending(prev => {
