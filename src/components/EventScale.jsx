@@ -320,7 +320,7 @@ export default function EventScale({ event, employees, onBack }) {
                 ) : null
               )}
             </div>
-            <div className="w-1.5 sm:w-2 bg-primary/40 sm:bg-primary/20 rounded-full hover:bg-primary/60 sm:hover:bg-primary/40 transition-colors flex-shrink-0" />
+            <div className="w-0.5 bg-primary/40 sm:bg-primary/20 rounded-full hover:bg-primary/60 sm:hover:bg-primary/40 transition-colors flex-shrink-0" />
           </div>
         </div>
       </>
