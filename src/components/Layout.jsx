@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { ArrowUp } from "lucide-react";
 
@@ -7,11 +7,19 @@ export default function Layout() {
   const mainRef = useRef(null);
 
   const handleScroll = (e) => {
-    setShowTop(e.target.scrollTop > 200);
+    setShowTop(e.target.scrollTop > 100);
   };
 
   const scrollToTop = () => {
     mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const scrollDown = () => {
+    mainRef.current?.scrollBy({ top: 300, behavior: "smooth" });
+  };
+
+  const scrollUp = () => {
+    mainRef.current?.scrollBy({ top: -300, behavior: "smooth" });
   };
 
   return (
@@ -55,13 +63,22 @@ export default function Layout() {
         </div>
       </main>
 
+      {/* Scroll buttons - left side */}
       {showTop && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-all"
-        >
-          <ArrowUp className="w-5 h-5" />
-        </button>
+        <div className="fixed left-3 bottom-1/3 z-50 flex flex-col gap-2 sm:hidden">
+          <button
+            onClick={scrollUp}
+            className="w-8 h-8 rounded-full bg-white/70 dark:bg-slate-800/70 backdrop-blur border border-border/40 text-muted-foreground shadow flex items-center justify-center hover:bg-white hover:text-primary transition-all active:scale-95"
+          >
+            <ArrowUp className="w-4 h-4" />
+          </button>
+          <button
+            onClick={scrollDown}
+            className="w-8 h-8 rounded-full bg-white/70 dark:bg-slate-800/70 backdrop-blur border border-border/40 text-muted-foreground shadow flex items-center justify-center hover:bg-white hover:text-primary transition-all active:scale-95"
+          >
+            <ArrowUp className="w-4 h-4 rotate-180" />
+          </button>
+        </div>
       )}
     </div>
   );
