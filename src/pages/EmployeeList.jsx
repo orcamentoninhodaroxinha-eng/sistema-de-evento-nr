@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Search, UserPlus, Users, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import EmployeeCard from "../components/EmployeeCard";
 import EmployeeDetail from "../components/EmployeeDetail";
 
 export default function EmployeeList() {
   const [search, setSearch] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const { data: employees, isLoading } = useQuery({
     queryKey: ["employees"],
@@ -24,6 +27,14 @@ export default function EmployeeList() {
       emp.department?.toLowerCase().includes(q)
     );
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const displayedEmployees = filtered.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
   if (selectedEmployee) {
     return (
@@ -115,15 +126,40 @@ export default function EmployeeList() {
           )}
         </div>
       ) : (
-        <div className="grid gap-2.5">
-          {filtered.map((emp) => (
-            <EmployeeCard
-              key={emp.id}
-              employee={emp}
-              onClick={() => setSelectedEmployee(emp)}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-2.5">
+            {displayedEmployees.map((emp) => (
+              <EmployeeCard
+                key={emp.id}
+                employee={emp}
+                onClick={() => setSelectedEmployee(emp)}
+              />
+            ))}
+          </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="rounded-lg"
+              >
+                Anterior
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {currentPage} de {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="rounded-lg"
+              >
+                Próximo
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
