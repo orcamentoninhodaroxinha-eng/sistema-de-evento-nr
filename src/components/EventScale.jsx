@@ -257,7 +257,7 @@ export default function EventScale({ event, employees, onBack }) {
         <p className="text-sm text-muted-foreground mb-5">Toque no funcionário para iniciar a assinatura.</p>
         {/* Scroll buttons removed - using Layout arrows */}
 
-        <div ref={listRef} className="space-y-5 overflow-y-auto max-h-[60vh] pr-1" style={{ scrollBehavior: 'smooth' }}>
+        <div ref={listRef} className="space-y-5 overflow-y-auto max-h-[60vh] pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
           {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
             groups[groupKey] ? (
               <div key={groupKey}>
