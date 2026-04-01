@@ -86,28 +86,7 @@ export default function Layout() {
         </div>
       </main>
 
-      {/* Scroll Navigation Buttons */}
-      <div className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20 pointer-events-auto">
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => smoothScroll(-360)}
-          className="rounded-lg h-12 w-12 bg-white/40 dark:bg-slate-950/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 dark:hover:bg-slate-950/60 transition-all border border-border/20"
-          aria-label="Rolar para cima"
-        >
-          <ChevronUp className="w-6 h-6 text-primary" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => smoothScroll(360)}
-          className="rounded-lg h-12 w-12 bg-white/40 dark:bg-slate-950/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 dark:hover:bg-slate-950/60 transition-all border border-border/20"
-          aria-label="Rolar para baixo"
-        >
-          <ChevronDown className="w-6 h-6 text-primary" />
-        </Button>
-      </div>
     </div>
   );
 }
