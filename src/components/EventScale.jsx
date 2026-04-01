@@ -161,9 +161,19 @@ export default function EventScale({ event, employees, onBack }) {
   useEffect(() => {
     const listElement = listRef.current;
     if (!listElement) return;
-    listElement.addEventListener('scroll', updateScrollbarPosition);
-    return () => listElement.removeEventListener('scroll', updateScrollbarPosition);
-  }, []);
+    
+    const handleScroll = () => {
+      updateScrollbarPosition();
+    };
+    
+    listElement.addEventListener('scroll', handleScroll, { passive: true });
+    listElement.addEventListener('touchmove', handleScroll, { passive: true });
+    
+    return () => {
+      listElement.removeEventListener('scroll', handleScroll);
+      listElement.removeEventListener('touchmove', handleScroll);
+    };
+  }, [updateScrollbarPosition]);
 
   const selectEmployee = (idx) => {
     setPending(prev => {
