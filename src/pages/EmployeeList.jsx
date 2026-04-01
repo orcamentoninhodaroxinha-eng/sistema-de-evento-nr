@@ -1,23 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Search, UserPlus, Users, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import EmployeeCard from "../components/EmployeeCard";
 import EmployeeDetail from "../components/EmployeeDetail";
 
 export default function EmployeeList() {
   const [search, setSearch] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const observerTarget = useRef(null);
+  const queryClient = useQueryClient();
 
-  const { data: employees, isLoading } = useQuery({
+  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["employees"],
-    queryFn: () => base44.entities.Employee.list("-created_date", 100),
+    queryFn: ({ pageParam = 0 }) => base44.entities.Employee.list("-created_date", 100),
+    getNextPageParam: (lastPage, pages) => pages.length,
+    initialPageParam: 0,
   });
+
+  const employees = data?.pages?.flat() || [];
 
   const filtered = (employees || []).filter((emp) => {
     const q = search.toLowerCase();
@@ -27,14 +30,6 @@ export default function EmployeeList() {
       emp.department?.toLowerCase().includes(q)
     );
   });
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search]);
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const displayedEmployees = filtered.slice(startIndex, startIndex + itemsPerPage);
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
   if (selectedEmployee) {
     return (
@@ -128,7 +123,7 @@ export default function EmployeeList() {
       ) : (
         <>
           <div className="grid gap-2.5">
-            {displayedEmployees.map((emp) => (
+            {filtered.map((emp) => (
               <EmployeeCard
                 key={emp.id}
                 employee={emp}
@@ -136,27 +131,10 @@ export default function EmployeeList() {
               />
             ))}
           </div>
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="rounded-lg"
-              >
-                Anterior
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                {currentPage} de {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="rounded-lg"
-              >
-                Próximo
-              </Button>
+          <div ref={observerTarget} className="h-4" />
+          {isFetchingNextPage && (
+            <div className="flex justify-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-primary" />
             </div>
           )}
         </>
