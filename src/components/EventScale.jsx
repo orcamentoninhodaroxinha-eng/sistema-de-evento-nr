@@ -362,58 +362,58 @@ export default function EventScale({ event, employees, onBack }) {
 
     return (
       <>
-        <div ref={containerRef} className="w-full flex-1 md:h-auto md:max-w-lg md:mx-auto relative flex flex-col overflow-hidden">
-          <Button variant="ghost" onClick={onBack} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4" />
+        <div ref={containerRef} className="w-full flex-1 h-full relative flex flex-col overflow-hidden">
+          <Button variant="ghost" onClick={onBack} className="gap-2 mb-3 -ml-2 text-muted-foreground hover:text-foreground text-xs sm:text-sm h-8 sm:h-10">
+            <ArrowLeft className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
             Voltar
           </Button>
-          <h1 className="text-lg sm:text-xl font-bold mb-1">Quem vai assinar agora?</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-5">Toque no funcionário para iniciar a assinatura.</p>
-          
-          <div className="relative flex-1 min-h-0 flex gap-3">
-            <div ref={listRef} className="space-y-1.5 sm:space-y-2 overflow-y-auto h-full flex-1 [&::-webkit-scrollbar]:w-0" style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none' }}>
-              {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
-                groups[groupKey] ? (
-                  <div key={groupKey}>
-                    <div className={`text-xs font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border mb-1.5 sm:mb-2 inline-block ${config.color}`}>{config.label}</div>
-                    <div className="space-y-2">
-                      {groups[groupKey].map(({ emp, idx }) => (
-                        <button
-                          key={emp._key}
-                          onClick={() => selectEmployee(idx)}
-                          className="w-full flex items-center gap-2 sm:gap-3 bg-card border border-border rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 hover:border-primary/40 hover:bg-accent/30 transition-all text-left"
-                        >
-                          <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center shrink-0">
-                            <span className="text-primary font-bold text-sm">{emp.full_name?.charAt(0).toUpperCase()}</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-xs sm:text-sm truncate">{emp.full_name}</p>
-                            <p className="text-xs text-muted-foreground truncate">{emp.role}</p>
-                          </div>
-                          <CheckCircle className="w-5 h-5 text-muted-foreground/30" />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : null
-              )}
-            </div>
-            <div className="w-0.5 bg-primary/40 sm:bg-primary/20 rounded-full hover:bg-primary/60 sm:hover:bg-primary/40 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing relative">
-              <div
-                ref={scrollbarThumbRef}
-                onMouseDown={handleScrollbarMouseDown}
-                onTouchStart={handleScrollbarTouchStart}
-                className="absolute left-0 w-full bg-primary/60 rounded-full transition-colors hover:bg-primary/80 cursor-grab active:cursor-grabbing"
-                style={{
-                  height: '12px',
-                  top: `calc(${thumbTop}% - 6px)`,
-                }}
-              />
-            </div>
+          <h1 className="text-base sm:text-lg font-bold mb-1">Quem vai assinar?</h1>
+          <p className="text-xs text-muted-foreground mb-3 sm:mb-4 leading-snug">Toque para assinar.</p>
+
+          <div className="relative flex-1 min-h-0 flex gap-2 sm:gap-3">
+           <div ref={listRef} className="space-y-1 sm:space-y-2 overflow-y-auto h-full flex-1 [&::-webkit-scrollbar]:w-0 pr-1" style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none' }}>
+             {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
+               groups[groupKey] ? (
+                 <div key={groupKey}>
+                   <div className={`text-xs font-semibold px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg border mb-1 sm:mb-2 inline-block ${config.color}`}>{config.label}</div>
+                   <div className="space-y-1 sm:space-y-2">
+                     {groups[groupKey].map(({ emp, idx }) => (
+                       <button
+                         key={emp._key}
+                         onClick={() => selectEmployee(idx)}
+                         className="w-full flex items-center gap-2 bg-card border border-border rounded-lg sm:rounded-xl px-2.5 sm:px-4 py-2 sm:py-3 hover:border-primary/40 hover:bg-accent/30 transition-all text-left active:scale-95"
+                       >
+                         <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center shrink-0 text-xs sm:text-sm">
+                           <span className="text-primary font-bold">{emp.full_name?.charAt(0).toUpperCase()}</span>
+                         </div>
+                         <div className="flex-1 min-w-0">
+                           <p className="font-semibold text-xs sm:text-sm truncate">{emp.full_name}</p>
+                           <p className="text-xs text-muted-foreground truncate">{emp.role}</p>
+                         </div>
+                         <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-muted-foreground/30 flex-shrink-0" />
+                       </button>
+                     ))}
+                   </div>
+                 </div>
+               ) : null
+             )}
+           </div>
+           <div className="w-1 sm:w-0.5 bg-primary/40 rounded-full hover:bg-primary/60 transition-colors flex-shrink-0 cursor-grab active:cursor-grabbing relative">
+             <div
+               ref={scrollbarThumbRef}
+               onMouseDown={handleScrollbarMouseDown}
+               onTouchStart={handleScrollbarTouchStart}
+               className="absolute left-0 w-full bg-primary/60 rounded-full transition-colors hover:bg-primary/80 cursor-grab active:cursor-grabbing"
+               style={{
+                 height: '12px',
+                 top: `calc(${thumbTop}% - 6px)`,
+               }}
+             />
+           </div>
           </div>
-        </div>
-      </>
-    );
+          </div>
+          </>
+          );
   }
 
   // All done
@@ -448,44 +448,45 @@ export default function EventScale({ event, employees, onBack }) {
 
   return (
     <div className="w-full h-full flex flex-col relative">
-      <div className="flex items-center gap-2 sm:gap-3 mb-4">
-        <Button
-          variant="ghost"
-          onClick={onBack}
-          className="gap-2 -ml-2 text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Voltar
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setSelectMode(true)}
-          className="gap-2 text-muted-foreground"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          Trocar funcionário
-        </Button>
-      </div>
+    <div className="flex items-center gap-1.5 sm:gap-3 mb-3 sm:mb-4">
+      <Button
+        variant="ghost"
+        onClick={onBack}
+        className="gap-2 -ml-2 text-muted-foreground hover:text-foreground h-8 sm:h-10 text-xs sm:text-sm"
+      >
+        <ArrowLeft className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+        <span className="hidden xs:inline">Voltar</span>
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setSelectMode(true)}
+        className="gap-1.5 text-muted-foreground text-xs h-8"
+      >
+        <ArrowLeft className="w-3 h-3" />
+        <span className="hidden xs:inline">Trocar</span>
+      </Button>
+    </div>
 
-      {/* Progress */}
-      <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-lg sm:text-xl font-bold truncate">Escala — {event.name}</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            {completed.length} de {completed.length + pending.length} registros
-          </p>
-        </div>
-        <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground flex-shrink-0">
-          <Users className="w-4 h-4" />
-          {pending.length} restante(s)
-        </div>
+    {/* Progress */}
+    <div className="flex items-center justify-between mb-3 sm:mb-4 gap-1.5 sm:gap-2">
+      <div className="min-w-0 flex-1">
+        <h1 className="text-sm sm:text-lg font-bold truncate">Escala — {event.name}</h1>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {completed.length} de {completed.length + pending.length}
+        </p>
       </div>
+      <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
+        <Users className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+        <span className="hidden xs:inline">{pending.length} restante(s)</span>
+        <span className="xs:hidden">{pending.length}</span>
+      </div>
+    </div>
 
       {/* Progress bar */}
-      <div className="w-full h-2 bg-muted rounded-full mb-4 sm:mb-6">
+      <div className="w-full h-1.5 sm:h-2 bg-muted rounded-full mb-2.5 sm:mb-4">
         <div
-          className="h-2 bg-gradient-to-r from-primary to-purple-600 rounded-full transition-all duration-500"
+          className="h-1.5 sm:h-2 bg-gradient-to-r from-primary to-purple-600 rounded-full transition-all duration-500"
           style={{ width: `${(completed.length / (completed.length + pending.length)) * 100}%` }}
         />
       </div>
@@ -496,85 +497,85 @@ export default function EventScale({ event, employees, onBack }) {
         const isFirstOfGroup = completed.length === 0 || getGroup(completed[completed.length - 1]) !== group;
         const { label: groupLabel, color: groupColor } = GROUP_CONFIG[group] || GROUP_CONFIG.salao;
         return isFirstOfGroup ? (
-          <div className={`flex items-center justify-center gap-2 py-2 px-4 rounded-xl border font-semibold text-sm mb-2 ${groupColor}`}>
+          <div className={`flex items-center justify-center gap-2 py-1.5 px-3 rounded-lg border font-semibold text-xs sm:text-sm mb-2 ${groupColor}`}>
             {groupLabel}
           </div>
         ) : null;
       })()}
 
       {/* Current employee */}
-      <div className="relative flex-1">
-        <div ref={signatureRef} className="bg-card rounded-2xl border border-border p-3 sm:p-6 shadow-sm space-y-3 sm:space-y-6 overflow-y-auto h-full">
-          <div className="flex items-center gap-2 sm:gap-3">
+      <div className="relative flex-1 min-h-0">
+        <div ref={signatureRef} className="bg-card rounded-xl sm:rounded-2xl border border-border p-2.5 sm:p-5 shadow-sm space-y-2 sm:space-y-4 overflow-y-auto h-full">
+          <div className="flex items-center gap-2">
           {current.photo_url ? (
-            <img src={current.photo_url} alt={current.full_name} className="w-10 sm:w-12 h-10 sm:h-12 rounded-lg sm:rounded-xl object-cover flex-shrink-0" />
+            <img src={current.photo_url} alt={current.full_name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
           ) : (
-            <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center flex-shrink-0">
-              <span className="text-primary font-bold text-sm sm:text-base">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center flex-shrink-0 text-sm">
+              <span className="text-primary font-bold">
                 {current.full_name?.charAt(0).toUpperCase()}
               </span>
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <h2 className="text-sm sm:text-base font-bold truncate">{current.full_name}</h2>
-            <p className="text-xs text-muted-foreground truncate">{current.role} · {current.department}</p>
+            <h2 className="text-xs sm:text-sm font-bold truncate">{current.full_name}</h2>
+            <p className="text-xs text-muted-foreground truncate leading-snug">{current.role}</p>
           </div>
         </div>
 
         {/* Valor */}
         {current.valor && (
-          <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3">
-            <span className="text-xs sm:text-sm font-medium text-emerald-800">Valor</span>
-            <span className="text-base sm:text-lg font-bold text-emerald-700">R$ {current.valor}</span>
+          <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5 sm:py-2">
+            <span className="text-xs font-medium text-emerald-800">Valor</span>
+            <span className="text-sm sm:text-base font-bold text-emerald-700">R$ {current.valor}</span>
           </div>
         )}
 
         <SignaturePad key={`sig-${current._key}`} onSave={handleSignatureSave} />
 
         {signatureConfirmed && (
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-emerald-600 bg-emerald-50 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 border border-emerald-200">
-            <CheckCircle className="w-3.5 sm:w-4 h-3.5 sm:h-4 flex-shrink-0" />
-            Assinatura confirmada
-          </div>
+         <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 rounded-lg px-3 py-1 sm:py-1.5 border border-emerald-200">
+           <CheckCircle className="w-3 sm:w-3.5 h-3 sm:h-3.5 flex-shrink-0" />
+           Assinatura confirmada
+         </div>
         )}
 
         <CameraCapture key={`cam-${current._key}`} onCapture={handlePhotoCapture} />
 
         {photoConfirmed && (
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-emerald-600 bg-emerald-50 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 border border-emerald-200">
-            <CheckCircle className="w-3.5 sm:w-4 h-3.5 sm:h-4 flex-shrink-0" />
-            Foto confirmada
-          </div>
+         <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 rounded-lg px-3 py-1 sm:py-1.5 border border-emerald-200">
+           <CheckCircle className="w-3 sm:w-3.5 h-3 sm:h-3.5 flex-shrink-0" />
+           Foto confirmada
+         </div>
         )}
 
         <Button
-          onClick={handleConfirmEmployee}
-          disabled={!signatureConfirmed || !photoConfirmed || saving}
-          className="w-full h-10 sm:h-11 text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl gap-2"
+         onClick={handleConfirmEmployee}
+         disabled={!signatureConfirmed || !photoConfirmed || saving}
+         className="w-full h-9 sm:h-10 text-xs sm:text-sm font-semibold rounded-lg gap-2"
         >
-          {saving ? (
-            <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin" />
-          ) : (
-            <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5" />
-          )}
-          {saving ? "Salvando..." : `Próximo`}
+         {saving ? (
+           <Loader2 className="w-3.5 sm:w-4 h-3.5 sm:h-4 animate-spin" />
+         ) : (
+           <CheckCircle className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+         )}
+         {saving ? "Salvando..." : `Próximo`}
         </Button>
-      </div>
-      {pending.length > 1 && (
-        <div className="mt-2 sm:mt-3 bg-muted/50 rounded-xl sm:rounded-2xl p-2.5 sm:p-4">
-          <p className="text-xs text-muted-foreground font-medium mb-1.5 sm:mb-2 uppercase tracking-wide">Aguardando</p>
-          <div className="space-y-1 sm:space-y-2">
-            {pending.slice(1).map((emp) => (
-              <div key={emp._key} className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
-                <div className="w-5 sm:w-6 h-5 sm:h-6 rounded-md bg-muted flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {emp.full_name?.charAt(0).toUpperCase()}
-                </div>
-                <span className="truncate">{emp.full_name}</span>
-              </div>
-            ))}
-          </div>
         </div>
-      )}
+        {pending.length > 1 && (
+        <div className="mt-2 bg-muted/50 rounded-lg p-2 sm:p-3">
+         <p className="text-xs text-muted-foreground font-medium mb-1 uppercase tracking-wide">Aguardando</p>
+         <div className="space-y-0.5 max-h-20 overflow-y-auto text-xs">
+           {pending.slice(1).map((emp) => (
+             <div key={emp._key} className="flex items-center gap-1 text-muted-foreground">
+               <div className="w-4 h-4 rounded-sm bg-muted flex items-center justify-center text-xs font-bold flex-shrink-0">
+                 {emp.full_name?.charAt(0).toUpperCase()}
+               </div>
+               <span className="truncate text-xs">{emp.full_name}</span>
+             </div>
+           ))}
+         </div>
+        </div>
+        )}
       </div>
       </div>
       );
