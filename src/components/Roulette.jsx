@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCw } from 'lucide-react';
+import { RotateCw, ChevronUp, ChevronDown } from 'lucide-react';
 
 const SEGMENTS = [
   { name: 'Prêmio 1', color: '#FF6B6B' },
@@ -118,6 +118,29 @@ export default function Roulette() {
   };
 
   return (
+    <div className="relative w-full h-screen flex items-center justify-center">
+      {/* Setas de controle */}
+      <div className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20 pointer-events-auto">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={spin}
+          disabled={isSpinning}
+          className="rounded-lg h-16 sm:h-20 w-16 sm:w-20 bg-white/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 transition-all border border-border/20 flex-shrink-0"
+        >
+          <ChevronUp className="w-10 sm:w-12 h-10 sm:h-12 text-primary" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={spin}
+          disabled={isSpinning}
+          className="rounded-lg h-16 sm:h-20 w-16 sm:w-20 bg-white/40 backdrop-blur-sm shadow-lg hover:shadow-xl hover:bg-white/60 transition-all border border-border/20 flex-shrink-0"
+        >
+          <ChevronDown className="w-10 sm:w-12 h-10 sm:h-12 text-primary" />
+        </Button>
+      </div>
+
     <div className="flex flex-col items-center justify-center gap-6 py-6 px-4">
       <h2 className="text-2xl font-bold">Roda da Sorte</h2>
       
@@ -146,6 +169,7 @@ export default function Roulette() {
           <p className="text-2xl font-bold text-emerald-900">{winner.name}</p>
         </div>
       )}
+    </div>
     </div>
   );
 }
