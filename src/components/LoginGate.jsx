@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Lock } from "lucide-react";
 
 const USERNAME = "ninho";
-const PASSWORD = "ninho2025";
+const PASSWORD = "123";
 const SESSION_KEY = "ninho_auth";
 
 export default function LoginGate({ children }) {
