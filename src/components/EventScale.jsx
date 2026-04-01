@@ -256,26 +256,8 @@ export default function EventScale({ event, employees, onBack }) {
         <h1 className="text-xl font-bold mb-1">Quem vai assinar agora?</h1>
         <p className="text-sm text-muted-foreground mb-5">Toque no funcionário para iniciar a assinatura.</p>
         
-        <div className="flex gap-2 sm:gap-3">
-          <div className="flex flex-col items-center justify-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => listRef.current?.scrollBy({ top: -100, behavior: 'smooth' })}
-              className="rounded-lg h-12 w-12 opacity-40 hover:opacity-70 transition-opacity"
-            >
-              <ChevronUp className="w-6 h-6" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => listRef.current?.scrollBy({ top: 100, behavior: 'smooth' })}
-              className="rounded-lg h-12 w-12 opacity-40 hover:opacity-70 transition-opacity"
-            >
-              <ChevronDown className="w-6 h-6" />
-            </Button>
-          </div>
-          <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto max-h-[50vh] sm:max-h-[60vh] pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
+        <div className="relative">
+          <div ref={listRef} className="space-y-2 overflow-y-auto max-h-[50vh] sm:max-h-[60vh] pr-1 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full" style={{ scrollBehavior: 'smooth' }}>
           {Object.entries(GROUP_CONFIG).map(([groupKey, config]) =>
             groups[groupKey] ? (
               <div key={groupKey}>
@@ -301,6 +283,24 @@ export default function EventScale({ event, employees, onBack }) {
               </div>
             ) : null
           )}
+          </div>
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-10 pointer-events-auto">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => listRef.current?.scrollBy({ top: -100, behavior: 'smooth' })}
+              className="rounded-lg h-12 w-12 opacity-40 hover:opacity-70 transition-opacity"
+            >
+              <ChevronUp className="w-6 h-6" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => listRef.current?.scrollBy({ top: 100, behavior: 'smooth' })}
+              className="rounded-lg h-12 w-12 opacity-40 hover:opacity-70 transition-opacity"
+            >
+              <ChevronDown className="w-6 h-6" />
+            </Button>
           </div>
         </div>
       </div>
