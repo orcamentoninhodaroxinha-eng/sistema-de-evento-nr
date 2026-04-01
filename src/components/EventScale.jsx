@@ -192,6 +192,7 @@ export default function EventScale({ event, employees, onBack }) {
   const [confirmingTeam, setConfirmingTeam] = useState(false);
   const [signatureFile, setSignatureFile] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
+  const listContainerRef = useRef(null);
   const [signatureConfirmed, setSignatureConfirmed] = useState(false);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
   const [signatureUrl, setSignatureUrl] = useState(null);
@@ -443,7 +444,18 @@ export default function EventScale({ event, employees, onBack }) {
         <h1 className="text-base sm:text-lg font-bold mb-1">Confirmar Equipe</h1>
         <p className="text-xs text-muted-foreground mb-3 sm:mb-4">Revise os funcionários registrados.</p>
         
-        <div className="flex-1 min-h-0 overflow-y-auto mb-4">
+        <div
+          ref={listContainerRef}
+          className="flex-1 min-h-0 overflow-y-auto mb-4"
+          onTouchStart={(e) => setTouchStart(e.touches[0].clientY)}
+          onTouchEnd={(e) => {
+            const touchEnd = e.changedTouches[0].clientY;
+            const diff = touchStart - touchEnd;
+            if (Math.abs(diff) > 10 && listContainerRef.current) {
+              listContainerRef.current.scrollBy({ top: diff, behavior: 'smooth' });
+            }
+          }}
+        >
           <div className="space-y-2 sm:space-y-3 pr-2">
             {completed.map((emp, idx) => (
               <div key={emp._key} className="flex items-start gap-3 bg-card border border-border rounded-lg sm:rounded-xl p-3 sm:p-4">
