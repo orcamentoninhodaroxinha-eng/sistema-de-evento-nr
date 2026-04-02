@@ -188,6 +188,9 @@ export default function EventScale({ event, employees, onBack }) {
       return [chosen, ...next];
     });
     setSelectMode(false);
+    setTimeout(() => {
+      signaturePadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 150);
   };
   const [completed, setCompleted] = useState([]);
   const [confirmingTeam, setConfirmingTeam] = useState(false);
@@ -195,6 +198,8 @@ export default function EventScale({ event, employees, onBack }) {
   const [photoFile, setPhotoFile] = useState(null);
   const listContainerRef = useRef(null);
   const cameraRef = useRef(null);
+  const signaturePadRef = useRef(null);
+  const confirmButtonRef = useRef(null);
   const [signatureConfirmed, setSignatureConfirmed] = useState(false);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
   const [signatureUrl, setSignatureUrl] = useState(null);
@@ -208,13 +213,16 @@ export default function EventScale({ event, employees, onBack }) {
     setSignatureFile(file);
     setSignatureConfirmed(true);
     setTimeout(() => {
-      cameraRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      cameraRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 100);
   };
 
   const handlePhotoCapture = (file) => {
     setPhotoFile(file);
     setPhotoConfirmed(true);
+    setTimeout(() => {
+      confirmButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
   };
 
   const handleConfirmEmployee = async () => {
@@ -624,7 +632,9 @@ export default function EventScale({ event, employees, onBack }) {
           </div>
         )}
 
-        <SignaturePad key={`sig-${current._key}`} onSave={handleSignatureSave} />
+        <div ref={signaturePadRef}>
+          <SignaturePad key={`sig-${current._key}`} onSave={handleSignatureSave} />
+        </div>
 
         {signatureConfirmed && (
          <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 rounded-lg px-3 py-1 sm:py-1.5 border border-emerald-200">
@@ -644,6 +654,7 @@ export default function EventScale({ event, employees, onBack }) {
          </div>
         )}
 
+        <div ref={confirmButtonRef}>
         <Button
          onClick={handleConfirmEmployee}
          disabled={!signatureConfirmed || !photoConfirmed || saving}
@@ -656,6 +667,7 @@ export default function EventScale({ event, employees, onBack }) {
          )}
          {saving ? "Salvando..." : `Próximo`}
         </Button>
+        </div>
         </div>
         {pending.length > 1 && (
         <div className="mt-2 bg-muted/50 rounded-lg p-2 sm:p-3">
