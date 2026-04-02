@@ -36,17 +36,11 @@ export default function Layout() {
     if (touchStart === null || !mainRef.current) return;
     const currentY = e.touches[0].clientY;
     const diff = touchStart - currentY;
-    mainRef.current.scrollTop += diff * 1.5;
+    mainRef.current.scrollTop += diff;
     setTouchStart(currentY);
   };
 
-  const handleTouchEnd = (e) => {
-    if (touchStart === null) return;
-    const touchEnd = e.changedTouches[0].clientY;
-    const diff = touchStart - touchEnd;
-    if (Math.abs(diff) > 10) {
-      smoothScroll(diff * 4);
-    }
+  const handleTouchEnd = () => {
     setTouchStart(null);
   };
 
