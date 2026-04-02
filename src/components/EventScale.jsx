@@ -188,19 +188,12 @@ export default function EventScale({ event, employees, onBack }) {
       return [chosen, ...next];
     });
     setSelectMode(false);
-    setTimeout(() => {
-      employeeHeaderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 150);
   };
   const [completed, setCompleted] = useState([]);
   const [confirmingTeam, setConfirmingTeam] = useState(false);
   const [signatureFile, setSignatureFile] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
   const listContainerRef = useRef(null);
-  const cameraRef = useRef(null);
-  const signaturePadRef = useRef(null);
-  const confirmButtonRef = useRef(null);
-  const employeeHeaderRef = useRef(null);
   const [signatureConfirmed, setSignatureConfirmed] = useState(false);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
   const [signatureUrl, setSignatureUrl] = useState(null);
@@ -213,17 +206,11 @@ export default function EventScale({ event, employees, onBack }) {
   const handleSignatureSave = (file) => {
     setSignatureFile(file);
     setSignatureConfirmed(true);
-    setTimeout(() => {
-      cameraRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
   };
 
   const handlePhotoCapture = (file) => {
     setPhotoFile(file);
     setPhotoConfirmed(true);
-    setTimeout(() => {
-      confirmButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
   };
 
   const handleConfirmEmployee = async () => {
@@ -551,6 +538,26 @@ export default function EventScale({ event, employees, onBack }) {
 
   return (
     <div className="w-full h-full flex flex-col relative">
+    <div className="flex items-center gap-1.5 sm:gap-3 mb-3 sm:mb-4">
+      <Button
+        variant="ghost"
+        onClick={onBack}
+        className="gap-2 -ml-2 text-muted-foreground hover:text-foreground h-8 sm:h-10 text-xs sm:text-sm"
+      >
+        <ArrowLeft className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+        <span className="hidden xs:inline">Voltar</span>
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setSelectMode(true)}
+        className="gap-1.5 text-muted-foreground text-xs h-8"
+      >
+        <ArrowLeft className="w-3 h-3" />
+        <span className="hidden xs:inline">Trocar</span>
+      </Button>
+    </div>
+
     {/* Progress */}
     <div className="flex items-center justify-between mb-3 sm:mb-4 gap-1.5 sm:gap-2">
       <div className="min-w-0 flex-1">
@@ -575,33 +582,35 @@ export default function EventScale({ event, employees, onBack }) {
       </div>
 
       {/* Group indicator */}
-
+      {(() => {
+        const group = getGroup(current);
+        const isFirstOfGroup = completed.length === 0 || getGroup(completed[completed.length - 1]) !== group;
+        const { label: groupLabel, color: groupColor } = GROUP_CONFIG[group] || GROUP_CONFIG.salao;
+        return isFirstOfGroup ? (
+          <div className={`flex items-center justify-center gap-2 py-1.5 px-3 rounded-lg border font-semibold text-xs sm:text-sm mb-2 ${groupColor}`}>
+            {groupLabel}
+          </div>
+        ) : null;
+      })()}
 
       {/* Current employee */}
       <div className="relative flex-1 min-h-0">
         <div ref={signatureRef} className="bg-card rounded-xl sm:rounded-2xl border border-border p-2.5 sm:p-5 shadow-sm space-y-2 sm:space-y-4 overflow-y-auto h-full">
-          <div ref={employeeHeaderRef} className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              {current.photo_url ? (
-                <img src={current.photo_url} alt={current.full_name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
-              ) : (
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center flex-shrink-0 text-sm">
-                  <span className="text-primary font-bold">{current.full_name?.charAt(0).toUpperCase()}</span>
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <h2 className="text-xs sm:text-sm font-bold truncate">{current.full_name}</h2>
-                <p className="text-xs text-muted-foreground truncate leading-snug">{current.role}</p>
-              </div>
+          <div className="flex items-center gap-2">
+          {current.photo_url ? (
+            <img src={current.photo_url} alt={current.full_name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+          ) : (
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center flex-shrink-0 text-sm">
+              <span className="text-primary font-bold">
+                {current.full_name?.charAt(0).toUpperCase()}
+              </span>
             </div>
-            <button
-              onClick={() => setSelectMode(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white text-sm font-bold shadow-md active:scale-95 transition-transform"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Não é esse — Voltar à escala
-            </button>
+          )}
+          <div className="min-w-0 flex-1">
+            <h2 className="text-xs sm:text-sm font-bold truncate">{current.full_name}</h2>
+            <p className="text-xs text-muted-foreground truncate leading-snug">{current.role}</p>
           </div>
+        </div>
 
         {/* Valor */}
         {current.valor && (
@@ -611,9 +620,7 @@ export default function EventScale({ event, employees, onBack }) {
           </div>
         )}
 
-        <div ref={signaturePadRef}>
-          <SignaturePad key={`sig-${current._key}`} onSave={handleSignatureSave} />
-        </div>
+        <SignaturePad key={`sig-${current._key}`} onSave={handleSignatureSave} />
 
         {signatureConfirmed && (
          <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 rounded-lg px-3 py-1 sm:py-1.5 border border-emerald-200">
@@ -622,9 +629,7 @@ export default function EventScale({ event, employees, onBack }) {
          </div>
         )}
 
-        <div ref={cameraRef}>
-          <CameraCapture key={`cam-${current._key}`} onCapture={handlePhotoCapture} />
-        </div>
+        <CameraCapture key={`cam-${current._key}`} onCapture={handlePhotoCapture} />
 
         {photoConfirmed && (
          <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 rounded-lg px-3 py-1 sm:py-1.5 border border-emerald-200">
@@ -633,7 +638,6 @@ export default function EventScale({ event, employees, onBack }) {
          </div>
         )}
 
-        <div ref={confirmButtonRef}>
         <Button
          onClick={handleConfirmEmployee}
          disabled={!signatureConfirmed || !photoConfirmed || saving}
@@ -646,7 +650,6 @@ export default function EventScale({ event, employees, onBack }) {
          )}
          {saving ? "Salvando..." : `Próximo`}
         </Button>
-        </div>
         </div>
         {pending.length > 1 && (
         <div className="mt-2 bg-muted/50 rounded-lg p-2 sm:p-3">
