@@ -189,7 +189,7 @@ export default function EventScale({ event, employees, onBack }) {
     });
     setSelectMode(false);
     setTimeout(() => {
-      signaturePadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      employeeHeaderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 150);
   };
   const [completed, setCompleted] = useState([]);
@@ -200,6 +200,7 @@ export default function EventScale({ event, employees, onBack }) {
   const cameraRef = useRef(null);
   const signaturePadRef = useRef(null);
   const confirmButtonRef = useRef(null);
+  const employeeHeaderRef = useRef(null);
   const [signatureConfirmed, setSignatureConfirmed] = useState(false);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
   const [signatureUrl, setSignatureUrl] = useState(null);
@@ -608,7 +609,7 @@ export default function EventScale({ event, employees, onBack }) {
       {/* Current employee */}
       <div className="relative flex-1 min-h-0">
         <div ref={signatureRef} className="bg-card rounded-xl sm:rounded-2xl border border-border p-2.5 sm:p-5 shadow-sm space-y-2 sm:space-y-4 overflow-y-auto h-full">
-          <div className="flex items-center gap-2">
+          <div ref={employeeHeaderRef} className="flex items-center gap-2">
           {current.photo_url ? (
             <img src={current.photo_url} alt={current.full_name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
           ) : (
