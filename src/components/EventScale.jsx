@@ -575,17 +575,7 @@ export default function EventScale({ event, employees, onBack }) {
       </div>
 
       {/* Group indicator */}
-      <div className="flex items-center justify-center mb-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setSelectMode(true)}
-          className="gap-1.5 text-primary border-primary/40 hover:bg-primary/10 text-xs h-8 font-medium"
-        >
-          <ArrowLeft className="w-3 h-3" />
-          Voltar à escala
-        </Button>
-      </div>
+
 
       {/* Current employee */}
       <div className="relative flex-1 min-h-0">
@@ -604,6 +594,15 @@ export default function EventScale({ event, employees, onBack }) {
             <h2 className="text-xs sm:text-sm font-bold truncate">{current.full_name}</h2>
             <p className="text-xs text-muted-foreground truncate leading-snug">{current.role}</p>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSelectMode(true)}
+            className="gap-1 text-primary border-primary/40 hover:bg-primary/10 text-xs h-7 font-medium flex-shrink-0"
+          >
+            <ArrowLeft className="w-3 h-3" />
+            Voltar à escala
+          </Button>
         </div>
 
         {/* Valor */}
