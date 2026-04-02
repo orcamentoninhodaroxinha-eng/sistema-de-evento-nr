@@ -194,6 +194,7 @@ export default function EventScale({ event, employees, onBack }) {
   const [signatureFile, setSignatureFile] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
   const listContainerRef = useRef(null);
+  const cameraRef = useRef(null);
   const [signatureConfirmed, setSignatureConfirmed] = useState(false);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
   const [signatureUrl, setSignatureUrl] = useState(null);
@@ -206,6 +207,9 @@ export default function EventScale({ event, employees, onBack }) {
   const handleSignatureSave = (file) => {
     setSignatureFile(file);
     setSignatureConfirmed(true);
+    setTimeout(() => {
+      cameraRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handlePhotoCapture = (file) => {
@@ -629,7 +633,9 @@ export default function EventScale({ event, employees, onBack }) {
          </div>
         )}
 
-        <CameraCapture key={`cam-${current._key}`} onCapture={handlePhotoCapture} />
+        <div ref={cameraRef}>
+          <CameraCapture key={`cam-${current._key}`} onCapture={handlePhotoCapture} />
+        </div>
 
         {photoConfirmed && (
          <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 rounded-lg px-3 py-1 sm:py-1.5 border border-emerald-200">
