@@ -564,10 +564,10 @@ export default function EventScale({ event, employees, onBack }) {
         variant="outline"
         size="sm"
         onClick={() => setSelectMode(true)}
-        className="gap-1.5 text-muted-foreground text-xs h-8"
+        className="gap-1.5 text-primary border-primary/40 hover:bg-primary/10 text-xs h-8 font-medium"
       >
         <ArrowLeft className="w-3 h-3" />
-        <span className="hidden xs:inline">Trocar</span>
+        Não é esse — voltar à escala
       </Button>
     </div>
 
