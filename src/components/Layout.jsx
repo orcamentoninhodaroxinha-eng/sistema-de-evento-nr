@@ -29,10 +29,12 @@ export default function Layout() {
   };
 
   const handleTouchStart = (e) => {
+    if (e.target.tagName === 'CANVAS') return;
     setTouchStart(e.touches[0].clientY);
   };
 
   const handleTouchMove = (e) => {
+    if (e.target.tagName === 'CANVAS') return;
     if (touchStart === null || !mainRef.current) return;
     const currentY = e.touches[0].clientY;
     const diff = touchStart - currentY;
