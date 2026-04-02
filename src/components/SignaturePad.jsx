@@ -33,6 +33,7 @@ export default function SignaturePad({ onSave }) {
 
   const startDraw = useCallback((e) => {
     e.preventDefault();
+    e.stopPropagation();
     const ctx = canvasRef.current.getContext("2d");
     const pos = getPos(e);
     ctx.beginPath();
@@ -44,6 +45,7 @@ export default function SignaturePad({ onSave }) {
   const draw = useCallback((e) => {
     if (!isDrawing) return;
     e.preventDefault();
+    e.stopPropagation();
     const ctx = canvasRef.current.getContext("2d");
     const pos = getPos(e);
     ctx.lineTo(pos.x, pos.y);
@@ -52,6 +54,7 @@ export default function SignaturePad({ onSave }) {
 
   const endDraw = useCallback((e) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDrawing(false);
   }, []);
 
