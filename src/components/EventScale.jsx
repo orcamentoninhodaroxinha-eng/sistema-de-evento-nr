@@ -595,12 +595,11 @@ export default function EventScale({ event, employees, onBack }) {
             <p className="text-xs text-muted-foreground truncate leading-snug">{current.role}</p>
           </div>
           <Button
-            variant="outline"
             size="sm"
             onClick={() => setSelectMode(true)}
-            className="gap-1 text-primary border-primary/40 hover:bg-primary/10 text-xs h-7 font-medium flex-shrink-0"
+            className="gap-1.5 bg-primary text-white hover:bg-primary/90 text-xs h-8 font-semibold flex-shrink-0 shadow-sm"
           >
-            <ArrowLeft className="w-3 h-3" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             Voltar à escala
           </Button>
         </div>
