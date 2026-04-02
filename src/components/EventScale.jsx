@@ -580,29 +580,28 @@ export default function EventScale({ event, employees, onBack }) {
       {/* Current employee */}
       <div className="relative flex-1 min-h-0">
         <div ref={signatureRef} className="bg-card rounded-xl sm:rounded-2xl border border-border p-2.5 sm:p-5 shadow-sm space-y-2 sm:space-y-4 overflow-y-auto h-full">
-          <div ref={employeeHeaderRef} className="flex items-center gap-2">
-          {current.photo_url ? (
-            <img src={current.photo_url} alt={current.full_name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
-          ) : (
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center flex-shrink-0 text-sm">
-              <span className="text-primary font-bold">
-                {current.full_name?.charAt(0).toUpperCase()}
-              </span>
+          <div ref={employeeHeaderRef} className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              {current.photo_url ? (
+                <img src={current.photo_url} alt={current.full_name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+              ) : (
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center flex-shrink-0 text-sm">
+                  <span className="text-primary font-bold">{current.full_name?.charAt(0).toUpperCase()}</span>
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <h2 className="text-xs sm:text-sm font-bold truncate">{current.full_name}</h2>
+                <p className="text-xs text-muted-foreground truncate leading-snug">{current.role}</p>
+              </div>
             </div>
-          )}
-          <div className="min-w-0 flex-1">
-            <h2 className="text-xs sm:text-sm font-bold truncate">{current.full_name}</h2>
-            <p className="text-xs text-muted-foreground truncate leading-snug">{current.role}</p>
+            <button
+              onClick={() => setSelectMode(true)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white text-sm font-bold shadow-md active:scale-95 transition-transform"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Não é esse — Voltar à escala
+            </button>
           </div>
-          <Button
-            size="sm"
-            onClick={() => setSelectMode(true)}
-            className="gap-1.5 bg-primary text-white hover:bg-primary/90 text-xs h-8 font-semibold flex-shrink-0 shadow-sm"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Voltar à escala
-          </Button>
-        </div>
 
         {/* Valor */}
         {current.valor && (
