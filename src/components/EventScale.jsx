@@ -35,6 +35,26 @@ export default function EventScale({ event, employees, onBack }) {
     return ga - gb;
   });
 
+  const SESSION_KEY = `event_scale_${event.id}`;
+
+  const loadSession = () => {
+    try {
+      const saved = sessionStorage.getItem(SESSION_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return null;
+  };
+
+  const saveSession = (pendingList, completedList) => {
+    try {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ pending: pendingList, completed: completedList }));
+    } catch (e) {}
+  };
+
+  const clearSession = () => {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+  };
+
 
 
   const listRef = useRef(null);
@@ -43,9 +63,11 @@ export default function EventScale({ event, employees, onBack }) {
   const [selectMode, setSelectMode] = useState(true);
   const [thumbTop, setThumbTop] = useState(0);
   const [isDraggingScroll, setIsDraggingScroll] = useState(false);
-  const [pending, setPending] = useState(
-    sortedEmployees.map((emp, i) => ({ ...emp, _key: emp.id || `${emp.full_name}-${i}` }))
-  );
+
+  const defaultPending = sortedEmployees.map((emp, i) => ({ ...emp, _key: emp.id || `${emp.full_name}-${i}` }));
+  const savedSession = loadSession();
+  const [pending, setPending] = useState(savedSession?.pending ?? defaultPending);
+  const [completed, setCompleted] = useState(savedSession?.completed ?? []);
 
   const containerRef = useRef(null);
   const signatureRef = useRef(null);
@@ -191,7 +213,6 @@ export default function EventScale({ event, employees, onBack }) {
     });
     setSelectMode(false);
   };
-  const [completed, setCompleted] = useState([]);
   const [confirmingTeam, setConfirmingTeam] = useState(false);
   const [signatureFile, setSignatureFile] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
@@ -266,6 +287,7 @@ export default function EventScale({ event, employees, onBack }) {
     const updatedPending = pending.slice(1);
     setCompleted(updatedCompleted);
     setPending(updatedPending);
+    saveSession(updatedPending, updatedCompleted);
     setSignatureFile(null);
     setPhotoFile(null);
     setSignatureBase64(null);
@@ -385,7 +407,17 @@ export default function EventScale({ event, employees, onBack }) {
       }
     }
 
-    doc.save(`recibos_${event.name.replace(/\s+/g, "_")}.pdf`);
+    const fileName = `recibos_${event.name.replace(/\s+/g, "_")}.pdf`;
+    const pdfBlob = doc.output("blob");
+    const url = URL.createObjectURL(pdfBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+
+    clearSession();
     await base44.entities.Event.update(event.id, { status: "Concluído" });
     setGeneratingPdf(false);
     toast.success("PDF gerado e evento finalizado!");
@@ -495,10 +527,20 @@ export default function EventScale({ event, employees, onBack }) {
       }
     }
 
-    doc.save(`recibos_${event.name.replace(/\s+/g, "_")}.pdf`);
+    const fileName2 = `recibos_${event.name.replace(/\s+/g, "_")}.pdf`;
+    const pdfBlob2 = doc.output("blob");
+    const url2 = URL.createObjectURL(pdfBlob2);
+    const a2 = document.createElement("a");
+    a2.href = url2;
+    a2.download = fileName2;
+    document.body.appendChild(a2);
+    a2.click();
+    setTimeout(() => { document.body.removeChild(a2); URL.revokeObjectURL(url2); }, 1000);
+
+    clearSession();
     await base44.entities.Event.update(event.id, { status: "Concluído" });
     setGeneratingPdf(false);
-    toast("PDF gerado e evento finalizado!");
+    toast.success("PDF gerado e evento finalizado!");
   };
 
   // Select who signs next
