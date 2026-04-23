@@ -409,6 +409,8 @@ export default function EventScale({ event, employees, onBack }) {
 
     const fileName = `recibos_${event.name.replace(/\s+/g, "_")}.pdf`;
     const pdfBlob = doc.output("blob");
+
+    // Download local
     const url = URL.createObjectURL(pdfBlob);
     const a = document.createElement("a");
     a.href = url;
@@ -417,8 +419,12 @@ export default function EventScale({ event, employees, onBack }) {
     a.click();
     setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
 
+    // Upload para armazenar e disponibilizar para download futuro
+    const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
+    const uploadRes = await base44.integrations.Core.UploadFile({ file: pdfFile });
+
     clearSession();
-    await base44.entities.Event.update(event.id, { status: "Concluído" });
+    await base44.entities.Event.update(event.id, { status: "Concluído", scale_pdf_url: uploadRes.file_url });
     setGeneratingPdf(false);
     toast.success("PDF gerado e evento finalizado!");
   };
@@ -529,6 +535,8 @@ export default function EventScale({ event, employees, onBack }) {
 
     const fileName2 = `recibos_${event.name.replace(/\s+/g, "_")}.pdf`;
     const pdfBlob2 = doc.output("blob");
+
+    // Download local
     const url2 = URL.createObjectURL(pdfBlob2);
     const a2 = document.createElement("a");
     a2.href = url2;
@@ -537,8 +545,12 @@ export default function EventScale({ event, employees, onBack }) {
     a2.click();
     setTimeout(() => { document.body.removeChild(a2); URL.revokeObjectURL(url2); }, 1000);
 
+    // Upload para armazenar e disponibilizar para download futuro
+    const pdfFile2 = new File([pdfBlob2], fileName2, { type: "application/pdf" });
+    const uploadRes2 = await base44.integrations.Core.UploadFile({ file: pdfFile2 });
+
     clearSession();
-    await base44.entities.Event.update(event.id, { status: "Concluído" });
+    await base44.entities.Event.update(event.id, { status: "Concluído", scale_pdf_url: uploadRes2.file_url });
     setGeneratingPdf(false);
     toast.success("PDF gerado e evento finalizado!");
   };

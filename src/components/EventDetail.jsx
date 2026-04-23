@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, MapPin, CalendarDays, FileText, Users,
   Plus, X, Search, Loader2, UserCheck, CheckCircle2, ShieldCheck, PlayCircle,
-  Paperclip, ExternalLink, Upload
+  Paperclip, ExternalLink, Upload, FileDown
 } from "lucide-react";
 import EventScale from "./EventScale";
 import { format } from "date-fns";
@@ -286,14 +286,28 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       )}
 
-      {/* Escala finalizada - bloquear reínicio */}
+      {/* Escala finalizada - bloquear reínicio + download */}
       {event.status === "Concluído" && (
-        <div className="mt-4 flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-4">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-          <div>
-            <p className="text-sm font-semibold text-emerald-800">Escala finalizada</p>
-            <p className="text-xs text-emerald-600">Todas as assinaturas foram coletadas e o PDF foi gerado.</p>
+        <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-3">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-emerald-800">Escala finalizada</p>
+              <p className="text-xs text-emerald-600">Todas as assinaturas foram coletadas e o PDF foi gerado.</p>
+            </div>
           </div>
+          {scalePdfUrl && (
+            <a
+              href={scalePdfUrl}
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors"
+            >
+              <FileDown className="w-4 h-4" />
+              Baixar PDF dos Recibos
+            </a>
+          )}
         </div>
       )}
 
