@@ -195,6 +195,8 @@ export default function EventScale({ event, employees, onBack }) {
   const [confirmingTeam, setConfirmingTeam] = useState(false);
   const [signatureFile, setSignatureFile] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
+  const [signatureBase64, setSignatureBase64] = useState(null);
+  const [photoBase64, setPhotoBase64] = useState(null);
   const listContainerRef = useRef(null);
   const [signatureConfirmed, setSignatureConfirmed] = useState(false);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
@@ -205,8 +207,16 @@ export default function EventScale({ event, employees, onBack }) {
 
   const current = pending[0];
 
-  const handleSignatureSave = (file) => {
+  const fileToBase64 = (file) => new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+
+  const handleSignatureSave = async (file) => {
     setSignatureFile(file);
+    const b64 = await fileToBase64(file);
+    setSignatureBase64(b64);
     setSignatureConfirmed(true);
     // Sobe a tela para a seção da câmera
     setTimeout(() => {
@@ -214,8 +224,10 @@ export default function EventScale({ event, employees, onBack }) {
     }, 150);
   };
 
-  const handlePhotoCapture = (file) => {
+  const handlePhotoCapture = async (file) => {
     setPhotoFile(file);
+    const b64 = await fileToBase64(file);
+    setPhotoBase64(b64);
     setPhotoConfirmed(true);
     // Sobe a tela para o botão de finalização
     setTimeout(() => {
@@ -245,6 +257,8 @@ export default function EventScale({ event, employees, onBack }) {
       ...current,
       signatureUrl: sUrl,
       photoUrl: pUrl,
+      signatureBase64: signatureBase64,
+      photoBase64: photoBase64,
     };
 
     const empName = current.full_name;
@@ -254,6 +268,8 @@ export default function EventScale({ event, employees, onBack }) {
     setPending(updatedPending);
     setSignatureFile(null);
     setPhotoFile(null);
+    setSignatureBase64(null);
+    setPhotoBase64(null);
     setSignatureConfirmed(false);
     setPhotoConfirmed(false);
     setSaving(false);
@@ -340,9 +356,9 @@ export default function EventScale({ event, employees, onBack }) {
       doc.text(`Serra, Espírito Santo ${todayStr}`, pageW - margin, y, { align: "right" });
       y += 28;
 
-      if (emp.signatureUrl) {
+      if (emp.signatureBase64 || emp.signatureUrl) {
         try {
-          const sigData = await toBase64FromUrl(emp.signatureUrl);
+          const sigData = emp.signatureBase64 || await toBase64FromUrl(emp.signatureUrl);
           doc.addImage(sigData, "PNG", margin, y - 18, 70, 18, undefined, "FAST");
         } catch (e) {}
       }
@@ -361,9 +377,9 @@ export default function EventScale({ event, employees, onBack }) {
       }
       y += 10;
 
-      if (emp.photoUrl) {
+      if (emp.photoBase64 || emp.photoUrl) {
         try {
-          const photoData = await toBase64FromUrl(emp.photoUrl);
+          const photoData = emp.photoBase64 || await toBase64FromUrl(emp.photoUrl);
           doc.addImage(photoData, "JPEG", margin, y, 55, 70, undefined, "FAST");
         } catch (e) {}
       }
