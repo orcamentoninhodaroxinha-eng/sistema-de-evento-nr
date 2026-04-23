@@ -424,7 +424,7 @@ export default function EventScale({ event, employees, onBack }) {
     const uploadRes = await base44.integrations.Core.UploadFile({ file: pdfFile });
 
     clearSession();
-    await base44.entities.Event.update(event.id, { status: "Concluído", scale_pdf_url: uploadRes.file_url });
+    await base44.entities.Event.update(event.id, { status: "Concluído", receipts_pdf_url: uploadRes.file_url });
     setGeneratingPdf(false);
     toast.success("PDF gerado e evento finalizado!");
   };
@@ -550,7 +550,7 @@ export default function EventScale({ event, employees, onBack }) {
     const uploadRes2 = await base44.integrations.Core.UploadFile({ file: pdfFile2 });
 
     clearSession();
-    await base44.entities.Event.update(event.id, { status: "Concluído", scale_pdf_url: uploadRes2.file_url });
+    await base44.entities.Event.update(event.id, { status: "Concluído", receipts_pdf_url: uploadRes2.file_url });
     setGeneratingPdf(false);
     toast.success("PDF gerado e evento finalizado!");
   };

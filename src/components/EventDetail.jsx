@@ -28,6 +28,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [confirming, setConfirming] = useState(false);
   const [showScale, setShowScale] = useState(false);
   const [scalePdfUrl, setScalePdfUrl] = useState(event.scale_pdf_url || "");
+  const [receiptsPdfUrl, setReceiptsPdfUrl] = useState(event.receipts_pdf_url || "");
   const [uploadingPdf, setUploadingPdf] = useState(false);
   const [pdfEmployees, setPdfEmployees] = useState([]);
   const [extractingPdf, setExtractingPdf] = useState(false);
@@ -69,6 +70,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           // Recarrega o evento para obter scale_pdf_url e status atualizados
           const updated = await base44.entities.Event.filter({ id: event.id });
           if (updated?.[0]?.scale_pdf_url) setScalePdfUrl(updated[0].scale_pdf_url);
+          if (updated?.[0]?.receipts_pdf_url) setReceiptsPdfUrl(updated[0].receipts_pdf_url);
           if (updated?.[0]?.status) event.status = updated[0].status;
           setShowScale(false);
           onRefresh();
@@ -303,9 +305,9 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               <p className="text-xs text-emerald-600">Todas as assinaturas foram coletadas e o PDF foi gerado.</p>
             </div>
           </div>
-          {scalePdfUrl && (
+          {receiptsPdfUrl && (
             <a
-              href={scalePdfUrl}
+              href={receiptsPdfUrl}
               download
               target="_blank"
               rel="noopener noreferrer"

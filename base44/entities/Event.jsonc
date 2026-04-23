@@ -45,6 +45,10 @@
     "scale_pdf_url": {
       "type": "string",
       "title": "PDF da Escala"
+    },
+    "receipts_pdf_url": {
+      "type": "string",
+      "title": "PDF dos Recibos"
     }
   },
   "required": [
