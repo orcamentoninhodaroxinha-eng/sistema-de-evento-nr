@@ -65,7 +65,14 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       <EventScale
         event={event}
         employees={scaleEmployees}
-        onBack={() => setShowScale(false)}
+        onBack={async () => {
+          // Recarrega o evento para obter scale_pdf_url e status atualizados
+          const updated = await base44.entities.Event.filter({ id: event.id });
+          if (updated?.[0]?.scale_pdf_url) setScalePdfUrl(updated[0].scale_pdf_url);
+          if (updated?.[0]?.status) event.status = updated[0].status;
+          setShowScale(false);
+          onRefresh();
+        }}
       />
     );
   }
