@@ -29,6 +29,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [showScale, setShowScale] = useState(false);
   const [scalePdfUrl, setScalePdfUrl] = useState(event.scale_pdf_url || "");
   const [receiptsPdfUrl, setReceiptsPdfUrl] = useState(event.receipts_pdf_url || "");
+  const [eventStatus, setEventStatus] = useState(event.status || "Planejado");
   const [uploadingPdf, setUploadingPdf] = useState(false);
   const [pdfEmployees, setPdfEmployees] = useState([]);
   const [extractingPdf, setExtractingPdf] = useState(false);
@@ -71,7 +72,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           const updated = await base44.entities.Event.filter({ id: event.id });
           if (updated?.[0]?.scale_pdf_url) setScalePdfUrl(updated[0].scale_pdf_url);
           if (updated?.[0]?.receipts_pdf_url) setReceiptsPdfUrl(updated[0].receipts_pdf_url);
-          if (updated?.[0]?.status) event.status = updated[0].status;
+          if (updated?.[0]?.status) { event.status = updated[0].status; setEventStatus(updated[0].status); }
           setShowScale(false);
           onRefresh();
         }}
@@ -246,7 +247,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
 
 
       {/* Start Scale Button */}
-      {!pdfReviewMode && (teamConfirmed || scalePdfUrl || assignedEmployees.length > 0) && event.status !== "Concluído" && (
+      {!pdfReviewMode && (teamConfirmed || scalePdfUrl || assignedEmployees.length > 0) && eventStatus !== "Concluído" && (
         <div className="mt-4">
           <Button
             onClick={async () => {
@@ -296,7 +297,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       )}
 
       {/* Escala finalizada - bloquear reínicio + download */}
-      {event.status === "Concluído" && (
+      {eventStatus === "Concluído" && (
         <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-3">
           <div className="flex items-center gap-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
