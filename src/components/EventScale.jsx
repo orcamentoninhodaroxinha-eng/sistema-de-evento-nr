@@ -50,6 +50,8 @@ export default function EventScale({ event, employees, onBack }) {
   const containerRef = useRef(null);
   const signatureRef = useRef(null);
   const pendingListRef = useRef(null);
+  const cameraRef = useRef(null);
+  const confirmBtnRef = useRef(null);
 
   const [touchStart, setTouchStart] = useState(0);
 
@@ -206,11 +208,19 @@ export default function EventScale({ event, employees, onBack }) {
   const handleSignatureSave = (file) => {
     setSignatureFile(file);
     setSignatureConfirmed(true);
+    // Sobe a tela para a seção da câmera
+    setTimeout(() => {
+      cameraRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
   };
 
   const handlePhotoCapture = (file) => {
     setPhotoFile(file);
     setPhotoConfirmed(true);
+    // Sobe a tela para o botão de finalização
+    setTimeout(() => {
+      confirmBtnRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 150);
   };
 
   const handleConfirmEmployee = async () => {
@@ -746,7 +756,9 @@ export default function EventScale({ event, employees, onBack }) {
          </div>
         )}
 
-        <CameraCapture key={`cam-${current._key}`} onCapture={handlePhotoCapture} />
+        <div ref={cameraRef}>
+          <CameraCapture key={`cam-${current._key}`} onCapture={handlePhotoCapture} />
+        </div>
 
         {photoConfirmed && (
          <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 rounded-lg px-3 py-1 sm:py-1.5 border border-emerald-200">
@@ -756,6 +768,7 @@ export default function EventScale({ event, employees, onBack }) {
         )}
 
         <Button
+         ref={confirmBtnRef}
          onClick={handleConfirmEmployee}
          disabled={!signatureConfirmed || !photoConfirmed || saving}
          className="w-full h-9 sm:h-10 text-xs sm:text-sm font-semibold rounded-lg gap-2"
