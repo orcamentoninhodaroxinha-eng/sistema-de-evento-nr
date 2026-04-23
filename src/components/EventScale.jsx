@@ -225,6 +225,8 @@ export default function EventScale({ event, employees, onBack }) {
   const [photoUrl, setPhotoUrl] = useState(null);
   const [saving, setSaving] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [pdfDownloadUrl, setPdfDownloadUrl] = useState(null);
+  const [pdfFileName, setPdfFileName] = useState(null);
 
   const current = pending[0];
 
@@ -410,14 +412,10 @@ export default function EventScale({ event, employees, onBack }) {
     const fileName = `recibos_${event.name.replace(/\s+/g, "_")}.pdf`;
     const pdfBlob = doc.output("blob");
 
-    // Download local
-    const url = URL.createObjectURL(pdfBlob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+    // Cria URL local para download via botão (compatível com mobile)
+    const localUrl = URL.createObjectURL(pdfBlob);
+    setPdfDownloadUrl(localUrl);
+    setPdfFileName(fileName);
 
     // Upload para armazenar e disponibilizar para download futuro
     const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
@@ -536,14 +534,10 @@ export default function EventScale({ event, employees, onBack }) {
     const fileName2 = `recibos_${event.name.replace(/\s+/g, "_")}.pdf`;
     const pdfBlob2 = doc.output("blob");
 
-    // Download local
-    const url2 = URL.createObjectURL(pdfBlob2);
-    const a2 = document.createElement("a");
-    a2.href = url2;
-    a2.download = fileName2;
-    document.body.appendChild(a2);
-    a2.click();
-    setTimeout(() => { document.body.removeChild(a2); URL.revokeObjectURL(url2); }, 1000);
+    // Cria URL local para download via botão (compatível com mobile)
+    const localUrl2 = URL.createObjectURL(pdfBlob2);
+    setPdfDownloadUrl(localUrl2);
+    setPdfFileName(fileName2);
 
     // Upload para armazenar e disponibilizar para download futuro
     const pdfFile2 = new File([pdfBlob2], fileName2, { type: "application/pdf" });
@@ -717,13 +711,24 @@ export default function EventScale({ event, employees, onBack }) {
         </p>
         {!generatingPdf && (
           <>
-            <Button
-              onClick={() => generatePDFForCompleted(completed)}
-              className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl gap-2 sm:gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30"
-            >
-              <FileDown className="w-5 sm:w-6 h-5 sm:h-6" />
-              Baixar PDF novamente
-            </Button>
+            {pdfDownloadUrl ? (
+              <a
+                href={pdfDownloadUrl}
+                download={pdfFileName}
+                className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl gap-2 sm:gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30 inline-flex items-center justify-center text-white"
+              >
+                <FileDown className="w-5 sm:w-6 h-5 sm:h-6" />
+                Baixar PDF dos Recibos
+              </a>
+            ) : (
+              <Button
+                onClick={() => generatePDFForCompleted(completed)}
+                className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl gap-2 sm:gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30"
+              >
+                <FileDown className="w-5 sm:w-6 h-5 sm:h-6" />
+                Gerar PDF novamente
+              </Button>
+            )}
             <Button variant="ghost" onClick={onBack} className="mt-2 sm:mt-3 w-full text-xs sm:text-sm">
               Voltar ao Evento
             </Button>
