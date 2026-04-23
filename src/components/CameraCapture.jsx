@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 export default function CameraCapture({ onCapture }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [cameraActive, setCameraActive] = useState(false);
@@ -26,6 +27,7 @@ export default function CameraCapture({ onCapture }) {
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
+      containerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 50);
   }, [stream, facingMode]);
 
@@ -72,7 +74,7 @@ export default function CameraCapture({ onCapture }) {
   };
 
   return (
-    <div className="space-y-3">
+    <div ref={containerRef} className="space-y-3">
       <label className="text-sm font-medium text-foreground">
         Foto do Funcionário
       </label>
