@@ -757,7 +757,17 @@ export default function EventScale({ event, employees, onBack }) {
         )}
 
         <div ref={cameraRef}>
-          <CameraCapture key={`cam-${current._key}`} onCapture={handlePhotoCapture} />
+          <CameraCapture
+            key={`cam-${current._key}`}
+            onCapture={handlePhotoCapture}
+            onCameraOpen={() => {
+              setTimeout(() => {
+                cameraRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                if (signatureRef.current) signatureRef.current.scrollTop = signatureRef.current.scrollHeight;
+              }, 100);
+            }}
+          />
         </div>
 
         {photoConfirmed && (

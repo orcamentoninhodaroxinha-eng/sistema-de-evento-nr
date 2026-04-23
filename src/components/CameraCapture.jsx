@@ -2,7 +2,7 @@ import { useRef, useState, useCallback } from "react";
 import { Camera, RotateCcw, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function CameraCapture({ onCapture }) {
+export default function CameraCapture({ onCapture, onCameraOpen }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -28,6 +28,7 @@ export default function CameraCapture({ onCapture }) {
         videoRef.current.srcObject = mediaStream;
       }
       containerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      onCameraOpen?.();
     }, 50);
   }, [stream, facingMode]);
 
