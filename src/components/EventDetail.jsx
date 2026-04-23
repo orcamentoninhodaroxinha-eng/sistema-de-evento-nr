@@ -304,11 +304,13 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           <div className="flex items-center gap-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-emerald-800">Escala finalizada</p>
-              <p className="text-xs text-emerald-600">Todas as assinaturas foram coletadas e o PDF foi gerado.</p>
+              <p className="text-sm font-semibold text-emerald-800">Evento finalizado</p>
+              <p className="text-xs text-emerald-600">
+                {receiptsPdfUrl ? "PDF dos recibos disponível para download." : "Nenhum PDF de recibos gerado para este evento."}
+              </p>
             </div>
           </div>
-          {receiptsPdfUrl && (
+          {receiptsPdfUrl ? (
             <a
               href={receiptsPdfUrl}
               download
@@ -319,6 +321,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               <FileDown className="w-4 h-4" />
               Baixar PDF dos Recibos
             </a>
+          ) : (
+            <p className="text-xs text-emerald-600 text-center py-1">Nenhum PDF disponível</p>
           )}
         </div>
       )}
