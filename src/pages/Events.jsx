@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import {
   CalendarDays, MapPin, Users, Search, Loader2,
-  MoreVertical, Trash2, CheckCircle2, Plus, ChevronUp, ChevronDown
+  MoreVertical, Trash2, CheckCircle2, Plus, ChevronUp, ChevronDown, FileDown
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -64,6 +64,18 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish }) {
               {event.employees?.length || 0} funcionário(s)
             </span>
           </div>
+          {event.receipts_pdf_url && (
+            <a
+              href={event.receipts_pdf_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg hover:bg-emerald-100 transition-colors"
+            >
+              <FileDown className="w-3.5 h-3.5" />
+              Baixar PDF dos Recibos
+            </a>
+          )}
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
