@@ -237,7 +237,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
 
 
       {/* Start Scale Button */}
-      {!pdfReviewMode && (teamConfirmed || scalePdfUrl || assignedEmployees.length > 0) && (
+      {!pdfReviewMode && (teamConfirmed || scalePdfUrl || assignedEmployees.length > 0) && event.status !== "Concluído" && (
         <div className="mt-4">
           <Button
             onClick={async () => {
@@ -283,6 +283,17 @@ export default function EventDetail({ event, onBack, onRefresh }) {
             )}
             {extractingPdf ? "Lendo PDF..." : "Iniciar Escala (Assinaturas & Fotos)"}
           </Button>
+        </div>
+      )}
+
+      {/* Escala finalizada - bloquear reínicio */}
+      {event.status === "Concluído" && (
+        <div className="mt-4 flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-4">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-emerald-800">Escala finalizada</p>
+            <p className="text-xs text-emerald-600">Todas as assinaturas foram coletadas e o PDF foi gerado.</p>
+          </div>
         </div>
       )}
 
