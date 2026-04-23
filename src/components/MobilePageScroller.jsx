@@ -4,8 +4,8 @@ import { ChevronUp, ChevronDown } from 'lucide-react';
 
 export default function MobilePageScroller({ children, containerRef }) {
   const [touchStart, setTouchStart] = useState(0);
-
-  const scrollRef = containerRef || useRef(null);
+  const internalRef = useRef(null);
+  const scrollRef = containerRef || internalRef;
 
   const handleScroll = (direction) => {
     if (scrollRef.current) {

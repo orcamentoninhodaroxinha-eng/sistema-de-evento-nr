@@ -238,15 +238,23 @@ export default function EventScale({ event, employees, onBack }) {
     };
 
     const empName = current.full_name;
-    setCompleted((prev) => [...prev, record]);
-    setPending((prev) => prev.slice(1));
+    const updatedCompleted = [...completed, record];
+    const updatedPending = pending.slice(1);
+    setCompleted(updatedCompleted);
+    setPending(updatedPending);
     setSignatureFile(null);
     setPhotoFile(null);
     setSignatureConfirmed(false);
     setPhotoConfirmed(false);
     setSaving(false);
-    setSelectMode(true);
     toast(`${empName} registrado!`, { duration: 1000 });
+
+    if (updatedPending.length === 0) {
+      // Gera PDF automaticamente ao finalizar todos
+      setTimeout(() => generatePDFForCompleted(updatedCompleted), 300);
+    } else {
+      setSelectMode(true);
+    }
   };
 
   const toBase64FromUrl = async (url) => {
@@ -257,6 +265,104 @@ export default function EventScale({ event, employees, onBack }) {
       reader.onloadend = () => resolve(reader.result);
       reader.readAsDataURL(blob);
     });
+  };
+
+  const generatePDFForCompleted = async (completedList) => {
+    setGeneratingPdf(true);
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const pageW = 210;
+    const margin = 20;
+    const contentW = pageW - margin * 2;
+
+    const eventDateStr = event.date
+      ? format(new Date(event.date), "dd/MM/yyyy")
+      : "___/___/______";
+    const todayStr = format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+
+    for (let i = 0; i < completedList.length; i++) {
+      const emp = completedList[i];
+      if (i > 0) doc.addPage();
+
+      let y = 18;
+      doc.setFont("helvetica", "bolditalic");
+      doc.setFontSize(9);
+      doc.setTextColor(120, 40, 60);
+      doc.text("ninho da roxinha", margin, y + 4);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6);
+      doc.text("RESTAURANTE & EVENTOS", margin, y + 8);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.setTextColor(30, 30, 30);
+      doc.text("RECIBO", pageW / 2, y + 6, { align: "center" });
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(30, 30, 30);
+      doc.text("VALOR:", pageW - margin, y + 2, { align: "right" });
+      doc.setFontSize(11);
+      doc.text(`R$  ${emp.valor || "________"}`, pageW - margin, y + 8, { align: "right" });
+
+      y += 18;
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, y, pageW - margin, y);
+      y += 12;
+
+      const pixInfo = emp.cpf ? ` / PIX ${emp.cpf}` : "";
+      const declaration =
+        `Eu ${emp.full_name}${pixInfo}, aqui denominado Free Lancer, Declaro ter Recebido da empresa ` +
+        `Ninho da Roxinha Eventos, a quantia de R$ ${emp.valor || "________"}, referente prestação de serviços -Extras ` +
+        `no evento do dia ${eventDateStr} ( ${event.name} ) e declaro ainda não haver de minha parte nenhuma obrigação ` +
+        `de de serviços solicitada esporadicamente, sendo a mim facultada decisão de aceitar ou não o serviço e Horarios ` +
+        `propostos.`;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.setTextColor(30, 30, 30);
+      const bodyLines = doc.splitTextToSize(declaration, contentW);
+      doc.text(bodyLines, margin, y);
+      y += bodyLines.length * 6 + 8;
+
+      doc.text("sem mais para o momento, firmo o presente.", margin, y);
+      y += 24;
+
+      doc.text(`Serra, Espírito Santo ${todayStr}`, pageW - margin, y, { align: "right" });
+      y += 28;
+
+      if (emp.signatureUrl) {
+        try {
+          const sigData = await toBase64FromUrl(emp.signatureUrl);
+          doc.addImage(sigData, "PNG", margin, y - 18, 70, 18, undefined, "FAST");
+        } catch (e) {}
+      }
+
+      doc.setDrawColor(60, 60, 60);
+      doc.line(margin, y, margin + 100, y);
+      y += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(30, 30, 30);
+      doc.text(`${emp.full_name}${pixInfo}`, margin, y);
+      if (emp.cpf) {
+        y += 5;
+        doc.text(emp.cpf, margin, y);
+      }
+      y += 10;
+
+      if (emp.photoUrl) {
+        try {
+          const photoData = await toBase64FromUrl(emp.photoUrl);
+          doc.addImage(photoData, "JPEG", margin, y, 55, 70, undefined, "FAST");
+        } catch (e) {}
+      }
+    }
+
+    doc.save(`recibos_${event.name.replace(/\s+/g, "_")}.pdf`);
+    await base44.entities.Event.update(event.id, { status: "Concluído" });
+    setGeneratingPdf(false);
+    toast.success("PDF gerado e evento finalizado!");
   };
 
   const generatePDF = async () => {
@@ -514,24 +620,35 @@ export default function EventScale({ event, employees, onBack }) {
   if (pending.length === 0) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center text-center px-4 sm:px-6 py-6 sm:py-10">
-        <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-4 sm:mb-5">
-          <CheckCircle className="w-8 sm:w-10 h-8 sm:h-10 text-emerald-600" />
+        <div className={`w-16 sm:w-20 h-16 sm:h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-5 ${generatingPdf ? 'bg-primary/10' : 'bg-emerald-100'}`}>
+          {generatingPdf ? (
+            <Loader2 className="w-8 sm:w-10 h-8 sm:h-10 text-primary animate-spin" />
+          ) : (
+            <CheckCircle className="w-8 sm:w-10 h-8 sm:h-10 text-emerald-600" />
+          )}
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold">Escala Finalizada!</h2>
+        <h2 className="text-xl sm:text-2xl font-bold">
+          {generatingPdf ? "Gerando PDF..." : "Escala Finalizada!"}
+        </h2>
         <p className="text-xs sm:text-sm text-muted-foreground mt-2 mb-4 sm:mb-6">
-          Todos os {completed.length} funcionários foram registrados.
+          {generatingPdf
+            ? "Aguarde, o documento está sendo gerado automaticamente."
+            : `Todos os ${completed.length} funcionários foram registrados.`}
         </p>
-        <Button
-          onClick={() => setConfirmingTeam(true)}
-          disabled={generatingPdf}
-          className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl gap-2 sm:gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30"
-        >
-          <FileDown className="w-5 sm:w-6 h-5 sm:h-6" />
-          Confirmar Equipe
-        </Button>
-        <Button variant="ghost" onClick={onBack} className="mt-2 sm:mt-3 w-full text-xs sm:text-sm">
-          Voltar ao Evento
-        </Button>
+        {!generatingPdf && (
+          <>
+            <Button
+              onClick={() => generatePDFForCompleted(completed)}
+              className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl gap-2 sm:gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30"
+            >
+              <FileDown className="w-5 sm:w-6 h-5 sm:h-6" />
+              Baixar PDF novamente
+            </Button>
+            <Button variant="ghost" onClick={onBack} className="mt-2 sm:mt-3 w-full text-xs sm:text-sm">
+              Voltar ao Evento
+            </Button>
+          </>
+        )}
       </div>
     );
   }
