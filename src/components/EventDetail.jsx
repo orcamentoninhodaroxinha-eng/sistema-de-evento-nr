@@ -209,11 +209,13 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               <ExternalLink className="w-4 h-4" />
               Abrir
             </a>
-            <label className="cursor-pointer inline-flex items-center gap-2 h-10 px-4 border border-border rounded-xl text-sm font-medium hover:bg-muted transition-colors">
-              <Upload className="w-4 h-4" />
-              Trocar
-              <input type="file" accept="application/pdf" className="hidden" onChange={handlePdfUpload} />
-            </label>
+            {eventStatus !== "Concluído" && (
+              <label className="cursor-pointer inline-flex items-center gap-2 h-10 px-4 border border-border rounded-xl text-sm font-medium hover:bg-muted transition-colors">
+                <Upload className="w-4 h-4" />
+                Trocar
+                <input type="file" accept="application/pdf" className="hidden" onChange={handlePdfUpload} />
+              </label>
+            )}
           </div>
         ) : (
           <label className="cursor-pointer flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-xl py-6 hover:border-primary/40 hover:bg-accent/30 transition-colors">
