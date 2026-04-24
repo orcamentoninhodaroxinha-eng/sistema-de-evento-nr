@@ -47,8 +47,16 @@ export default function EventScale({ event, employees, onBack }) {
 
   const saveSession = (pendingList, completedList) => {
     try {
-      localStorage.setItem(SESSION_KEY, JSON.stringify({ pending: pendingList, completed: completedList }));
-    } catch (e) {}
+      // Remove base64 de pending para economizar espaço (não precisam ser persistidos)
+      const pendingToSave = pendingList.map(({ signatureBase64, photoBase64, ...rest }) => rest);
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ pending: pendingToSave, completed: completedList }));
+    } catch (e) {
+      // Se estourar o limite do localStorage (base64 muito grande), tenta sem as fotos dos completados
+      try {
+        const completedWithoutBase64 = completedList.map(({ signatureBase64, photoBase64, ...rest }) => rest);
+        localStorage.setItem(SESSION_KEY, JSON.stringify({ pending: pendingList, completed: completedWithoutBase64 }));
+      } catch (e2) {}
+    }
   };
 
   const clearSession = () => {
