@@ -39,7 +39,7 @@ export default function EventScale({ event, employees, onBack }) {
 
   const loadSession = () => {
     try {
-      const saved = sessionStorage.getItem(SESSION_KEY);
+      const saved = localStorage.getItem(SESSION_KEY);
       if (saved) return JSON.parse(saved);
     } catch (e) {}
     return null;
@@ -47,12 +47,12 @@ export default function EventScale({ event, employees, onBack }) {
 
   const saveSession = (pendingList, completedList) => {
     try {
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ pending: pendingList, completed: completedList }));
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ pending: pendingList, completed: completedList }));
     } catch (e) {}
   };
 
   const clearSession = () => {
-    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+    try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
   };
 
 
