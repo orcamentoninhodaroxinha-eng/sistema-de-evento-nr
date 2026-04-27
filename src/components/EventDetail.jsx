@@ -26,7 +26,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [teamConfirmed, setTeamConfirmed] = useState(event.team_confirmed || false);
   const [localEmployeeIds, setLocalEmployeeIds] = useState(event.employees || []);
   const [confirming, setConfirming] = useState(false);
-  const [showScale, setShowScale] = useState(false);
+  const hasActiveSession = !!localStorage.getItem(`event_scale_${event.id}`);
+  const [showScale, setShowScale] = useState(hasActiveSession);
   const [scalePdfUrl, setScalePdfUrl] = useState(event.scale_pdf_url || "");
   const [receiptsPdfUrl, setReceiptsPdfUrl] = useState(event.receipts_pdf_url || "");
   const [eventStatus, setEventStatus] = useState(event.status || "Planejado");
