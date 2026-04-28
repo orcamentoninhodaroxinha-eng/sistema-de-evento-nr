@@ -80,10 +80,85 @@ export default function Approvals() {
           </div>
         ) : (
           <div className="space-y-4">
+            {/* Escalas unificadas (quando ambas prontas) */}
+            {(events || [])
+              .filter(ev => ev.scale_submitted && ev.salao_submitted && ev.unified_scale_csv_url && !ev.scale_approved && !ev.salao_approved)
+              .map((unifiedEvent) => (
+                <div key={`unified_${unifiedEvent.id}`} className="bg-card rounded-2xl p-5 shadow-sm space-y-4 border border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 bg-gradient-to-br from-primary/20 to-purple-200">
+                        <span className="text-[10px] font-medium uppercase text-primary/70">
+                          {unifiedEvent.date ? format(new Date(unifiedEvent.date), "MMM", { locale: ptBR }) : "---"}
+                        </span>
+                        <span className="text-lg font-bold leading-none text-primary">
+                          {unifiedEvent.date ? format(new Date(unifiedEvent.date), "dd") : "--"}
+                        </span>
+                      </div>
+                      <div>
+                        <h2 className="font-bold text-base">{unifiedEvent.name}</h2>
+                        {unifiedEvent.location && (
+                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <MapPin className="w-3 h-3" />
+                            {unifiedEvent.location}
+                          </p>
+                        )}
+                        <p className="text-xs text-primary font-semibold mt-1">✅ Cozinha + Salão Prontos</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-medium px-2.5 py-1 rounded-full shrink-0 border bg-primary/10 text-primary border-primary/30">
+                      📊 Unificada
+                    </span>
+                  </div>
+
+                  <a
+                    href={unifiedEvent.unified_scale_csv_url}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm font-medium transition-colors border border-primary/40 bg-primary/5 text-primary hover:bg-primary/10"
+                  >
+                    <FileSpreadsheet className="w-4 h-4" />
+                    Ver Excel Unificado
+                  </a>
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleApprove({...unifiedEvent, _area: "cozinha"})}
+                      disabled={approvingId === `${unifiedEvent.id}_cozinha`}
+                      className="flex-1 h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
+                    >
+                      {approvingId === `${unifiedEvent.id}_cozinha` ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="w-4 h-4" />
+                      )}
+                      Aprovar Cozinha
+                    </Button>
+                    <Button
+                      onClick={() => handleApprove({...unifiedEvent, _area: "salao"})}
+                      disabled={approvingId === `${unifiedEvent.id}_salao`}
+                      className="flex-1 h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
+                    >
+                      {approvingId === `${unifiedEvent.id}_salao` ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="w-4 h-4" />
+                      )}
+                      Aprovar Salão
+                    </Button>
+                  </div>
+                </div>
+              ))}
+
+            {/* Escalas individuais (apenas uma pronta) */}
             {pending.map((item) => {
               const isSalao = item._area === "salao";
               const itemKey = `${item.id}_${item._area}`;
               const csvUrl = isSalao ? item.salao_csv_url : item.scale_csv_url;
+              const isUnified = item.scale_submitted && item.salao_submitted && item.unified_scale_csv_url;
+              
+              if (isUnified) return null; // Pula se já mostrou como unificada
               return (
                 <div key={itemKey} className={`bg-card rounded-2xl p-5 shadow-sm space-y-4 border ${isSalao ? "border-blue-200" : "border-orange-200"}`}>
                   <div className="flex items-start justify-between gap-3">
