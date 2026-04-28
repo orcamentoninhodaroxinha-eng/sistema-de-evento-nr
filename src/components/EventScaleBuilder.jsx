@@ -162,7 +162,7 @@ export default function EventScaleBuilder({ event, onBack }) {
       )}
 
       {/* Buscar e adicionar */}
-      <div className="bg-card rounded-2xl border border-border p-4 shadow-sm">
+      <div className="bg-card rounded-2xl border border-border p-4 shadow-sm flex flex-col" style={{ minHeight: 'calc(100vh - 200px)' }}>
         <h2 className="font-semibold mb-3">Adicionar Funcionário da Cozinha</h2>
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -176,7 +176,7 @@ export default function EventScaleBuilder({ event, onBack }) {
 
         <div
           ref={listRef}
-          className="space-y-2 max-h-[60vh] overflow-y-auto"
+          className="space-y-2 flex-1 overflow-y-auto"
           onTouchStart={handleListTouchStart}
           onTouchMove={handleListTouchMove}
         >
