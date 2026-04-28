@@ -35,6 +35,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [showScale, setShowScale] = useState(hasActiveSession);
   const [scalePdfUrl, setScalePdfUrl] = useState(event.scale_pdf_url || "");
   const [scaleCsvUrl, setScaleCsvUrl] = useState(event.scale_csv_url || "");
+  const [scaleSubmitted, setScaleSubmitted] = useState(event.scale_submitted || false);
+  const [submitting, setSubmitting] = useState(false);
   const [receiptsPdfUrl, setReceiptsPdfUrl] = useState(event.receipts_pdf_url || "");
   const [eventStatus, setEventStatus] = useState(event.status || "Planejado");
   const [uploadingPdf, setUploadingPdf] = useState(false);
@@ -88,6 +90,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           const updated = await base44.entities.Event.filter({ id: event.id });
           if (updated?.[0]?.scale_pdf_url) setScalePdfUrl(updated[0].scale_pdf_url);
           if (updated?.[0]?.scale_csv_url) setScaleCsvUrl(updated[0].scale_csv_url);
+          if (updated?.[0]?.scale_submitted !== undefined) setScaleSubmitted(updated[0].scale_submitted);
           if (updated?.[0]?.receipts_pdf_url) setReceiptsPdfUrl(updated[0].receipts_pdf_url);
           if (updated?.[0]?.status) { event.status = updated[0].status; setEventStatus(updated[0].status); }
           setShowScale(false);
@@ -209,12 +212,16 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       {isJuberly && (
         <div className="mt-6">
           {scaleCsvUrl ? (
-            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 shadow-sm space-y-3">
+            <div className={`rounded-2xl p-5 shadow-sm space-y-3 border ${scaleSubmitted ? "bg-emerald-50 border-emerald-200" : "bg-orange-50 border-orange-200"}`}>
               <div className="flex items-center gap-2">
                 <span className="text-lg">🍳</span>
                 <div>
-                  <h2 className="font-semibold text-orange-800">Escala da Cozinha</h2>
-                  <p className="text-xs text-orange-600">Escala confirmada e Excel gerado</p>
+                  <h2 className={`font-semibold ${scaleSubmitted ? "text-emerald-800" : "text-orange-800"}`}>
+                    Escala da Cozinha — Pronta
+                  </h2>
+                  <p className={`text-xs ${scaleSubmitted ? "text-emerald-600" : "text-orange-600"}`}>
+                    {scaleSubmitted ? "✅ Enviada para aprovação" : "Escala gerada — envie para o admin aprovar"}
+                  </p>
                 </div>
               </div>
               <a
@@ -222,11 +229,27 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 download
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full h-11 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-sm font-semibold transition-colors"
+                className="flex items-center justify-center gap-2 w-full h-10 border border-orange-300 bg-white text-orange-700 rounded-xl text-sm font-medium transition-colors hover:bg-orange-50"
               >
                 <FileSpreadsheet className="w-4 h-4" />
                 Baixar Excel da Escala
               </a>
+              {!scaleSubmitted && (
+                <Button
+                  onClick={async () => {
+                    setSubmitting(true);
+                    await base44.entities.Event.update(event.id, { scale_submitted: true });
+                    setScaleSubmitted(true);
+                    setSubmitting(false);
+                    toast({ title: "Escala enviada para aprovação!" });
+                  }}
+                  disabled={submitting}
+                  className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2"
+                >
+                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                  {submitting ? "Enviando..." : "Enviar para Aprovação"}
+                </Button>
+              )}
             </div>
           ) : (
             <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 shadow-sm">
