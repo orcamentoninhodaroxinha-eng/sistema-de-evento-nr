@@ -110,6 +110,7 @@ export default function Events() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const loginUser = useLoginUser();
 
   const { data: events, isLoading } = useQuery({
     queryKey: ["events"],
@@ -148,7 +149,6 @@ export default function Events() {
   const totalActivePages = Math.ceil(activeEvents.length / itemsPerPage);
   const totalFinishedPages = Math.ceil(finishedEvents.length / itemsPerPage);
 
-  const loginUser = useLoginUser();
   const isAdmin = loginUser?.role === 'admin';
 
   return (
