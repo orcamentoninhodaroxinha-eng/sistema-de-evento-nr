@@ -7,6 +7,7 @@ import { Lock } from "lucide-react";
 const USERS = [
   { username: "Ninho", password: "123", role: "admin" },
   { username: "Juberly", password: "juberly123", role: "cozinha" },
+  { username: "AndreF", password: "andre123", role: "salao" },
 ];
 const SESSION_KEY = "ninho_auth";
 
