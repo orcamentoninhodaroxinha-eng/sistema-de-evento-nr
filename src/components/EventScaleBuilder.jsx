@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Plus, Trash2, Save, Loader2, Search } from "lucide-react";
@@ -24,6 +24,18 @@ export default function EventScaleBuilder({ event, onBack }) {
   const [funcao, setFuncao] = useState("");
   const [valor, setValor] = useState("");
   const [saving, setSaving] = useState(false);
+  const listRef = useRef(null);
+  const dragStart = useRef(null);
+
+  const handleListTouchStart = (e) => {
+    dragStart.current = e.touches[0].clientY;
+  };
+  const handleListTouchMove = (e) => {
+    if (dragStart.current === null || !listRef.current) return;
+    const dy = dragStart.current - e.touches[0].clientY;
+    listRef.current.scrollTop += dy * 0.6;
+    dragStart.current = e.touches[0].clientY;
+  };
 
   // Escala salva no evento (array de objetos: { employeeId, full_name, funcao, valor })
   const [scale, setScale] = useState(() => {
@@ -142,7 +154,12 @@ export default function EventScaleBuilder({ event, onBack }) {
           />
         </div>
 
-        <div className="space-y-2 max-h-80 overflow-y-auto">
+        <div
+          ref={listRef}
+          className="space-y-2 max-h-80 overflow-y-auto"
+          onTouchStart={handleListTouchStart}
+          onTouchMove={handleListTouchMove}
+        >
           {kitchenEmployees.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-6">
               {search ? "Nenhum funcionário encontrado" : "Todos os funcionários de cozinha já foram adicionados"}
