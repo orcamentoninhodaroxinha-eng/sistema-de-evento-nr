@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLoginUser } from "@/hooks/useLoginUser";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import PullToRefresh from "@/components/PullToRefresh";
@@ -147,7 +148,8 @@ export default function Events() {
   const totalActivePages = Math.ceil(activeEvents.length / itemsPerPage);
   const totalFinishedPages = Math.ceil(finishedEvents.length / itemsPerPage);
 
-  const isAdmin = user?.role === 'admin';
+  const loginUser = useLoginUser();
+  const isAdmin = user?.role === 'admin' && loginUser?.role !== 'cozinha';
 
   return (
     <PageTransition>
