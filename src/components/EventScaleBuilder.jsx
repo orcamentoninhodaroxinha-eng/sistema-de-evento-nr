@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Plus, Trash2, Save, Loader2, Search } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Loader2, Search, Eye, X, CheckCircle2, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,22 +16,42 @@ function isKitchenRole(role = "") {
   return KITCHEN_ROLES.some(r => role.toLowerCase().includes(r));
 }
 
+function generateExcel(scale, eventName) {
+  // Gera CSV com BOM para abrir corretamente no Excel
+  const bom = "\uFEFF";
+  const header = "Nome;Função;Valor (R$)\n";
+  const rows = scale.map(emp => `${emp.full_name};${emp.funcao};${emp.valor}`).join("\n");
+  const total = scale.reduce((acc, emp) => {
+    const v = parseFloat(emp.valor?.replace(",", ".")) || 0;
+    return acc + v;
+  }, 0);
+  const totalRow = `\nTOTAL;;${total.toFixed(2).replace(".", ",")}`;
+  const csv = bom + header + rows + totalRow;
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `escala_${eventName.replace(/\s+/g, "_")}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function EventScaleBuilder({ event, onBack }) {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [showDialog, setShowDialog] = useState(false);
+  const [showReview, setShowReview] = useState(false);
   const [selectedEmp, setSelectedEmp] = useState(null);
   const [funcao, setFuncao] = useState("");
   const [valor, setValor] = useState("");
   const [saving, setSaving] = useState(false);
   const listRef = useRef(null);
-  const scaleListRef = useRef(null);
+  const reviewListRef = useRef(null);
   const dragStart = useRef(null);
-  const scaleDragStart = useRef(null);
+  const reviewDragStart = useRef(null);
 
-  const handleListTouchStart = (e) => {
-    dragStart.current = e.touches[0].clientY;
-  };
+  const handleListTouchStart = (e) => { dragStart.current = e.touches[0].clientY; };
   const handleListTouchMove = (e) => {
     if (dragStart.current === null || !listRef.current) return;
     const dy = dragStart.current - e.touches[0].clientY;
@@ -39,17 +59,14 @@ export default function EventScaleBuilder({ event, onBack }) {
     dragStart.current = e.touches[0].clientY;
   };
 
-  const handleScaleTouchStart = (e) => {
-    scaleDragStart.current = e.touches[0].clientY;
-  };
-  const handleScaleTouchMove = (e) => {
-    if (scaleDragStart.current === null || !scaleListRef.current) return;
-    const dy = scaleDragStart.current - e.touches[0].clientY;
-    scaleListRef.current.scrollTop += dy * 0.6;
-    scaleDragStart.current = e.touches[0].clientY;
+  const handleReviewTouchStart = (e) => { reviewDragStart.current = e.touches[0].clientY; };
+  const handleReviewTouchMove = (e) => {
+    if (reviewDragStart.current === null || !reviewListRef.current) return;
+    const dy = reviewDragStart.current - e.touches[0].clientY;
+    reviewListRef.current.scrollTop += dy * 0.6;
+    reviewDragStart.current = e.touches[0].clientY;
   };
 
-  // Escala salva no evento (array de objetos: { employeeId, full_name, funcao, valor })
   const [scale, setScale] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem(`juberly_scale_${event.id}`)) || [];
@@ -99,17 +116,23 @@ export default function EventScaleBuilder({ event, onBack }) {
     localStorage.setItem(`juberly_scale_${event.id}`, JSON.stringify(newScale));
   };
 
-  const handleSave = async () => {
+  const handleConfirmAndExport = async () => {
     setSaving(true);
-    // Salva os IDs dos funcionários no evento
     const ids = scale.map(s => s.employeeId);
     await base44.entities.Event.update(event.id, { employees: ids });
     queryClient.invalidateQueries(["events"]);
     queryClient.invalidateQueries(["event", event.id]);
+    generateExcel(scale, event.name);
     setSaving(false);
-    toast.success("Escala salva com sucesso!");
+    toast.success("Escala confirmada e Excel gerado!");
+    setShowReview(false);
     onBack();
   };
+
+  const total = scale.reduce((acc, emp) => {
+    const v = parseFloat(emp.valor?.replace(",", ".")) || 0;
+    return acc + v;
+  }, 0);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -118,44 +141,23 @@ export default function EventScaleBuilder({ event, onBack }) {
         Voltar
       </Button>
 
-      <div className="mb-6">
+      <div className="mb-5">
         <h1 className="text-2xl font-bold">Criar Escala</h1>
         <p className="text-sm text-muted-foreground mt-1">
           {event.name} — {event.date ? format(new Date(event.date), "dd/MM/yyyy") : ""}
         </p>
       </div>
 
-      {/* Escala atual */}
+      {/* Botão Conferir Escala */}
       {scale.length > 0 && (
-        <div className="bg-card rounded-2xl border border-border p-3 mb-4 shadow-sm">
-          <h2 className="font-semibold mb-2 text-xs text-muted-foreground uppercase tracking-wide">Equipe na Escala ({scale.length})</h2>
-          <div
-            ref={scaleListRef}
-            className="space-y-1 max-h-48 overflow-y-auto"
-            onTouchStart={handleScaleTouchStart}
-            onTouchMove={handleScaleTouchMove}
-          >
-            {scale.map((emp) => (
-              <div key={emp.employeeId} className="flex items-center gap-2 bg-muted/40 rounded-lg px-2 py-1.5">
-                <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                  {emp.full_name?.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-xs truncate">{emp.full_name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{emp.funcao} — <span className="text-emerald-700 font-medium">R$ {emp.valor}</span></p>
-                </div>
-                <button onClick={() => handleRemove(emp.employeeId)} className="text-destructive/60 hover:text-destructive p-0.5 shrink-0">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <Button onClick={handleSave} disabled={saving} className="w-full mt-4 gap-2 rounded-xl">
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {saving ? "Salvando..." : "Salvar Escala no Evento"}
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          onClick={() => setShowReview(true)}
+          className="w-full mb-4 gap-2 rounded-xl border-primary/40 text-primary hover:bg-primary/5"
+        >
+          <Eye className="w-4 h-4" />
+          Conferir Escala ({scale.length} funcionário{scale.length > 1 ? "s" : ""})
+        </Button>
       )}
 
       {/* Buscar e adicionar */}
@@ -202,7 +204,7 @@ export default function EventScaleBuilder({ event, onBack }) {
         </div>
       </div>
 
-      {/* Dialog para função e valor */}
+      {/* Dialog: Adicionar funcionário (função + valor) */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -216,7 +218,6 @@ export default function EventScaleBuilder({ event, onBack }) {
                 </div>
                 <p className="font-semibold text-sm">{selectedEmp.full_name}</p>
               </div>
-
               <div className="space-y-1.5">
                 <Label>Função no Evento</Label>
                 <Input
@@ -225,7 +226,6 @@ export default function EventScaleBuilder({ event, onBack }) {
                   onChange={e => setFuncao(e.target.value)}
                 />
               </div>
-
               <div className="space-y-1.5">
                 <Label>Valor do Extra (R$)</Label>
                 <Input
@@ -235,13 +235,67 @@ export default function EventScaleBuilder({ event, onBack }) {
                   type="text"
                 />
               </div>
-
               <Button onClick={handleAdd} className="w-full">
                 <Plus className="w-4 h-4 mr-2" />
                 Adicionar à Escala
               </Button>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Conferir Escala */}
+      <Dialog open={showReview} onOpenChange={setShowReview}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              Conferência da Escala
+            </DialogTitle>
+          </DialogHeader>
+
+          <div
+            ref={reviewListRef}
+            className="space-y-1.5 max-h-72 overflow-y-auto"
+            onTouchStart={handleReviewTouchStart}
+            onTouchMove={handleReviewTouchMove}
+          >
+            {scale.map((emp) => (
+              <div key={emp.employeeId} className="flex items-center gap-2 bg-muted/40 rounded-lg px-2.5 py-2">
+                <div className="w-7 h-7 rounded-md bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                  {emp.full_name?.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-xs truncate">{emp.full_name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{emp.funcao}</p>
+                </div>
+                <span className="text-xs font-semibold text-emerald-700 shrink-0">R$ {emp.valor}</span>
+                <button
+                  onClick={() => handleRemove(emp.employeeId)}
+                  className="text-destructive/50 hover:text-destructive p-0.5 shrink-0"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Total */}
+          <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 mt-1">
+            <span className="text-sm font-semibold text-emerald-800">Total</span>
+            <span className="text-sm font-bold text-emerald-700">R$ {total.toFixed(2).replace(".", ",")}</span>
+          </div>
+
+          <div className="flex gap-2 mt-1">
+            <Button variant="outline" onClick={() => setShowReview(false)} className="flex-1 gap-2">
+              <X className="w-4 h-4" />
+              Fechar
+            </Button>
+            <Button onClick={handleConfirmAndExport} disabled={saving} className="flex-1 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
+              {saving ? "Salvando..." : "Confirmar e Gerar Excel"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
