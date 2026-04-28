@@ -11,7 +11,7 @@ export default function Layout() {
   const mainRef = useRef(null);
   const [touchStart, setTouchStart] = useState(null);
   const loginUser = useLoginUser();
-  const isAdmin = loginUser?.role === "admin";
+  const isAdmin = loginUser?.role === "admin" || loginUser?.role === "aprovador";
   useDeviceDetection();
 
   const { data: events } = useQuery({

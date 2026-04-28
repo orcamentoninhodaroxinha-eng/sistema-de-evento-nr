@@ -37,7 +37,7 @@ export default function Approvals() {
     toast.success(`Escala do ${areaLabel} de "${item.name}" aprovada!`);
   };
 
-  if (loginUser?.role !== "admin") {
+  if (loginUser?.role !== "admin" && loginUser?.role !== "aprovador") {
     return (
       <PageTransition>
         <div className="flex flex-col items-center justify-center py-24 text-center">

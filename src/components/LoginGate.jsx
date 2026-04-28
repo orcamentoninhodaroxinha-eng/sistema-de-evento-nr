@@ -8,6 +8,7 @@ const USERS = [
   { username: "Ninho", password: "123", role: "admin" },
   { username: "Juberly", password: "juberly123", role: "cozinha" },
   { username: "AndreF", password: "123", role: "salao" },
+  { username: "AndreM", password: "123", role: "aprovador" },
 ];
 const SESSION_KEY = "ninho_auth";
 
