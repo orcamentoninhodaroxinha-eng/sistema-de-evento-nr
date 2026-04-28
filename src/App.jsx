@@ -12,6 +12,7 @@ import EventFormPage from './pages/EventFormPage';
 import AccountDeletion from './pages/AccountDeletion';
 import EventDetailPage from './pages/EventDetailPage';
 import AuthSplash from './components/AuthSplash';
+import Approvals from './pages/Approvals';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -36,6 +37,7 @@ const AuthenticatedApp = () => {
         <Route path="/events/new" element={<EventFormPage />} />
         <Route path="/events/:id" element={<EventDetailPage />} />
         <Route path="/account/delete" element={<AccountDeletion />} />
+        <Route path="/approvals" element={<Approvals />} />
         <Route path="/roulette" element={<Roulette />} />
       </Route>
     </Routes>

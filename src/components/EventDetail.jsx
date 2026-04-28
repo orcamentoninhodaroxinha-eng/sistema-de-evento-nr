@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, MapPin, CalendarDays, FileText, Users,
   Plus, X, Search, Loader2, UserCheck, CheckCircle2, ShieldCheck, PlayCircle,
-  Paperclip, ExternalLink, Upload, FileDown, FileSpreadsheet
+  Paperclip, ExternalLink, Upload, FileDown, FileSpreadsheet, ClipboardCheck
 } from "lucide-react";
 import EventScale from "./EventScale";
 import { format } from "date-fns";
@@ -36,6 +36,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [scalePdfUrl, setScalePdfUrl] = useState(event.scale_pdf_url || "");
   const [scaleCsvUrl, setScaleCsvUrl] = useState(event.scale_csv_url || "");
   const [scaleSubmitted, setScaleSubmitted] = useState(event.scale_submitted || false);
+  const [scaleApproved, setScaleApproved] = useState(event.scale_approved || false);
   const [submitting, setSubmitting] = useState(false);
   const [receiptsPdfUrl, setReceiptsPdfUrl] = useState(event.receipts_pdf_url || "");
   const [eventStatus, setEventStatus] = useState(event.status || "Planejado");
@@ -91,6 +92,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           if (updated?.[0]?.scale_pdf_url) setScalePdfUrl(updated[0].scale_pdf_url);
           if (updated?.[0]?.scale_csv_url) setScaleCsvUrl(updated[0].scale_csv_url);
           if (updated?.[0]?.scale_submitted !== undefined) setScaleSubmitted(updated[0].scale_submitted);
+          if (updated?.[0]?.scale_approved !== undefined) setScaleApproved(updated[0].scale_approved);
           if (updated?.[0]?.receipts_pdf_url) setReceiptsPdfUrl(updated[0].receipts_pdf_url);
           if (updated?.[0]?.status) { event.status = updated[0].status; setEventStatus(updated[0].status); }
           setShowScale(false);
@@ -333,7 +335,13 @@ export default function EventDetail({ event, onBack, onRefresh }) {
 
       {/* Start Scale Button - apenas admin */}
       {!isJuberly && !pdfReviewMode && (teamConfirmed || scalePdfUrl || assignedEmployees.length > 0) && eventStatus !== "Concluído" && (
-        <div className="mt-4">
+        <div className="mt-4 space-y-2">
+          {scaleCsvUrl && !scaleApproved && (
+            <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 text-sm text-orange-700">
+              <ClipboardCheck className="w-4 h-4 shrink-0" />
+              Aguardando aprovação da escala da cozinha para iniciar.
+            </div>
+          )}
           <Button
             onClick={async () => {
               if (scalePdfUrl && pdfEmployees.length === 0) {
@@ -368,7 +376,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 setShowScale(true);
               }
             }}
-            disabled={extractingPdf}
+            disabled={extractingPdf || !!(scaleCsvUrl && !scaleApproved)}
             className="w-full h-14 text-base font-semibold rounded-2xl gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30 hover:opacity-90"
           >
             {extractingPdf ? (

@@ -55,6 +55,11 @@
       "title": "Escala Enviada para Aprova\u00e7\u00e3o",
       "default": false
     },
+    "scale_approved": {
+      "type": "boolean",
+      "title": "Escala Aprovada",
+      "default": false
+    },
     "receipts_pdf_url": {
       "type": "string",
       "title": "PDF dos Recibos"

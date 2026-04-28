@@ -1,13 +1,28 @@
 import { useRef, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLoginUser } from "@/hooks/useLoginUser";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
 export default function Layout() {
   const mainRef = useRef(null);
   const [touchStart, setTouchStart] = useState(null);
-  useDeviceDetection(); // Ativa detecção de dispositivo para todos os usuários
+  const loginUser = useLoginUser();
+  const isAdmin = loginUser?.role === "admin";
+  useDeviceDetection();
+
+  const { data: events } = useQuery({
+    queryKey: ["events-approvals"],
+    queryFn: () => base44.entities.Event.list("-date", 100),
+    enabled: isAdmin,
+    refetchInterval: 30000,
+  });
+  const pendingCount = isAdmin
+    ? (events || []).filter(ev => ev.scale_submitted && !ev.scale_approved).length
+    : 0; // Ativa detecção de dispositivo para todos os usuários
 
   const smoothScroll = (delta) => {
     if (!mainRef.current) return;
@@ -74,6 +89,17 @@ export default function Layout() {
               <p className="text-[10px] text-muted-foreground leading-none -mt-0.5">Sistema de Confirmação de Evento</p>
             </div>
           </Link>
+          {isAdmin && (
+            <Link to="/approvals" className="relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
+              <ClipboardCheck className="w-4 h-4" />
+              <span className="hidden sm:inline">Aprovações</span>
+              {pendingCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {pendingCount}
+                </span>
+              )}
+            </Link>
+          )}
         </div>
       </header>
 
