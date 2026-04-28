@@ -29,7 +29,7 @@ const statusColors = {
   "Cancelado": "bg-slate-50 text-slate-500 border-slate-200",
 };
 
-function EventCard({ event, onClick, onEdit, onDelete, onFinish }) {
+function EventCard({ event, onClick, onEdit, onDelete, onFinish, isAdmin }) {
   return (
     <button
       onClick={onClick}
@@ -78,25 +78,27 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish }) {
             </a>
           )}
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors">
-              <MoreVertical className="w-4 h-4 text-muted-foreground" />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {event.status !== "Concluído" && (
-              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onFinish(event); }} className="text-emerald-600">
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                Finalizar Evento
+        {isAdmin && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+              <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors">
+                <MoreVertical className="w-4 h-4 text-muted-foreground" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {event.status !== "Concluído" && (
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onFinish(event); }} className="text-emerald-600">
+                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                  Finalizar Evento
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDelete(event); }} className="text-destructive">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Excluir
               </DropdownMenuItem>
-            )}
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDelete(event); }} className="text-destructive">
-              <Trash2 className="w-4 h-4 mr-2" />
-              Excluir
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         </div>
     </button>
   );
@@ -216,6 +218,7 @@ export default function Events() {
                       onEdit={(ev) => navigate(`/events/${ev.id}/edit`, { state: { event: ev } })}
                       onDelete={handleDelete}
                       onFinish={handleFinish}
+                      isAdmin={isAdmin}
                     />
                   ))}
                 </div>
@@ -267,6 +270,7 @@ export default function Events() {
                       onEdit={(ev) => navigate(`/events/${ev.id}/edit`, { state: { event: ev } })}
                       onDelete={handleDelete}
                       onFinish={handleFinish}
+                      isAdmin={isAdmin}
                     />
                   ))}
                 </div>
