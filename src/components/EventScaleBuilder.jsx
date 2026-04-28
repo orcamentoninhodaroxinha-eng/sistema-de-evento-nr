@@ -115,20 +115,20 @@ export default function EventScaleBuilder({ event, onBack }) {
 
       {/* Escala atual */}
       {scale.length > 0 && (
-        <div className="bg-card rounded-2xl border border-border p-4 mb-6 shadow-sm">
-          <h2 className="font-semibold mb-3 text-sm text-muted-foreground uppercase tracking-wide">Equipe na Escala ({scale.length})</h2>
-          <div className="space-y-2">
+        <div className="bg-card rounded-2xl border border-border p-3 mb-4 shadow-sm">
+          <h2 className="font-semibold mb-2 text-xs text-muted-foreground uppercase tracking-wide">Equipe na Escala ({scale.length})</h2>
+          <div className="space-y-1 max-h-48 overflow-y-auto">
             {scale.map((emp) => (
-              <div key={emp.employeeId} className="flex items-center gap-3 bg-muted/40 rounded-xl px-3 py-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+              <div key={emp.employeeId} className="flex items-center gap-2 bg-muted/40 rounded-lg px-2 py-1.5">
+                <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary shrink-0">
                   {emp.full_name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{emp.full_name}</p>
-                  <p className="text-xs text-muted-foreground">{emp.funcao} — <span className="text-emerald-700 font-medium">R$ {emp.valor}</span></p>
+                  <p className="font-semibold text-xs truncate">{emp.full_name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{emp.funcao} — <span className="text-emerald-700 font-medium">R$ {emp.valor}</span></p>
                 </div>
-                <button onClick={() => handleRemove(emp.employeeId)} className="text-destructive/60 hover:text-destructive p-1">
-                  <Trash2 className="w-4 h-4" />
+                <button onClick={() => handleRemove(emp.employeeId)} className="text-destructive/60 hover:text-destructive p-0.5 shrink-0">
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             ))}
