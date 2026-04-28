@@ -121,10 +121,31 @@ export default function EventScaleBuilder({ event, onBack }) {
   const handleConfirmAndExport = async () => {
     setSaving(true);
     const ids = scale.map(s => s.employeeId);
-    await base44.entities.Event.update(event.id, { employees: ids });
+
+    // Gera o CSV em memória e faz upload para armazenar a URL
+    const bom = "\uFEFF";
+    const header = "Nome;Função;Valor (R$)\n";
+    const rows = scale.map(emp => `${emp.full_name};${emp.funcao};${emp.valor}`).join("\n");
+    const total = scale.reduce((acc, emp) => {
+      const v = parseFloat(emp.valor?.replace(",", ".")) || 0;
+      return acc + v;
+    }, 0);
+    const totalRow = `\nTOTAL;;${total.toFixed(2).replace(".", ",")}`;
+    const csv = bom + header + rows + totalRow;
+    const csvBlob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const csvFile = new File([csvBlob], `escala_${event.name.replace(/\s+/g, "_")}.csv`, { type: "text/csv" });
+    const uploadRes = await base44.integrations.Core.UploadFile({ file: csvFile });
+
+    await base44.entities.Event.update(event.id, { employees: ids, scale_csv_url: uploadRes.file_url });
     queryClient.invalidateQueries(["events"]);
     queryClient.invalidateQueries(["event", event.id]);
+
+    // Também dispara o download local
     generateExcel(scale, event.name);
+
+    // Limpa escala do localStorage
+    localStorage.removeItem(`juberly_scale_${event.id}`);
+
     setSaving(false);
     toast.success("Escala confirmada e Excel gerado!");
     setShowReview(false);

@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, MapPin, CalendarDays, FileText, Users,
   Plus, X, Search, Loader2, UserCheck, CheckCircle2, ShieldCheck, PlayCircle,
-  Paperclip, ExternalLink, Upload, FileDown
+  Paperclip, ExternalLink, Upload, FileDown, FileSpreadsheet
 } from "lucide-react";
 import EventScale from "./EventScale";
 import { format } from "date-fns";
@@ -34,6 +34,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const hasActiveSession = !!localStorage.getItem(`event_scale_${event.id}`);
   const [showScale, setShowScale] = useState(hasActiveSession);
   const [scalePdfUrl, setScalePdfUrl] = useState(event.scale_pdf_url || "");
+  const [scaleCsvUrl, setScaleCsvUrl] = useState(event.scale_csv_url || "");
   const [receiptsPdfUrl, setReceiptsPdfUrl] = useState(event.receipts_pdf_url || "");
   const [eventStatus, setEventStatus] = useState(event.status || "Planejado");
   const [uploadingPdf, setUploadingPdf] = useState(false);
@@ -86,6 +87,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           // Recarrega o evento para obter scale_pdf_url e status atualizados
           const updated = await base44.entities.Event.filter({ id: event.id });
           if (updated?.[0]?.scale_pdf_url) setScalePdfUrl(updated[0].scale_pdf_url);
+          if (updated?.[0]?.scale_csv_url) setScaleCsvUrl(updated[0].scale_csv_url);
           if (updated?.[0]?.receipts_pdf_url) setReceiptsPdfUrl(updated[0].receipts_pdf_url);
           if (updated?.[0]?.status) { event.status = updated[0].status; setEventStatus(updated[0].status); }
           setShowScale(false);
@@ -205,20 +207,44 @@ export default function EventDetail({ event, onBack, onRefresh }) {
 
       {/* Juberly: Criar Escala da Cozinha */}
       {isJuberly && (
-        <div className="mt-6 bg-orange-50 border border-orange-200 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-semibold text-orange-800">🍳 Escala da Cozinha</h2>
-              <p className="text-xs text-orange-600 mt-0.5">Adicione os funcionários e defina funções e valores</p>
+        <div className="mt-6">
+          {scaleCsvUrl ? (
+            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 shadow-sm space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🍳</span>
+                <div>
+                  <h2 className="font-semibold text-orange-800">Escala da Cozinha</h2>
+                  <p className="text-xs text-orange-600">Escala confirmada e Excel gerado</p>
+                </div>
+              </div>
+              <a
+                href={scaleCsvUrl}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full h-11 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-sm font-semibold transition-colors"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                Baixar Excel da Escala
+              </a>
             </div>
-            <Button
-              onClick={() => setShowScaleBuilder(true)}
-              className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Criar Escala
-            </Button>
-          </div>
+          ) : (
+            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-semibold text-orange-800">🍳 Escala da Cozinha</h2>
+                  <p className="text-xs text-orange-600 mt-0.5">Adicione os funcionários e defina funções e valores</p>
+                </div>
+                <Button
+                  onClick={() => setShowScaleBuilder(true)}
+                  className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Criar Escala
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

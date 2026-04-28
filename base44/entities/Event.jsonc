@@ -46,6 +46,10 @@
       "type": "string",
       "title": "PDF da Escala"
     },
+    "scale_csv_url": {
+      "type": "string",
+      "title": "Excel da Escala da Cozinha"
+    },
     "receipts_pdf_url": {
       "type": "string",
       "title": "PDF dos Recibos"
