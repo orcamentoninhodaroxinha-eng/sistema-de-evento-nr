@@ -25,7 +25,9 @@ export default function EventScaleBuilder({ event, onBack }) {
   const [valor, setValor] = useState("");
   const [saving, setSaving] = useState(false);
   const listRef = useRef(null);
+  const scaleListRef = useRef(null);
   const dragStart = useRef(null);
+  const scaleDragStart = useRef(null);
 
   const handleListTouchStart = (e) => {
     dragStart.current = e.touches[0].clientY;
@@ -35,6 +37,16 @@ export default function EventScaleBuilder({ event, onBack }) {
     const dy = dragStart.current - e.touches[0].clientY;
     listRef.current.scrollTop += dy * 0.6;
     dragStart.current = e.touches[0].clientY;
+  };
+
+  const handleScaleTouchStart = (e) => {
+    scaleDragStart.current = e.touches[0].clientY;
+  };
+  const handleScaleTouchMove = (e) => {
+    if (scaleDragStart.current === null || !scaleListRef.current) return;
+    const dy = scaleDragStart.current - e.touches[0].clientY;
+    scaleListRef.current.scrollTop += dy * 0.6;
+    scaleDragStart.current = e.touches[0].clientY;
   };
 
   // Escala salva no evento (array de objetos: { employeeId, full_name, funcao, valor })
@@ -117,7 +129,12 @@ export default function EventScaleBuilder({ event, onBack }) {
       {scale.length > 0 && (
         <div className="bg-card rounded-2xl border border-border p-3 mb-4 shadow-sm">
           <h2 className="font-semibold mb-2 text-xs text-muted-foreground uppercase tracking-wide">Equipe na Escala ({scale.length})</h2>
-          <div className="space-y-1 max-h-48 overflow-y-auto">
+          <div
+            ref={scaleListRef}
+            className="space-y-1 max-h-48 overflow-y-auto"
+            onTouchStart={handleScaleTouchStart}
+            onTouchMove={handleScaleTouchMove}
+          >
             {scale.map((emp) => (
               <div key={emp.employeeId} className="flex items-center gap-2 bg-muted/40 rounded-lg px-2 py-1.5">
                 <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary shrink-0">
