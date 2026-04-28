@@ -25,6 +25,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const loginUser = useLoginUser();
   const isJuberly = loginUser?.role === "cozinha";
   const isAndreF = loginUser?.role === "salao";
+  const isAprovador = loginUser?.role === "aprovador";
   const isAdmin = loginUser?.role === "admin" || loginUser?.role === "aprovador";
   const [showScaleBuilder, setShowScaleBuilder] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -287,8 +288,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       )}
 
-      {/* AndreF: Criar Escala do Salão */}
-      {isAndreF && (
+      {/* AndreF e Aprovador: Criar Escala do Salão */}
+      {(isAndreF || (isAprovador && !salaoScaleCsvUrl)) && (
         <div className="mt-6">
           {salaoScaleCsvUrl ? (
             <div className={`rounded-2xl p-5 shadow-sm space-y-3 border ${salaoSubmitted ? "bg-emerald-50 border-emerald-200" : "bg-blue-50 border-blue-200"}`}>
@@ -335,7 +336,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="font-semibold text-blue-800">🍽️ Escala do Salão</h2>
-                  <p className="text-xs text-blue-600 mt-0.5">Adicione os funcionários e defina funções e valores</p>
+                  <p className="text-xs text-blue-600 mt-0.5">{isAprovador ? "Crie a escala do salão" : "Adicione os funcionários e defina funções e valores"}</p>
                 </div>
                 <Button
                   onClick={() => setSalaoScaleBuilder(true)}
