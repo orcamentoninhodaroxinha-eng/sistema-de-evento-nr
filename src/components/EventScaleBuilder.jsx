@@ -60,8 +60,9 @@ export default function EventScaleBuilder({ event, onBack }) {
     dragStart.current = e.touches[0].clientY;
   };
 
-  const handleReviewTouchStart = (e) => { reviewDragStart.current = e.touches[0].clientY; };
+  const handleReviewTouchStart = (e) => { e.stopPropagation(); reviewDragStart.current = e.touches[0].clientY; };
   const handleReviewTouchMove = (e) => {
+    e.stopPropagation();
     if (reviewDragStart.current === null || !reviewListRef.current) return;
     const dy = reviewDragStart.current - e.touches[0].clientY;
     reviewListRef.current.scrollTop += dy * 0.6;
