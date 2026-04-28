@@ -21,7 +21,10 @@ export default function Layout() {
     refetchInterval: 30000,
   });
   const pendingCount = isAdmin
-    ? (events || []).filter(ev => ev.scale_submitted && !ev.scale_approved).length
+    ? (events || []).filter(ev =>
+        (ev.scale_submitted && !ev.scale_approved) ||
+        (ev.salao_submitted && !ev.salao_approved)
+      ).length
     : 0; // Ativa detecção de dispositivo para todos os usuários
 
   const smoothScroll = (delta) => {

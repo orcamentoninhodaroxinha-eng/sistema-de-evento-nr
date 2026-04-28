@@ -12,9 +12,14 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 const KITCHEN_ROLES = ["cozinheiro", "cozinheira", "ajudante", "auxiliar", "cozinha"];
+const SALAO_ROLES = ["garçom", "garçonete", "garcom", "garconete", "salão", "salao", "atendente", "barman", "bartender", "recepcionista"];
 
 function isKitchenRole(role = "") {
   return KITCHEN_ROLES.some(r => role.toLowerCase().includes(r));
+}
+
+function isSalaoRole(role = "") {
+  return SALAO_ROLES.some(r => role.toLowerCase().includes(r));
 }
 
 function generateExcel(scale, eventName) {
@@ -38,7 +43,8 @@ function generateExcel(scale, eventName) {
   URL.revokeObjectURL(url);
 }
 
-export default function EventScaleBuilder({ event, onBack }) {
+export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
+  const isSalao = area === "salao";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [showDialog, setShowDialog] = useState(false);
@@ -69,9 +75,11 @@ export default function EventScaleBuilder({ event, onBack }) {
     reviewDragStart.current = e.touches[0].clientY;
   };
 
+  const scaleKey = isSalao ? `salao_scale_${event.id}` : `juberly_scale_${event.id}`;
+
   const [scale, setScale] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem(`juberly_scale_${event.id}`)) || [];
+      return JSON.parse(localStorage.getItem(isSalao ? `salao_scale_${event.id}` : `juberly_scale_${event.id}`)) || [];
     } catch { return []; }
   });
 
@@ -81,7 +89,7 @@ export default function EventScaleBuilder({ event, onBack }) {
   });
 
   const kitchenEmployees = (allEmployees || []).filter(emp =>
-    isKitchenRole(emp.role) &&
+    (isSalao ? isSalaoRole(emp.role) : isKitchenRole(emp.role)) &&
     !scale.find(s => s.employeeId === emp.id) &&
     (emp.full_name?.toLowerCase().includes(search.toLowerCase()) ||
      emp.role?.toLowerCase().includes(search.toLowerCase()))
@@ -107,7 +115,7 @@ export default function EventScaleBuilder({ event, onBack }) {
       valor,
     }];
     setScale(newScale);
-    localStorage.setItem(`juberly_scale_${event.id}`, JSON.stringify(newScale));
+    localStorage.setItem(scaleKey, JSON.stringify(newScale));
     setShowDialog(false);
     toast(`${selectedEmp.full_name} adicionado(a) à escala!`, { duration: 1000 });
   };
@@ -115,7 +123,7 @@ export default function EventScaleBuilder({ event, onBack }) {
   const handleRemove = (employeeId) => {
     const newScale = scale.filter(s => s.employeeId !== employeeId);
     setScale(newScale);
-    localStorage.setItem(`juberly_scale_${event.id}`, JSON.stringify(newScale));
+    localStorage.setItem(scaleKey, JSON.stringify(newScale));
   };
 
   const handleConfirmAndExport = async () => {
@@ -136,7 +144,10 @@ export default function EventScaleBuilder({ event, onBack }) {
     const csvFile = new File([csvBlob], `escala_${event.name.replace(/\s+/g, "_")}.csv`, { type: "text/csv" });
     const uploadRes = await base44.integrations.Core.UploadFile({ file: csvFile });
 
-    await base44.entities.Event.update(event.id, { employees: ids, scale_csv_url: uploadRes.file_url });
+    const updatePayload = isSalao
+      ? { salao_csv_url: uploadRes.file_url }
+      : { employees: ids, scale_csv_url: uploadRes.file_url };
+    await base44.entities.Event.update(event.id, updatePayload);
     queryClient.invalidateQueries(["events"]);
     queryClient.invalidateQueries(["event", event.id]);
 
@@ -144,7 +155,7 @@ export default function EventScaleBuilder({ event, onBack }) {
     generateExcel(scale, event.name);
 
     // Limpa escala do localStorage
-    localStorage.removeItem(`juberly_scale_${event.id}`);
+    localStorage.removeItem(scaleKey);
 
     setSaving(false);
     toast.success("Escala confirmada e Excel gerado!");
@@ -185,7 +196,7 @@ export default function EventScaleBuilder({ event, onBack }) {
 
       {/* Buscar e adicionar */}
       <div className="bg-card rounded-2xl border border-border p-4 shadow-sm flex flex-col" style={{ minHeight: 'calc(100vh - 200px)' }}>
-        <h2 className="font-semibold mb-3">Adicionar Funcionário da Cozinha</h2>
+        <h2 className="font-semibold mb-3">Adicionar Funcionário {isSalao ? "do Salão" : "da Cozinha"}</h2>
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -204,7 +215,7 @@ export default function EventScaleBuilder({ event, onBack }) {
         >
           {kitchenEmployees.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-6">
-              {search ? "Nenhum funcionário encontrado" : "Todos os funcionários de cozinha já foram adicionados"}
+              {search ? "Nenhum funcionário encontrado" : `Todos os funcionários ${isSalao ? "do salão" : "de cozinha"} já foram adicionados`}
             </p>
           ) : (
             kitchenEmployees.map(emp => (

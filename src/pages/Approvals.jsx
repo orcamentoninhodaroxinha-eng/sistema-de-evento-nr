@@ -19,17 +19,22 @@ export default function Approvals() {
     queryFn: () => base44.entities.Event.list("-date", 100),
   });
 
-  // Escalas enviadas pelo Juberly aguardando aprovação
-  const pending = (events || []).filter(ev => ev.scale_submitted && !ev.scale_approved);
+  // Escalas pendentes (cozinha e salão)
+  const pendingCozinha = (events || []).filter(ev => ev.scale_submitted && !ev.scale_approved).map(ev => ({ ...ev, _area: "cozinha" }));
+  const pendingSalao = (events || []).filter(ev => ev.salao_submitted && !ev.salao_approved).map(ev => ({ ...ev, _area: "salao" }));
+  const pending = [...pendingCozinha, ...pendingSalao];
 
-  const handleApprove = async (event) => {
-    setApprovingId(event.id);
-    await base44.entities.Event.update(event.id, { scale_approved: true });
+  const handleApprove = async (item) => {
+    const key = `${item.id}_${item._area}`;
+    setApprovingId(key);
+    const updatePayload = item._area === "salao" ? { salao_approved: true } : { scale_approved: true };
+    await base44.entities.Event.update(item.id, updatePayload);
     queryClient.invalidateQueries(["events-approvals"]);
     queryClient.invalidateQueries(["events"]);
-    queryClient.invalidateQueries(["event", event.id]);
+    queryClient.invalidateQueries(["event", item.id]);
     setApprovingId(null);
-    toast.success(`Escala de "${event.name}" aprovada!`);
+    const areaLabel = item._area === "salao" ? "Salão" : "Cozinha";
+    toast.success(`Escala do ${areaLabel} de "${item.name}" aprovada!`);
   };
 
   if (loginUser?.role !== "admin") {
@@ -51,7 +56,7 @@ export default function Approvals() {
             Aprovações Pendentes
           </h1>
           <p className="text-muted-foreground text-xs mt-1">
-            Escalas da cozinha aguardando sua aprovação
+            Escalas da cozinha e salão aguardando sua aprovação
           </p>
         </div>
 
@@ -69,63 +74,65 @@ export default function Approvals() {
           </div>
         ) : (
           <div className="space-y-4">
-            {pending.map((event) => (
-              <div key={event.id} className="bg-card border border-orange-200 rounded-2xl p-5 shadow-sm space-y-4">
-                {/* Cabeçalho do evento */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-100 to-orange-200 flex flex-col items-center justify-center shrink-0">
-                      <span className="text-[10px] font-medium text-orange-600 uppercase">
-                        {event.date ? format(new Date(event.date), "MMM", { locale: ptBR }) : "---"}
-                      </span>
-                      <span className="text-lg font-bold text-orange-700 leading-none">
-                        {event.date ? format(new Date(event.date), "dd") : "--"}
-                      </span>
+            {pending.map((item) => {
+              const isSalao = item._area === "salao";
+              const itemKey = `${item.id}_${item._area}`;
+              const csvUrl = isSalao ? item.salao_csv_url : item.scale_csv_url;
+              return (
+                <div key={itemKey} className={`bg-card rounded-2xl p-5 shadow-sm space-y-4 border ${isSalao ? "border-blue-200" : "border-orange-200"}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 ${isSalao ? "bg-gradient-to-br from-blue-100 to-blue-200" : "bg-gradient-to-br from-orange-100 to-orange-200"}`}>
+                        <span className={`text-[10px] font-medium uppercase ${isSalao ? "text-blue-600" : "text-orange-600"}`}>
+                          {item.date ? format(new Date(item.date), "MMM", { locale: ptBR }) : "---"}
+                        </span>
+                        <span className={`text-lg font-bold leading-none ${isSalao ? "text-blue-700" : "text-orange-700"}`}>
+                          {item.date ? format(new Date(item.date), "dd") : "--"}
+                        </span>
+                      </div>
+                      <div>
+                        <h2 className="font-bold text-base">{item.name}</h2>
+                        {item.location && (
+                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <MapPin className="w-3 h-3" />
+                            {item.location}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="font-bold text-base">{event.name}</h2>
-                      {event.location && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3" />
-                          {event.location}
-                        </p>
-                      )}
-                    </div>
+                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 border ${isSalao ? "bg-blue-100 text-blue-700 border-blue-200" : "bg-orange-100 text-orange-700 border-orange-200"}`}>
+                      {isSalao ? "🍽️ Salão" : "🍳 Cozinha"}
+                    </span>
                   </div>
-                  <span className="text-xs font-medium bg-orange-100 text-orange-700 border border-orange-200 px-2.5 py-1 rounded-full shrink-0">
-                    🍳 Cozinha
-                  </span>
-                </div>
 
-                {/* Botão download Excel */}
-                {event.scale_csv_url && (
-                  <a
-                    href={event.scale_csv_url}
-                    download
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full h-10 border border-orange-300 bg-orange-50 text-orange-700 rounded-xl text-sm font-medium transition-colors hover:bg-orange-100"
-                  >
-                    <FileSpreadsheet className="w-4 h-4" />
-                    Ver Excel da Escala
-                  </a>
-                )}
-
-                {/* Botão aprovar */}
-                <Button
-                  onClick={() => handleApprove(event)}
-                  disabled={approvingId === event.id}
-                  className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
-                >
-                  {approvingId === event.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <CheckCircle2 className="w-4 h-4" />
+                  {csvUrl && (
+                    <a
+                      href={csvUrl}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm font-medium transition-colors border ${isSalao ? "border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100" : "border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100"}`}
+                    >
+                      <FileSpreadsheet className="w-4 h-4" />
+                      Ver Excel da Escala
+                    </a>
                   )}
-                  {approvingId === event.id ? "Aprovando..." : "Aprovar Escala"}
-                </Button>
-              </div>
-            ))}
+
+                  <Button
+                    onClick={() => handleApprove(item)}
+                    disabled={approvingId === itemKey}
+                    className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
+                  >
+                    {approvingId === itemKey ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="w-4 h-4" />
+                    )}
+                    {approvingId === itemKey ? "Aprovando..." : "Aprovar Escala"}
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

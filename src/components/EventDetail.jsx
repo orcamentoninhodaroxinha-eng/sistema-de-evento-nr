@@ -24,6 +24,7 @@ import { toast } from "@/components/ui/use-toast";
 export default function EventDetail({ event, onBack, onRefresh }) {
   const loginUser = useLoginUser();
   const isJuberly = loginUser?.role === "cozinha";
+  const isAndreF = loginUser?.role === "salao";
   const [showScaleBuilder, setShowScaleBuilder] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchEmployee, setSearchEmployee] = useState("");
@@ -35,8 +36,12 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [showScale, setShowScale] = useState(hasActiveSession);
   const [scalePdfUrl, setScalePdfUrl] = useState(event.scale_pdf_url || "");
   const [scaleCsvUrl, setScaleCsvUrl] = useState(event.scale_csv_url || "");
+  const [salaoScaleCsvUrl, setSalaoScaleCsvUrl] = useState(event.salao_csv_url || "");
   const [scaleSubmitted, setScaleSubmitted] = useState(event.scale_submitted || false);
   const [scaleApproved, setScaleApproved] = useState(event.scale_approved || false);
+  const [salaoSubmitted, setSalaoSubmitted] = useState(event.salao_submitted || false);
+  const [salaoApproved, setSalaoApproved] = useState(event.salao_approved || false);
+  const [salaoScaleBuilder, setSalaoScaleBuilder] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [receiptsPdfUrl, setReceiptsPdfUrl] = useState(event.receipts_pdf_url || "");
   const [eventStatus, setEventStatus] = useState(event.status || "Planejado");
@@ -71,11 +76,19 @@ export default function EventDetail({ event, onBack, onRefresh }) {
     toast({ title: "PDF da escala anexado!" });
   };
 
-  if (showScaleBuilder) {
+  if (showScaleBuilder || salaoScaleBuilder) {
     return (
       <EventScaleBuilder
         event={event}
-        onBack={() => setShowScaleBuilder(false)}
+        area={salaoScaleBuilder ? "salao" : "cozinha"}
+        onBack={async () => {
+          const updated = await base44.entities.Event.filter({ id: event.id });
+          if (updated?.[0]?.scale_csv_url) setScaleCsvUrl(updated[0].scale_csv_url);
+          if (updated?.[0]?.salao_csv_url) setSalaoScaleCsvUrl(updated[0].salao_csv_url);
+          setShowScaleBuilder(false);
+          setSalaoScaleBuilder(false);
+          onRefresh();
+        }}
       />
     );
   }
@@ -263,6 +276,69 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 <Button
                   onClick={() => setShowScaleBuilder(true)}
                   className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Criar Escala
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* AndreF: Criar Escala do Salão */}
+      {isAndreF && (
+        <div className="mt-6">
+          {salaoScaleCsvUrl ? (
+            <div className={`rounded-2xl p-5 shadow-sm space-y-3 border ${salaoSubmitted ? "bg-emerald-50 border-emerald-200" : "bg-blue-50 border-blue-200"}`}>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🍽️</span>
+                <div>
+                  <h2 className={`font-semibold ${salaoSubmitted ? "text-emerald-800" : "text-blue-800"}`}>
+                    Escala do Salão — Pronta
+                  </h2>
+                  <p className={`text-xs ${salaoSubmitted ? "text-emerald-600" : "text-blue-600"}`}>
+                    {salaoSubmitted ? "✅ Enviada para aprovação" : "Escala gerada — envie para o admin aprovar"}
+                  </p>
+                </div>
+              </div>
+              <a
+                href={salaoScaleCsvUrl}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full h-10 border border-blue-300 bg-white text-blue-700 rounded-xl text-sm font-medium transition-colors hover:bg-blue-50"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                Baixar Excel da Escala
+              </a>
+              {!salaoSubmitted && (
+                <Button
+                  onClick={async () => {
+                    setSubmitting(true);
+                    await base44.entities.Event.update(event.id, { salao_submitted: true });
+                    setSalaoSubmitted(true);
+                    setSubmitting(false);
+                    toast({ title: "Escala enviada para aprovação!" });
+                  }}
+                  disabled={submitting}
+                  className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2"
+                >
+                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                  {submitting ? "Enviando..." : "Enviar para Aprovação"}
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-semibold text-blue-800">🍽️ Escala do Salão</h2>
+                  <p className="text-xs text-blue-600 mt-0.5">Adicione os funcionários e defina funções e valores</p>
+                </div>
+                <Button
+                  onClick={() => setSalaoScaleBuilder(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Criar Escala
