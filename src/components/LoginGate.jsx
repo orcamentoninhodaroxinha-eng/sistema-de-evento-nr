@@ -4,19 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Lock } from "lucide-react";
 
-const USERNAME = "Ninho";
-const PASSWORD = "123";
+const USERS = [
+  { username: "Ninho", password: "123", role: "admin" },
+  { username: "Juberly", password: "juberly123", role: "cozinha" },
+];
 const SESSION_KEY = "ninho_auth";
 
 export default function LoginGate({ children }) {
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "1");
+  const [authed, setAuthed] = useState(() => !!sessionStorage.getItem(SESSION_KEY));
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const handleLogin = () => {
-    if (username === USERNAME && password === PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, "1");
+    const found = USERS.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+    if (found) {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ username: found.username, role: found.role }));
       setAuthed(true);
     } else {
       setError("Usuário ou senha incorretos.");

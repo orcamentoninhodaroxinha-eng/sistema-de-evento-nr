@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useLoginUser } from "@/hooks/useLoginUser";
+import EventScaleBuilder from "./EventScaleBuilder";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, MapPin, CalendarDays, FileText, Users,
@@ -20,6 +22,9 @@ import {
 import { toast } from "@/components/ui/use-toast";
 
 export default function EventDetail({ event, onBack, onRefresh }) {
+  const loginUser = useLoginUser();
+  const isJuberly = loginUser?.role === "cozinha";
+  const [showScaleBuilder, setShowScaleBuilder] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchEmployee, setSearchEmployee] = useState("");
   const [saving, setSaving] = useState(false);
@@ -61,6 +66,15 @@ export default function EventDetail({ event, onBack, onRefresh }) {
     setUploadingPdf(false);
     toast({ title: "PDF da escala anexado!" });
   };
+
+  if (showScaleBuilder) {
+    return (
+      <EventScaleBuilder
+        event={event}
+        onBack={() => setShowScaleBuilder(false)}
+      />
+    );
+  }
 
   if (showScale) {
     const scaleEmployees = pdfEmployees.length > 0 ? pdfEmployees : assignedEmployees;
@@ -189,8 +203,27 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       </div>
 
-      {/* PDF da Escala */}
-      <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
+      {/* Juberly: Criar Escala da Cozinha */}
+      {isJuberly && (
+        <div className="mt-6 bg-orange-50 border border-orange-200 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-semibold text-orange-800">🍳 Escala da Cozinha</h2>
+              <p className="text-xs text-orange-600 mt-0.5">Adicione os funcionários e defina funções e valores</p>
+            </div>
+            <Button
+              onClick={() => setShowScaleBuilder(true)}
+              className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Criar Escala
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* PDF da Escala - apenas admin */}
+      {!isJuberly && <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
           <h2 className="font-semibold">PDF da Escala</h2>
         </div>
@@ -231,10 +264,10 @@ export default function EventDetail({ event, onBack, onRefresh }) {
             <input type="file" accept="application/pdf" className="hidden" onChange={handlePdfUpload} disabled={uploadingPdf} />
           </label>
         )}
-      </div>
+      </div>}
 
-      {/* PDF Review Mode */}
-      {pdfReviewMode && (
+      {/* PDF Review Mode - apenas admin */}
+      {!isJuberly && pdfReviewMode && (
         <div className="mt-4">
           <Button
             onClick={() => setShowScale(true)}
@@ -249,8 +282,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
 
 
 
-      {/* Start Scale Button */}
-      {!pdfReviewMode && (teamConfirmed || scalePdfUrl || assignedEmployees.length > 0) && eventStatus !== "Concluído" && (
+      {/* Start Scale Button - apenas admin */}
+      {!isJuberly && !pdfReviewMode && (teamConfirmed || scalePdfUrl || assignedEmployees.length > 0) && eventStatus !== "Concluído" && (
         <div className="mt-4">
           <Button
             onClick={async () => {
@@ -299,8 +332,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       )}
 
-      {/* Escala finalizada - bloquear reínicio + download */}
-      {eventStatus === "Concluído" && (
+      {/* Escala finalizada - apenas admin */}
+      {!isJuberly && eventStatus === "Concluído" && (
         <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-3">
           <div className="flex items-center gap-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
