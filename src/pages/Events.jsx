@@ -149,7 +149,7 @@ export default function Events() {
   const totalFinishedPages = Math.ceil(finishedEvents.length / itemsPerPage);
 
   const loginUser = useLoginUser();
-  const isAdmin = user?.role === 'admin' && loginUser?.role !== 'cozinha';
+  const isAdmin = loginUser?.role === 'admin';
 
   return (
     <PageTransition>
