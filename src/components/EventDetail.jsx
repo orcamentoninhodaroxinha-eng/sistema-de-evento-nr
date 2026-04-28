@@ -25,6 +25,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const loginUser = useLoginUser();
   const isJuberly = loginUser?.role === "cozinha";
   const isAndreF = loginUser?.role === "salao";
+  const isAdmin = loginUser?.role === "admin";
   const [showScaleBuilder, setShowScaleBuilder] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchEmployee, setSearchEmployee] = useState("");
@@ -350,7 +351,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       )}
 
       {/* PDF da Escala - apenas admin */}
-      {!isJuberly && <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
+      {isAdmin && <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
           <h2 className="font-semibold">PDF da Escala</h2>
         </div>
@@ -394,7 +395,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       </div>}
 
       {/* PDF Review Mode - apenas admin */}
-      {!isJuberly && pdfReviewMode && (
+      {isAdmin && pdfReviewMode && (
         <div className="mt-4">
           <Button
             onClick={() => setShowScale(true)}
@@ -410,7 +411,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
 
 
       {/* Start Scale Button - apenas admin */}
-      {!isJuberly && !pdfReviewMode && (teamConfirmed || scalePdfUrl || assignedEmployees.length > 0) && eventStatus !== "Concluído" && (
+      {isAdmin && !pdfReviewMode && (teamConfirmed || scalePdfUrl || assignedEmployees.length > 0) && eventStatus !== "Concluído" && (
         <div className="mt-4 space-y-2">
           {scaleCsvUrl && !scaleApproved && (
             <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 text-sm text-orange-700">
@@ -466,7 +467,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       )}
 
       {/* Escala finalizada - apenas admin */}
-      {!isJuberly && eventStatus === "Concluído" && (
+      {isAdmin && eventStatus === "Concluído" && (
         <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-3">
           <div className="flex items-center gap-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
