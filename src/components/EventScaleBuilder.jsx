@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -204,45 +205,71 @@ export default function EventScaleBuilder({ event, onBack }) {
         </div>
       </div>
 
-      {/* Dialog: Adicionar funcionário (função + valor) */}
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Adicionar à Escala</DialogTitle>
-          </DialogHeader>
-          {selectedEmp && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 bg-muted/40 rounded-xl p-3">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary">
+      {/* Tela cheia: Adicionar funcionário (função + valor) */}
+      <AnimatePresence>
+        {showDialog && selectedEmp && (
+          <motion.div
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 28, stiffness: 300 }}
+            className="fixed inset-0 z-50 bg-background flex flex-col"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 pt-6 pb-4 border-b border-border">
+              <button onClick={() => setShowDialog(false)} className="p-2 -ml-2 text-muted-foreground">
+                <X className="w-5 h-5" />
+              </button>
+              <h2 className="font-bold text-base">Adicionar à Escala</h2>
+              <div className="w-9" />
+            </div>
+
+            {/* Conteúdo */}
+            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-5">
+              {/* Funcionário */}
+              <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-2xl p-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center text-lg font-bold text-orange-700 shrink-0">
                   {selectedEmp.full_name?.charAt(0).toUpperCase()}
                 </div>
-                <p className="font-semibold text-sm">{selectedEmp.full_name}</p>
+                <div>
+                  <p className="font-bold text-base">{selectedEmp.full_name}</p>
+                  <p className="text-sm text-muted-foreground">{selectedEmp.role}</p>
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label>Função no Evento</Label>
+
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Função no Evento</Label>
                 <Input
                   placeholder="Ex: Cozinheira, Ajudante..."
                   value={funcao}
                   onChange={e => setFuncao(e.target.value)}
+                  className="h-12 text-base rounded-xl"
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label>Valor do Extra (R$)</Label>
+
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Valor do Extra (R$)</Label>
                 <Input
-                  placeholder="Ex: 150,00"
+                  placeholder="Ex: 150"
                   value={valor}
                   onChange={e => setValor(e.target.value)}
-                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  className="h-12 text-base rounded-xl"
                 />
               </div>
-              <Button onClick={handleAdd} className="w-full">
-                <Plus className="w-4 h-4 mr-2" />
+            </div>
+
+            {/* Botão fixo no fundo */}
+            <div className="px-4 pb-8 pt-3 border-t border-border">
+              <Button onClick={handleAdd} className="w-full h-14 text-base rounded-2xl gap-2">
+                <Plus className="w-5 h-5" />
                 Adicionar à Escala
               </Button>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Dialog: Conferir Escala */}
       <Dialog open={showReview} onOpenChange={setShowReview}>
