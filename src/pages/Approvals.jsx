@@ -2,16 +2,18 @@ import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, FileSpreadsheet, CalendarDays, MapPin, Loader2, ClipboardCheck } from "lucide-react";
+import { CheckCircle2, FileSpreadsheet, CalendarDays, MapPin, Loader2, ClipboardCheck, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import PageTransition from "@/components/PageTransition";
 
 export default function Approvals() {
   const loginUser = useLoginUser();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [approvingId, setApprovingId] = useState(null);
 
   const { data: events, isLoading } = useQuery({
@@ -50,6 +52,10 @@ export default function Approvals() {
   return (
     <PageTransition>
       <div className="max-w-2xl mx-auto">
+        <Button variant="ghost" onClick={() => navigate("/")} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </Button>
         <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <ClipboardCheck className="w-6 h-6 text-primary" />
