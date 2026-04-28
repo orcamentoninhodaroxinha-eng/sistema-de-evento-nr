@@ -18,7 +18,7 @@ export default function LoginGate({ children }) {
   const [error, setError] = useState("");
 
   const handleLogin = () => {
-    const found = USERS.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+    const found = USERS.find(u => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password.trim());
     if (found) {
       sessionStorage.setItem(SESSION_KEY, JSON.stringify({ username: found.username, role: found.role }));
       setAuthed(true);
