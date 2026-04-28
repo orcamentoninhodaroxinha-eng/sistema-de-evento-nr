@@ -78,7 +78,7 @@ export default function EventScaleBuilder({ event, onBack }) {
     setScale(newScale);
     localStorage.setItem(`juberly_scale_${event.id}`, JSON.stringify(newScale));
     setShowDialog(false);
-    toast({ title: `${selectedEmp.full_name} adicionado(a) à escala!` });
+    toast({ title: `${selectedEmp.full_name} adicionado(a) à escala!`, duration: 1000 });
   };
 
   const handleRemove = (employeeId) => {
