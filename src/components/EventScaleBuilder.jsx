@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -65,7 +65,7 @@ export default function EventScaleBuilder({ event, onBack }) {
 
   const handleAdd = () => {
     if (!funcao || !valor) {
-      toast({ title: "Preencha função e valor", variant: "destructive" });
+      toast.error("Preencha função e valor");
       return;
     }
     const newScale = [...scale, {
@@ -78,7 +78,7 @@ export default function EventScaleBuilder({ event, onBack }) {
     setScale(newScale);
     localStorage.setItem(`juberly_scale_${event.id}`, JSON.stringify(newScale));
     setShowDialog(false);
-    toast({ title: `${selectedEmp.full_name} adicionado(a) à escala!`, duration: 1000 });
+    toast(`${selectedEmp.full_name} adicionado(a) à escala!`, { duration: 1000 });
   };
 
   const handleRemove = (employeeId) => {
@@ -95,7 +95,7 @@ export default function EventScaleBuilder({ event, onBack }) {
     queryClient.invalidateQueries(["events"]);
     queryClient.invalidateQueries(["event", event.id]);
     setSaving(false);
-    toast({ title: "Escala salva com sucesso!" });
+    toast.success("Escala salva com sucesso!");
     onBack();
   };
 
