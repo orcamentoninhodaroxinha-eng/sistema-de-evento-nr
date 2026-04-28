@@ -176,7 +176,7 @@ export default function EventScaleBuilder({ event, onBack }) {
 
         <div
           ref={listRef}
-          className="space-y-2 max-h-80 overflow-y-auto"
+          className="space-y-2 max-h-[60vh] overflow-y-auto"
           onTouchStart={handleListTouchStart}
           onTouchMove={handleListTouchMove}
         >
