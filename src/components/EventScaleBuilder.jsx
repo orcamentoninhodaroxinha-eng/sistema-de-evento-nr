@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useMotionValue, useTransform } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Plus, Trash2, Save, Loader2, Search, Eye, X, CheckCircle2, FileSpreadsheet } from "lucide-react";
@@ -90,6 +91,8 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
   const [newEmpCelular, setNewEmpCelular] = useState("");
   const [newEmpFuncao, setNewEmpFuncao] = useState("");
   const [newEmpValor, setNewEmpValor] = useState("");
+  const newEmpDragY = useMotionValue(0);
+  const newEmpOpacity = useTransform(newEmpDragY, [0, 300], [1, 0]);
   const listRef = useRef(null);
   const reviewListRef = useRef(null);
   const dragStart = useRef(null);
@@ -411,20 +414,30 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="fixed inset-0 z-50 bg-background flex flex-col"
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            style={{ y: newEmpDragY, opacity: newEmpOpacity }}
+            onDrag={(e) => {
+              // Cancela drag se o alvo for input, textarea ou botão
+              const tag = e.target?.tagName?.toLowerCase();
+              if (tag === "input" || tag === "textarea" || tag === "button") {
+                newEmpDragY.set(0);
+              }
+            }}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 120) {
+                setShowNewEmpDialog(false);
+              } else {
+                newEmpDragY.set(0);
+              }
+            }}
+            className="fixed inset-0 z-50 bg-background flex flex-col touch-pan-y"
           >
             {/* Drag handle */}
-            <motion.div
-              drag="y"
-              dragConstraints={{ top: 0 }}
-              dragElastic={{ top: 0, bottom: 0.4 }}
-              onDragEnd={(e, info) => {
-                if (info.offset.y > 100) setShowNewEmpDialog(false);
-              }}
-              className="flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing"
-            >
+            <div className="flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing">
               <div className="w-12 h-1.5 rounded-full bg-muted-foreground/25" />
-            </motion.div>
+            </div>
             <div className="flex items-center justify-between px-4 pt-2 pb-4 border-b border-border">
               <button onClick={() => setShowNewEmpDialog(false)} className="p-2 -ml-2 text-muted-foreground">
                 <X className="w-5 h-5" />
@@ -433,7 +446,10 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
               <div className="w-9" />
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-5">
+            <div
+              className="flex-1 overflow-y-auto px-4 py-6 space-y-5"
+              onPointerDownCapture={e => e.stopPropagation()}
+            >
               <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
                 <p className="text-xs text-amber-700 font-medium">⭐ Este funcionário será marcado como <strong>NOVO</strong> no Excel gerado.</p>
               </div>
@@ -491,7 +507,7 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
               </div>
             </div>
 
-            <div className="px-4 pb-8 pt-3 border-t border-border">
+            <div className="px-4 pb-8 pt-3 border-t border-border" onPointerDownCapture={e => e.stopPropagation()}>
               <Button onClick={handleAddNewEmployee} className="w-full h-14 text-base rounded-2xl gap-2 bg-amber-500 hover:bg-amber-600 text-white">
                 <Plus className="w-5 h-5" />
                 Adicionar à Escala
