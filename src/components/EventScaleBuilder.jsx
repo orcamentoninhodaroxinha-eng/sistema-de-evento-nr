@@ -95,6 +95,8 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
   const newEmpOpacity = useTransform(newEmpDragY, [0, 300], [1, 0]);
   const addEmpDragY = useMotionValue(0);
   const addEmpOpacity = useTransform(addEmpDragY, [0, 300], [1, 0]);
+  const newEmpTouchStart = useRef(null);
+  const addEmpTouchStart = useRef(null);
   const listRef = useRef(null);
   const reviewListRef = useRef(null);
   const dragStart = useRef(null);
@@ -353,24 +355,26 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             style={{ y: addEmpDragY, opacity: addEmpOpacity }}
             className="fixed inset-0 z-50 bg-background flex flex-col"
           >
-            {/* Drag handle — drag só aqui */}
-            <motion.div
-              drag="y"
-              dragConstraints={{ top: 0 }}
-              dragElastic={{ top: 0, bottom: 0.5 }}
-              style={{ y: addEmpDragY }}
-              onDragEnd={(_, info) => {
-                if (info.offset.y > 100) {
-                  setShowDialog(false);
-                  addEmpDragY.set(0);
-                } else {
-                  addEmpDragY.set(0);
-                }
+            {/* Drag handle */}
+            <div
+              className="flex justify-center pt-4 pb-3 cursor-grab active:cursor-grabbing select-none"
+              style={{ touchAction: "none" }}
+              onTouchStart={(e) => { addEmpTouchStart.current = e.touches[0].clientY; }}
+              onTouchMove={(e) => {
+                if (addEmpTouchStart.current === null) return;
+                const dy = e.touches[0].clientY - addEmpTouchStart.current;
+                if (dy > 0) addEmpDragY.set(dy);
               }}
-              className="flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing touch-none"
+              onTouchEnd={() => {
+                if (addEmpDragY.get() > 100) {
+                  setShowDialog(false);
+                }
+                addEmpDragY.set(0);
+                addEmpTouchStart.current = null;
+              }}
             >
               <div className="w-12 h-1.5 rounded-full bg-muted-foreground/25" />
-            </motion.div>
+            </div>
 
             {/* Header */}
             <div className="flex items-center px-4 pt-2 pb-4 border-b border-border gap-2">
@@ -439,24 +443,26 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             style={{ y: newEmpDragY, opacity: newEmpOpacity }}
             className="fixed inset-0 z-50 bg-background flex flex-col"
           >
-            {/* Drag handle — drag só aqui */}
-            <motion.div
-              drag="y"
-              dragConstraints={{ top: 0 }}
-              dragElastic={{ top: 0, bottom: 0.5 }}
-              style={{ y: newEmpDragY }}
-              onDragEnd={(_, info) => {
-                if (info.offset.y > 100) {
-                  setShowNewEmpDialog(false);
-                  newEmpDragY.set(0);
-                } else {
-                  newEmpDragY.set(0);
-                }
+            {/* Drag handle */}
+            <div
+              className="flex justify-center pt-4 pb-3 cursor-grab active:cursor-grabbing select-none"
+              style={{ touchAction: "none" }}
+              onTouchStart={(e) => { newEmpTouchStart.current = e.touches[0].clientY; }}
+              onTouchMove={(e) => {
+                if (newEmpTouchStart.current === null) return;
+                const dy = e.touches[0].clientY - newEmpTouchStart.current;
+                if (dy > 0) newEmpDragY.set(dy);
               }}
-              className="flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing touch-none"
+              onTouchEnd={() => {
+                if (newEmpDragY.get() > 100) {
+                  setShowNewEmpDialog(false);
+                }
+                newEmpDragY.set(0);
+                newEmpTouchStart.current = null;
+              }}
             >
               <div className="w-12 h-1.5 rounded-full bg-muted-foreground/25" />
-            </motion.div>
+            </div>
 
             <div className="flex items-center px-4 pt-2 pb-4 border-b border-border gap-2">
               <button onClick={() => { setShowNewEmpDialog(false); newEmpDragY.set(0); }} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-1 p-1">
