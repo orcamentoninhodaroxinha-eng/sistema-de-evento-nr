@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { DollarSign, TrendingDown, TrendingUp, Minus } from "lucide-react";
+import * as XLSX from "xlsx";
 
 function parseBRL(str = "") {
   const clean = str.replace(/[R$\s.]/g, "").replace(",", ".");
@@ -12,19 +13,21 @@ function formatBRL(val) {
   return val.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-async function fetchCsvTotal(url) {
+async function fetchXlsxGrandTotal(url) {
   try {
-    const text = await fetch(url).then((r) => r.text());
-    const lines = text.trim().split("\n");
-    let total = 0;
-    for (const line of lines) {
-      if (line.toUpperCase().startsWith("TOTAL")) {
-        const parts = line.split(";");
-        const valStr = parts[parts.length - 1]?.trim();
-        total += parseBRL(valStr);
+    const buffer = await fetch(url).then((r) => r.arrayBuffer());
+    const wb = XLSX.read(buffer, { type: "array" });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+    // Procura linha "TOTAL GERAL" e pega o valor na coluna C (índice 2)
+    for (const row of rows) {
+      const label = String(row[0] || "").toUpperCase().trim();
+      if (label === "TOTAL GERAL") {
+        const val = parseFloat(row[2]);
+        if (!isNaN(val)) return val;
       }
     }
-    return total;
+    return 0;
   } catch {
     return 0;
   }
@@ -36,7 +39,7 @@ export default function FinanceCalcBox({ event, csvUrl, editable = false }) {
   const [scaleTotal, setScaleTotal] = useState(null);
 
   useEffect(() => {
-    if (csvUrl) fetchCsvTotal(csvUrl).then(setScaleTotal);
+    if (csvUrl) fetchXlsxGrandTotal(csvUrl).then(setScaleTotal);
   }, [csvUrl]);
 
   const saleNum = parseBRL(saleValue);
