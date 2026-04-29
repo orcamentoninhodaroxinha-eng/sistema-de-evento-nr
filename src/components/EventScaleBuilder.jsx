@@ -411,9 +411,19 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={{ top: 0, bottom: 0.3 }}
+            onDragEnd={(e, info) => {
+              if (info.offset.y > 120) setShowNewEmpDialog(false);
+            }}
             className="fixed inset-0 z-50 bg-background flex flex-col"
           >
-            <div className="flex items-center justify-between px-4 pt-6 pb-4 border-b border-border">
+            {/* Drag handle */}
+            <div className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing">
+              <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+            </div>
+            <div className="flex items-center justify-between px-4 pt-3 pb-4 border-b border-border">
               <button onClick={() => setShowNewEmpDialog(false)} className="p-2 -ml-2 text-muted-foreground">
                 <X className="w-5 h-5" />
               </button>
