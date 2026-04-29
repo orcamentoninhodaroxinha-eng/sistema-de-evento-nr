@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useMotionValue, useTransform } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Plus, Trash2, Save, Loader2, Search, Eye, X, CheckCircle2, FileSpreadsheet } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Loader2, Search, Eye, X, ChevronLeft, CheckCircle2, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -350,35 +350,39 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            drag="y"
-            dragConstraints={{ top: 0 }}
-            dragElastic={{ top: 0, bottom: 0.5 }}
             style={{ y: addEmpDragY, opacity: addEmpOpacity }}
-            onDragEnd={(_, info) => {
-              if (info.offset.y > 120) {
-                setShowDialog(false);
-                addEmpDragY.set(0);
-              } else {
-                addEmpDragY.set(0);
-              }
-            }}
             className="fixed inset-0 z-50 bg-background flex flex-col"
           >
-            {/* Drag handle */}
-            <div className="flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing">
+            {/* Drag handle — drag só aqui */}
+            <motion.div
+              drag="y"
+              dragConstraints={{ top: 0 }}
+              dragElastic={{ top: 0, bottom: 0.5 }}
+              style={{ y: addEmpDragY }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 100) {
+                  setShowDialog(false);
+                  addEmpDragY.set(0);
+                } else {
+                  addEmpDragY.set(0);
+                }
+              }}
+              className="flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing touch-none"
+            >
               <div className="w-12 h-1.5 rounded-full bg-muted-foreground/25" />
-            </div>
+            </motion.div>
+
             {/* Header */}
-            <div className="flex items-center justify-between px-4 pt-2 pb-4 border-b border-border">
-              <button onClick={() => setShowDialog(false)} className="p-2 -ml-2 text-muted-foreground">
-                <X className="w-5 h-5" />
+            <div className="flex items-center px-4 pt-2 pb-4 border-b border-border gap-2">
+              <button onClick={() => { setShowDialog(false); addEmpDragY.set(0); }} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-1 p-1">
+                <ChevronLeft className="w-5 h-5" />
+                Voltar
               </button>
-              <h2 className="font-bold text-base">Adicionar à Escala</h2>
-              <div className="w-9" />
+              <h2 className="font-bold text-base flex-1 text-center pr-16">Adicionar à Escala</h2>
             </div>
 
             {/* Conteúdo */}
-            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-5" onPointerDownCapture={e => e.stopPropagation()}>
+            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-5">
               {/* Funcionário */}
               <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-2xl p-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center text-lg font-bold text-orange-700 shrink-0">
@@ -414,7 +418,7 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             </div>
 
             {/* Botão fixo no fundo */}
-            <div className="px-4 pb-8 pt-3 border-t border-border" onPointerDownCapture={e => e.stopPropagation()}>
+            <div className="px-4 pb-8 pt-3 border-t border-border">
               <Button onClick={handleAdd} className="w-full h-14 text-base rounded-2xl gap-2">
                 <Plus className="w-5 h-5" />
                 Adicionar à Escala
@@ -432,42 +436,37 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            drag="y"
-            dragConstraints={{ top: 0 }}
-            dragElastic={{ top: 0, bottom: 0.5 }}
             style={{ y: newEmpDragY, opacity: newEmpOpacity }}
-            onDrag={(e) => {
-              // Cancela drag se o alvo for input, textarea ou botão
-              const tag = e.target?.tagName?.toLowerCase();
-              if (tag === "input" || tag === "textarea" || tag === "button") {
-                newEmpDragY.set(0);
-              }
-            }}
-            onDragEnd={(_, info) => {
-              if (info.offset.y > 120) {
-                setShowNewEmpDialog(false);
-              } else {
-                newEmpDragY.set(0);
-              }
-            }}
-            className="fixed inset-0 z-50 bg-background flex flex-col touch-pan-y"
+            className="fixed inset-0 z-50 bg-background flex flex-col"
           >
-            {/* Drag handle */}
-            <div className="flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing">
+            {/* Drag handle — drag só aqui */}
+            <motion.div
+              drag="y"
+              dragConstraints={{ top: 0 }}
+              dragElastic={{ top: 0, bottom: 0.5 }}
+              style={{ y: newEmpDragY }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 100) {
+                  setShowNewEmpDialog(false);
+                  newEmpDragY.set(0);
+                } else {
+                  newEmpDragY.set(0);
+                }
+              }}
+              className="flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing touch-none"
+            >
               <div className="w-12 h-1.5 rounded-full bg-muted-foreground/25" />
-            </div>
-            <div className="flex items-center justify-between px-4 pt-2 pb-4 border-b border-border">
-              <button onClick={() => setShowNewEmpDialog(false)} className="p-2 -ml-2 text-muted-foreground">
-                <X className="w-5 h-5" />
+            </motion.div>
+
+            <div className="flex items-center px-4 pt-2 pb-4 border-b border-border gap-2">
+              <button onClick={() => { setShowNewEmpDialog(false); newEmpDragY.set(0); }} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-1 p-1">
+                <ChevronLeft className="w-5 h-5" />
+                Voltar
               </button>
-              <h2 className="font-bold text-base">Novo Funcionário</h2>
-              <div className="w-9" />
+              <h2 className="font-bold text-base flex-1 text-center pr-16">Novo Funcionário</h2>
             </div>
 
-            <div
-              className="flex-1 overflow-y-auto px-4 py-6 space-y-5"
-              onPointerDownCapture={e => e.stopPropagation()}
-            >
+            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-5">
               <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
                 <p className="text-xs text-amber-700 font-medium">⭐ Este funcionário será marcado como <strong>NOVO</strong> no Excel gerado.</p>
               </div>
@@ -525,7 +524,7 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
               </div>
             </div>
 
-            <div className="px-4 pb-8 pt-3 border-t border-border" onPointerDownCapture={e => e.stopPropagation()}>
+            <div className="px-4 pb-8 pt-3 border-t border-border">
               <Button onClick={handleAddNewEmployee} className="w-full h-14 text-base rounded-2xl gap-2 bg-amber-500 hover:bg-amber-600 text-white">
                 <Plus className="w-5 h-5" />
                 Adicionar à Escala
