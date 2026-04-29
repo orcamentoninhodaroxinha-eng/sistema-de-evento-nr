@@ -93,6 +93,8 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
   const [newEmpValor, setNewEmpValor] = useState("");
   const newEmpDragY = useMotionValue(0);
   const newEmpOpacity = useTransform(newEmpDragY, [0, 300], [1, 0]);
+  const addEmpDragY = useMotionValue(0);
+  const addEmpOpacity = useTransform(addEmpDragY, [0, 300], [1, 0]);
   const listRef = useRef(null);
   const reviewListRef = useRef(null);
   const dragStart = useRef(null);
@@ -348,10 +350,26 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            style={{ y: addEmpDragY, opacity: addEmpOpacity }}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 120) {
+                setShowDialog(false);
+                addEmpDragY.set(0);
+              } else {
+                addEmpDragY.set(0);
+              }
+            }}
             className="fixed inset-0 z-50 bg-background flex flex-col"
           >
+            {/* Drag handle */}
+            <div className="flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing">
+              <div className="w-12 h-1.5 rounded-full bg-muted-foreground/25" />
+            </div>
             {/* Header */}
-            <div className="flex items-center justify-between px-4 pt-6 pb-4 border-b border-border">
+            <div className="flex items-center justify-between px-4 pt-2 pb-4 border-b border-border">
               <button onClick={() => setShowDialog(false)} className="p-2 -ml-2 text-muted-foreground">
                 <X className="w-5 h-5" />
               </button>
@@ -360,7 +378,7 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             </div>
 
             {/* Conteúdo */}
-            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-5">
+            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-5" onPointerDownCapture={e => e.stopPropagation()}>
               {/* Funcionário */}
               <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-2xl p-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center text-lg font-bold text-orange-700 shrink-0">
@@ -396,7 +414,7 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             </div>
 
             {/* Botão fixo no fundo */}
-            <div className="px-4 pb-8 pt-3 border-t border-border">
+            <div className="px-4 pb-8 pt-3 border-t border-border" onPointerDownCapture={e => e.stopPropagation()}>
               <Button onClick={handleAdd} className="w-full h-14 text-base rounded-2xl gap-2">
                 <Plus className="w-5 h-5" />
                 Adicionar à Escala
