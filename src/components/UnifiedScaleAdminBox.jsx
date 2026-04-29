@@ -64,7 +64,7 @@ export default function UnifiedScaleAdminBox({ event, scaleCsvUrl }) {
       <div className="space-y-1.5">
         <label className="text-xs font-semibold text-emerald-800 flex items-center gap-1.5">
           <DollarSign className="w-3.5 h-3.5" />
-          Valor de Venda do Evento
+          Valor do Evento
         </label>
         <input
           type="text"
@@ -81,36 +81,37 @@ export default function UnifiedScaleAdminBox({ event, scaleCsvUrl }) {
         />
       </div>
 
-      {/* Caixa de cálculo financeiro */}
+      {/* Cálculo dos 15% — aparece assim que houver valor */}
+      {saleNum > 0 && (
+        <div className="bg-white border border-emerald-200 rounded-xl px-4 py-3 flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">
+            {formatBRL(saleNum)} × 15% =
+          </span>
+          <span className="font-bold text-emerald-700 text-base">{formatBRL(budget15)}</span>
+        </div>
+      )}
+
+      {/* Caixa de resultado: 15% − total da escala */}
       {saleNum > 0 && scaleTotal !== null && (
         <div className="bg-white border border-emerald-200 rounded-xl p-4 space-y-3">
-          <p className="text-xs font-bold text-emerald-800 uppercase tracking-wide">Análise Financeira da Escala</p>
-
+          <p className="text-xs font-bold text-emerald-800 uppercase tracking-wide">Margem da Escala</p>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Valor de venda</span>
-              <span className="font-semibold">{formatBRL(saleNum)}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">15% para escalas</span>
+              <span className="text-muted-foreground">15% do evento</span>
               <span className="font-semibold text-emerald-700">{formatBRL(budget15)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Total das escalas</span>
+              <span className="text-muted-foreground">− Total das escalas</span>
               <span className="font-semibold text-slate-700">{formatBRL(scaleTotal)}</span>
             </div>
             <div className="border-t border-emerald-100 pt-2 flex justify-between items-center">
-              <span className="font-semibold text-sm">
-                {diff >= 0 ? "Sobra" : "Estouro"}
-              </span>
+              <span className="font-semibold">{diff >= 0 ? "Sobra" : "Estouro"}</span>
               <span className={`font-bold text-base flex items-center gap-1 ${diff >= 0 ? "text-emerald-600" : "text-red-600"}`}>
                 {diff > 0 ? <TrendingUp className="w-4 h-4" /> : diff < 0 ? <TrendingDown className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
                 {formatBRL(Math.abs(diff))}
               </span>
             </div>
           </div>
-
-          {/* Badge de situação */}
           <div className={`rounded-lg px-3 py-2 text-xs font-semibold text-center ${diff >= 0 ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}`}>
             {diff >= 0
               ? `✅ Dentro do orçamento — sobram ${formatBRL(diff)}`
