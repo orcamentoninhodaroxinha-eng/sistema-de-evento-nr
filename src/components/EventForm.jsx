@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar, MapPin, Loader2, Clock, Users, DollarSign } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 export default function EventForm({ onSuccess, isAdmin = false }) {
   const [loading, setLoading] = useState(false);
@@ -42,7 +43,13 @@ export default function EventForm({ onSuccess, isAdmin = false }) {
 
     setLoading(true);
     try {
-      await base44.entities.Event.create(formData);
+      const created = await base44.entities.Event.create(formData);
+      await base44.functions.invoke("sendPushNotification", {
+        title: "📅 Novo Evento Criado",
+        body: `O evento "${formData.name}" foi criado${formData.date ? ` para ${formData.date}` : ""}.`,
+        target_roles: ["admin", "cozinha", "salao", "aprovador"],
+      });
+      toast({ title: "✅ Evento criado!", description: `"${formData.name}" foi criado e todos foram notificados.` });
       onSuccess();
     } catch (error) {
       alert("Erro ao criar evento");
