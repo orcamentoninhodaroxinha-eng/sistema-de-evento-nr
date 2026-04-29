@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
-import { ChevronUp, ChevronDown, ClipboardCheck } from "lucide-react";
+import { ClipboardCheck, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import { useQuery } from "@tanstack/react-query";
@@ -108,6 +108,14 @@ export default function Layout() {
                 )}
               </Link>
             )}
+            <button
+              onClick={() => { localStorage.removeItem("ninho_auth"); window.location.reload(); }}
+              className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-destructive transition-colors px-2 py-1.5 rounded-lg hover:bg-destructive/10"
+              title="Sair"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Sair</span>
+            </button>
           </div>
         </div>
       </header>
