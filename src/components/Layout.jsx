@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import NotificationBell from "@/components/NotificationBell";
 
 export default function Layout() {
   const mainRef = useRef(null);
@@ -92,17 +93,20 @@ export default function Layout() {
               <p className="text-[10px] text-muted-foreground leading-none -mt-0.5">Sistema de Confirmação de Evento</p>
             </div>
           </Link>
-          {isAdmin && (
-            <Link to="/approvals" className="relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
-              <ClipboardCheck className="w-4 h-4" />
-              <span className="hidden sm:inline">Aprovações</span>
-              {pendingCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {pendingCount}
-                </span>
-              )}
-            </Link>
-          )}
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            {isAdmin && (
+              <Link to="/approvals" className="relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
+                <ClipboardCheck className="w-4 h-4" />
+                <span className="hidden sm:inline">Aprovações</span>
+                {pendingCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {pendingCount}
+                  </span>
+                )}
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 

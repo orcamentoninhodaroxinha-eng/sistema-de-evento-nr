@@ -1,0 +1,53 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "T\u00edtulo"
+    },
+    "message": {
+      "type": "string",
+      "title": "Mensagem"
+    },
+    "type": {
+      "type": "string",
+      "title": "Tipo",
+      "enum": [
+        "event_created",
+        "scale_submitted",
+        "scale_approved",
+        "scale_rejected",
+        "reminder"
+      ],
+      "default": "event_created"
+    },
+    "target_roles": {
+      "type": "array",
+      "title": "Pap\u00e9is Destinat\u00e1rios",
+      "items": {
+        "type": "string"
+      }
+    },
+    "event_id": {
+      "type": "string",
+      "title": "ID do Evento"
+    },
+    "event_name": {
+      "type": "string",
+      "title": "Nome do Evento"
+    },
+    "read_by": {
+      "type": "array",
+      "title": "Lido por",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "title",
+    "message",
+    "type"
+  ]
+}
