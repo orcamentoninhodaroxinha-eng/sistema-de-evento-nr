@@ -364,6 +364,12 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               <p className="text-xs text-emerald-600 mt-0.5">O AndreM aprovou sua escala. Você pode iniciar as assinaturas.</p>
             </div>
           </div>
+          {!scalePdfUrl && (
+            <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700">
+              <Clock className="w-4 h-4 shrink-0" />
+              Aguardando o PDF da escala para iniciar as assinaturas.
+            </div>
+          )}
           {eventStatus !== "Concluído" && (
             <Button
               onClick={async () => {
@@ -412,7 +418,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 }
                 setShowScale(true);
               }}
-              disabled={extractingPdf}
+              disabled={extractingPdf || !scalePdfUrl}
               className="w-full h-14 text-base font-semibold rounded-2xl gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30 hover:opacity-90"
             >
               {extractingPdf ? <Loader2 className="w-6 h-6 animate-spin" /> : <PlayCircle className="w-6 h-6" />}
