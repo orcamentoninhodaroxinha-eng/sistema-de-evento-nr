@@ -150,32 +150,81 @@ export default function Approvals() {
                     Ver Excel Unificado
                   </a>
 
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleApprove({...unifiedEvent, _area: "cozinha"})}
-                      disabled={approvingId === `${unifiedEvent.id}_cozinha`}
-                      className="flex-1 h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
-                    >
-                      {approvingId === `${unifiedEvent.id}_cozinha` ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <CheckCircle2 className="w-4 h-4" />
-                      )}
-                      Aprovar Cozinha
-                    </Button>
-                    <Button
-                      onClick={() => handleApprove({...unifiedEvent, _area: "salao"})}
-                      disabled={approvingId === `${unifiedEvent.id}_salao`}
-                      className="flex-1 h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
-                    >
-                      {approvingId === `${unifiedEvent.id}_salao` ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <CheckCircle2 className="w-4 h-4" />
-                      )}
-                      Aprovar Salão
-                    </Button>
-                  </div>
+                  {/* Aprovar Cozinha */}
+                  <Button
+                    onClick={() => handleApprove({...unifiedEvent, _area: "cozinha"})}
+                    disabled={approvingId === `${unifiedEvent.id}_cozinha`}
+                    className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
+                  >
+                    {approvingId === `${unifiedEvent.id}_cozinha` ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                    Aprovar Cozinha
+                  </Button>
+
+                  {/* Reprovar Cozinha */}
+                  <Button
+                    onClick={() => setShowRejectInput(prev => ({ ...prev, [`${unifiedEvent.id}_cozinha`]: !prev[`${unifiedEvent.id}_cozinha`] }))}
+                    className="w-full h-11 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    {showRejectInput[`${unifiedEvent.id}_cozinha`] ? "Cancelar Reprovação Cozinha" : "Reprovar Cozinha"}
+                  </Button>
+                  {showRejectInput[`${unifiedEvent.id}_cozinha`] && (
+                    <div className="space-y-2 pt-1">
+                      <Textarea
+                        placeholder="Motivo da reprovação da cozinha..."
+                        value={rejectReason[`${unifiedEvent.id}_cozinha`] || ""}
+                        onChange={e => setRejectReason(prev => ({ ...prev, [`${unifiedEvent.id}_cozinha`]: e.target.value }))}
+                        className="resize-none text-sm"
+                        rows={3}
+                      />
+                      <Button
+                        onClick={() => handleReject({...unifiedEvent, _area: "cozinha"})}
+                        disabled={rejectingId === `${unifiedEvent.id}_cozinha`}
+                        className="w-full h-10 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
+                      >
+                        {rejectingId === `${unifiedEvent.id}_cozinha` ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                        {rejectingId === `${unifiedEvent.id}_cozinha` ? "Reprovando..." : "Confirmar Reprovação Cozinha"}
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Aprovar Salão */}
+                  <Button
+                    onClick={() => handleApprove({...unifiedEvent, _area: "salao"})}
+                    disabled={approvingId === `${unifiedEvent.id}_salao`}
+                    className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
+                  >
+                    {approvingId === `${unifiedEvent.id}_salao` ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                    Aprovar Salão
+                  </Button>
+
+                  {/* Reprovar Salão */}
+                  <Button
+                    onClick={() => setShowRejectInput(prev => ({ ...prev, [`${unifiedEvent.id}_salao`]: !prev[`${unifiedEvent.id}_salao`] }))}
+                    className="w-full h-11 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    {showRejectInput[`${unifiedEvent.id}_salao`] ? "Cancelar Reprovação Salão" : "Reprovar Salão"}
+                  </Button>
+                  {showRejectInput[`${unifiedEvent.id}_salao`] && (
+                    <div className="space-y-2 pt-1">
+                      <Textarea
+                        placeholder="Motivo da reprovação do salão..."
+                        value={rejectReason[`${unifiedEvent.id}_salao`] || ""}
+                        onChange={e => setRejectReason(prev => ({ ...prev, [`${unifiedEvent.id}_salao`]: e.target.value }))}
+                        className="resize-none text-sm"
+                        rows={3}
+                      />
+                      <Button
+                        onClick={() => handleReject({...unifiedEvent, _area: "salao"})}
+                        disabled={rejectingId === `${unifiedEvent.id}_salao`}
+                        className="w-full h-10 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
+                      >
+                        {rejectingId === `${unifiedEvent.id}_salao` ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                        {rejectingId === `${unifiedEvent.id}_salao` ? "Reprovando..." : "Confirmar Reprovação Salão"}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
 
