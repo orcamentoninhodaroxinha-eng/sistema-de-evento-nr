@@ -11,6 +11,10 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+function removeAccents(str = "") {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\x00-\x7F]/g, "");
+}
+
 const KITCHEN_ROLES = ["cozinheiro", "cozinheira", "ajudante", "auxiliar", "cozinha"];
 const SALAO_ROLES = ["garçom", "garçonete", "garcom", "garconete", "salão", "salao", "atendente", "barman", "bartender", "recepcionista"];
 
@@ -25,8 +29,8 @@ function isSalaoRole(role = "") {
 function generateExcel(scale, eventName) {
   // Gera CSV com BOM para abrir corretamente no Excel
   const bom = "\uFEFF";
-  const header = "Nome;Função;Valor (R$)\n";
-  const rows = scale.map(emp => `${emp.full_name};${emp.funcao};${emp.valor}`).join("\n");
+  const header = "Nome;Funcao;Valor (R$)\n";
+  const rows = scale.map(emp => `${removeAccents(emp.full_name)};${removeAccents(emp.funcao)};${emp.valor}`).join("\n");
   const total = scale.reduce((acc, emp) => {
     const v = parseFloat(emp.valor?.replace(",", ".")) || 0;
     return acc + v;
@@ -132,8 +136,8 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
 
     // Gera o CSV em memória e faz upload para armazenar a URL
     const bom = "\uFEFF";
-    const header = "Nome;Função;Valor (R$)\n";
-    const rows = scale.map(emp => `${emp.full_name};${emp.funcao};${emp.valor}`).join("\n");
+    const header = "Nome;Funcao;Valor (R$)\n";
+    const rows = scale.map(emp => `${removeAccents(emp.full_name)};${removeAccents(emp.funcao)};${emp.valor}`).join("\n");
     const total = scale.reduce((acc, emp) => {
       const v = parseFloat(emp.valor?.replace(",", ".")) || 0;
       return acc + v;
