@@ -334,7 +334,6 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           {eventStatus !== "Concluído" && (
             <Button
               onClick={async () => {
-                // Carrega os funcionários do CSV do salão para ter nome, função e valor
                 if (salaoScaleCsvUrl && pdfEmployees.length === 0) {
                   setExtractingPdf(true);
                   const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
@@ -348,7 +347,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                             type: "object",
                             properties: {
                               full_name: { type: "string" },
-                              role: { type: "string" },
+                              funcao: { type: "string" },
                               valor: { type: "string" }
                             }
                           }
@@ -358,7 +357,21 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                   });
                   setExtractingPdf(false);
                   if (result?.output?.employees?.length > 0) {
-                    setPdfEmployees(result.output.employees);
+                    // Cruza com banco para pegar CPF e dados completos
+                    const empsCsv = result.output.employees.filter(e => e.full_name && !e.full_name.toUpperCase().startsWith("TOTAL"));
+                    const enriched = empsCsv.map(csvEmp => {
+                      const found = (allEmployees || []).find(e =>
+                        e.full_name?.toLowerCase().trim() === csvEmp.full_name?.toLowerCase().trim()
+                      );
+                      return {
+                        full_name: csvEmp.full_name,
+                        role: csvEmp.funcao || found?.role || "",
+                        funcao: csvEmp.funcao || "",
+                        valor: csvEmp.valor || "",
+                        cpf: found?.cpf || "",
+                      };
+                    });
+                    setPdfEmployees(enriched);
                   }
                 }
                 setShowScale(true);
