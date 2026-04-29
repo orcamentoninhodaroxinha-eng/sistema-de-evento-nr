@@ -7,6 +7,7 @@ import { useLoginUser } from "@/hooks/useLoginUser";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import NotificationBell from "@/components/NotificationBell";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 export default function Layout() {
   const mainRef = useRef(null);
@@ -14,6 +15,7 @@ export default function Layout() {
   const loginUser = useLoginUser();
   const isAdmin = loginUser?.role === "admin" || loginUser?.role === "aprovador";
   useDeviceDetection();
+  usePushNotifications();
 
   const { data: events } = useQuery({
     queryKey: ["events-approvals"],
