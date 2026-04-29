@@ -333,11 +333,41 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           </div>
           {eventStatus !== "Concluído" && (
             <Button
-              onClick={() => setShowScale(true)}
+              onClick={async () => {
+                // Carrega os funcionários do CSV do salão para ter nome, função e valor
+                if (salaoScaleCsvUrl && pdfEmployees.length === 0) {
+                  setExtractingPdf(true);
+                  const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+                    file_url: salaoScaleCsvUrl,
+                    json_schema: {
+                      type: "object",
+                      properties: {
+                        employees: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              full_name: { type: "string" },
+                              role: { type: "string" },
+                              valor: { type: "string" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  });
+                  setExtractingPdf(false);
+                  if (result?.output?.employees?.length > 0) {
+                    setPdfEmployees(result.output.employees);
+                  }
+                }
+                setShowScale(true);
+              }}
+              disabled={extractingPdf}
               className="w-full h-14 text-base font-semibold rounded-2xl gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30 hover:opacity-90"
             >
-              <PlayCircle className="w-6 h-6" />
-              Iniciar Assinaturas & Fotos
+              {extractingPdf ? <Loader2 className="w-6 h-6 animate-spin" /> : <PlayCircle className="w-6 h-6" />}
+              {extractingPdf ? "Carregando escala..." : "Iniciar Assinaturas & Fotos"}
             </Button>
           )}
           {eventStatus === "Concluído" && receiptsPdfUrl && (
