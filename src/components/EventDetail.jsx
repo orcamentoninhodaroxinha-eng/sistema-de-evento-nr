@@ -7,7 +7,7 @@ import {
   ArrowLeft, MapPin, CalendarDays, FileText, Users,
   Plus, X, Search, Loader2, UserCheck, CheckCircle2, ShieldCheck, PlayCircle,
   Paperclip, ExternalLink, Upload, FileDown, FileSpreadsheet, ClipboardCheck,
-  Clock, DollarSign
+  Clock, DollarSign, Bell
 } from "lucide-react";
 import EventScale from "./EventScale";
 import UnifiedScaleAdminBox from "./UnifiedScaleAdminBox";
@@ -50,6 +50,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [submitting, setSubmitting] = useState(false);
   const [receiptsPdfUrl, setReceiptsPdfUrl] = useState(event.receipts_pdf_url || "");
   const [eventStatus, setEventStatus] = useState(event.status || "Planejado");
+  const [sendingNotif, setSendingNotif] = useState(false);
   const [uploadingPdf, setUploadingPdf] = useState(false);
   const [pdfEmployees, setPdfEmployees] = useState([]);
   const [extractingPdf, setExtractingPdf] = useState(false);
@@ -527,6 +528,30 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       {/* Excel Unificado - ambas escalas aprovadas - apenas admin */}
       {isAdmin && scaleApproved && salaoApproved && (event.unified_scale_csv_url || scaleCsvUrl) && (
         <UnifiedScaleAdminBox event={event} scaleCsvUrl={scaleCsvUrl} />
+      )}
+
+      {/* Botão notificar - apenas admin */}
+      {isAdmin && (
+        <div className="mt-6">
+          <Button
+            variant="outline"
+            disabled={sendingNotif}
+            onClick={async () => {
+              setSendingNotif(true);
+              await base44.functions.invoke("sendPushNotification", {
+                title: "📅 Novo Evento",
+                body: `O evento "${event.name}" foi adicionado${event.date ? ` para ${event.date}` : ""}.`,
+                target_roles: ["admin", "cozinha", "salao", "aprovador"],
+              });
+              toast({ title: "Notificação enviada para todos!" });
+              setSendingNotif(false);
+            }}
+            className="w-full h-11 rounded-xl gap-2 border-primary/30 text-primary hover:bg-primary/5"
+          >
+            {sendingNotif ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
+            {sendingNotif ? "Enviando..." : "Notificar Todos sobre este Evento"}
+          </Button>
+        </div>
       )}
 
       {/* PDF da Escala - apenas admin */}
