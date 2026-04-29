@@ -80,7 +80,7 @@ export default function Approvals() {
   return (
     <PageTransition>
       <div className="max-w-2xl mx-auto">
-        <Button variant="ghost" onClick={() => navigate("/")} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
+        <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" />
           Voltar
         </Button>
