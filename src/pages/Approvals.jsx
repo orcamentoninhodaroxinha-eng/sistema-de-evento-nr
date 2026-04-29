@@ -227,23 +227,22 @@ export default function Approvals() {
                     </a>
                   )}
 
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleApprove(item)}
-                      disabled={approvingId === itemKey}
-                      className="flex-1 h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
-                    >
-                      {approvingId === itemKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                      {approvingId === itemKey ? "Aprovando..." : "Aprovar"}
-                    </Button>
-                    <Button
-                      onClick={() => setShowRejectInput(prev => ({ ...prev, [itemKey]: !prev[itemKey] }))}
-                      className="flex-1 h-11 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
-                    >
-                      <XCircle className="w-4 h-4" />
-                      Reprovar
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={() => handleApprove(item)}
+                    disabled={approvingId === itemKey}
+                    className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
+                  >
+                    {approvingId === itemKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                    {approvingId === itemKey ? "Aprovando..." : "Aprovar"}
+                  </Button>
+
+                  <Button
+                    onClick={() => setShowRejectInput(prev => ({ ...prev, [itemKey]: !prev[itemKey] }))}
+                    className="w-full h-11 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    {showRejectInput[itemKey] ? "Cancelar Reprovação" : "Reprovar"}
+                  </Button>
 
                   {showRejectInput[itemKey] && (
                     <div className="space-y-2 pt-1">
