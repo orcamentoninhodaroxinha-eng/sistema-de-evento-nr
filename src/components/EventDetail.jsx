@@ -260,7 +260,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 <FileSpreadsheet className="w-4 h-4" />
                 Baixar Excel da Escala
               </a>
-              {!scaleApproved && (
+              {(!scaleSubmitted || scaleRejected) && (
                 <>
                   <Button
                     onClick={() => setShowScaleBuilder(true)}
@@ -344,7 +344,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 <FileSpreadsheet className="w-4 h-4" />
                 Baixar Excel da Escala
               </a>
-              {!salaoApproved && (
+              {(!salaoSubmitted || salaoRejected) && (
                 <>
                   <Button
                     onClick={() => setSalaoScaleBuilder(true)}
