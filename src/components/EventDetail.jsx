@@ -226,6 +226,17 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       </div>
 
+      {/* Juberly: Escala Aprovada */}
+      {isJuberly && scaleApproved && (
+        <div className="mt-6 bg-emerald-50 border border-emerald-300 rounded-2xl p-5 flex items-center gap-3">
+          <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
+          <div>
+            <p className="font-semibold text-emerald-800">Escala da Cozinha Aprovada! ✅</p>
+            <p className="text-xs text-emerald-600 mt-0.5">O AndreM aprovou sua escala. Tudo certo!</p>
+          </div>
+        </div>
+      )}
+
       {/* Juberly: Aviso de reprovação com motivo */}
       {isJuberly && scaleRejected && !scaleSubmitted && event.scale_rejected_reason && (
         <div className="mt-6 bg-red-50 border border-red-200 rounded-2xl p-4 space-y-1">
@@ -235,7 +246,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       )}
 
       {/* Juberly: Criar Escala da Cozinha */}
-      {isJuberly && (
+      {isJuberly && !scaleApproved && (
         <div className="mt-6">
           {scaleCsvUrl ? (
             <div className={`rounded-2xl p-5 shadow-sm space-y-3 border ${scaleSubmitted ? "bg-emerald-50 border-emerald-200" : scaleRejected ? "bg-red-50 border-red-200" : "bg-orange-50 border-orange-200"}`}>
@@ -310,6 +321,28 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       )}
 
+      {/* AndreF: Escala Aprovada + botão iniciar assinaturas */}
+      {isAndreF && salaoApproved && (
+        <div className="mt-6 space-y-3">
+          <div className="bg-emerald-50 border border-emerald-300 rounded-2xl p-5 flex items-center gap-3">
+            <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
+            <div>
+              <p className="font-semibold text-emerald-800">Escala do Salão Aprovada! ✅</p>
+              <p className="text-xs text-emerald-600 mt-0.5">O AndreM aprovou sua escala. Você pode iniciar a coleta de assinaturas e fotos.</p>
+            </div>
+          </div>
+          {eventStatus !== "Concluído" && (
+            <Button
+              onClick={() => setShowScale(true)}
+              className="w-full h-14 text-base font-semibold rounded-2xl gap-3 bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30 hover:opacity-90"
+            >
+              <PlayCircle className="w-6 h-6" />
+              Iniciar Assinaturas & Fotos
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* AndreF: Aviso de reprovação com motivo */}
       {isAndreF && salaoRejected && !salaoSubmitted && event.salao_rejected_reason && (
         <div className="mt-6 bg-red-50 border border-red-200 rounded-2xl p-4 space-y-1">
@@ -319,7 +352,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       )}
 
       {/* AndreF: Criar Escala do Salão */}
-      {isAndreF && (
+      {isAndreF && !salaoApproved && (
         <div className="mt-6">
           {salaoScaleCsvUrl ? (
             <div className={`rounded-2xl p-5 shadow-sm space-y-3 border ${salaoSubmitted ? "bg-emerald-50 border-emerald-200" : salaoRejected ? "bg-red-50 border-red-200" : "bg-blue-50 border-blue-200"}`}>
@@ -391,6 +424,26 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* AndreF: Evento concluído */}
+      {isAndreF && salaoApproved && eventStatus === "Concluído" && receiptsPdfUrl && (
+        <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-3">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+            <p className="text-sm font-semibold text-emerald-800">Evento finalizado — recibos disponíveis</p>
+          </div>
+          <a
+            href={receiptsPdfUrl}
+            download
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors"
+          >
+            <FileDown className="w-4 h-4" />
+            Baixar PDF dos Recibos
+          </a>
         </div>
       )}
 
