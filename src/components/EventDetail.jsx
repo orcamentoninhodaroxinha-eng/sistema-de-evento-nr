@@ -321,14 +321,14 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       )}
 
-      {/* AndreF: Escala Aprovada + botão iniciar assinaturas */}
+      {/* AndreF: Escala Aprovada + Iniciar PDF */}
       {isAndreF && salaoApproved && (
         <div className="mt-6 space-y-3">
           <div className="bg-emerald-50 border border-emerald-300 rounded-2xl p-5 flex items-center gap-3">
             <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
             <div>
               <p className="font-semibold text-emerald-800">Escala do Salão Aprovada! ✅</p>
-              <p className="text-xs text-emerald-600 mt-0.5">O AndreM aprovou sua escala. Você pode iniciar a coleta de assinaturas e fotos.</p>
+              <p className="text-xs text-emerald-600 mt-0.5">O AndreM aprovou sua escala. Você pode iniciar as assinaturas.</p>
             </div>
           </div>
           {eventStatus !== "Concluído" && (
@@ -339,6 +339,18 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               <PlayCircle className="w-6 h-6" />
               Iniciar Assinaturas & Fotos
             </Button>
+          )}
+          {eventStatus === "Concluído" && receiptsPdfUrl && (
+            <a
+              href={receiptsPdfUrl}
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors"
+            >
+              <FileDown className="w-4 h-4" />
+              Baixar PDF dos Recibos
+            </a>
           )}
         </div>
       )}
@@ -424,26 +436,6 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {/* AndreF: Evento concluído */}
-      {isAndreF && salaoApproved && eventStatus === "Concluído" && receiptsPdfUrl && (
-        <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-3">
-          <div className="flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-            <p className="text-sm font-semibold text-emerald-800">Evento finalizado — recibos disponíveis</p>
-          </div>
-          <a
-            href={receiptsPdfUrl}
-            download
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors"
-          >
-            <FileDown className="w-4 h-4" />
-            Baixar PDF dos Recibos
-          </a>
         </div>
       )}
 
