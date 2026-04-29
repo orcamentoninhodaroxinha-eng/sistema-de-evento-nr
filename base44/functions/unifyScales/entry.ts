@@ -54,8 +54,8 @@ Deno.serve(async (req) => {
       fetch(salao_csv_url).then(r => r.text()),
     ]);
 
-    const cozinhaRows = parseCsv(cozinhaCsv).map(r => ({ ...r, setor: 'Cozinha' }));
-    const salaoRows = parseCsv(salaoCsv).map(r => ({ ...r, setor: 'Salão' }));
+    const cozinhaRows = parseCsv(cozinhaCsv);
+    const salaoRows = parseCsv(salaoCsv);
     const allRows = [...cozinhaRows, ...salaoRows];
 
     // Calcula total
@@ -70,10 +70,10 @@ Deno.serve(async (req) => {
       return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7E]/g, '');
     };
 
-    // Gera CSV unificado com coluna Setor
-    const header = 'Setor;Nome;Funcao;Valor (R$)\n';
-    const rows = allRows.map(r => `${removeAccents(r.setor)};${removeAccents(r.nome)};${removeAccents(r.funcao)};${r.valor}`).join('\n');
-    const totalRow = `\nTOTAL;;;${total.toFixed(2).replace('.', ',')}`;
+    // Gera CSV unificado sem coluna Setor
+    const header = 'Nome;Funcao;Valor (R$)\n';
+    const rows = allRows.map(r => `${removeAccents(r.nome)};${removeAccents(r.funcao)};${r.valor}`).join('\n');
+    const totalRow = `\nTOTAL;;${total.toFixed(2).replace('.', ',')}`;
     const unifiedCsv = header + rows + totalRow;
 
     // Upload do CSV unificado
