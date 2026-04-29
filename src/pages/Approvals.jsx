@@ -30,6 +30,15 @@ export default function Approvals() {
   const pendingSalao = (events || []).filter(ev => ev.salao_submitted && !ev.salao_approved).map(ev => ({ ...ev, _area: "salao" }));
   const pending = [...pendingCozinha, ...pendingSalao];
 
+  // Eventos com ambas as escalas submetidas (e pelo menos uma ainda não aprovada)
+  const unifiedEvents = (events || []).filter(ev =>
+    ev.scale_submitted && ev.salao_submitted &&
+    (!ev.scale_approved || !ev.salao_approved)
+  );
+  // IDs dos eventos unificados para não duplicar nos cards individuais
+  const unifiedEventIds = new Set(unifiedEvents.map(ev => ev.id));
+  const pendingIndividual = pending.filter(item => !unifiedEventIds.has(item.id));
+
   const handleApprove = async (item) => {
     const key = `${item.id}_${item._area}`;
     setApprovingId(key);
@@ -108,7 +117,152 @@ export default function Approvals() {
           </div>
         ) : (
           <div className="space-y-4">
-            {pending.map((item) => {
+            {/* Eventos com ambas escalas submetidas — mostra unificado com aprovação individual */}
+            {unifiedEvents.map((ev) => (
+              <div key={`unified_${ev.id}`} className="bg-card rounded-2xl p-5 shadow-sm space-y-4 border border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 bg-gradient-to-br from-primary/20 to-purple-200">
+                      <span className="text-[10px] font-medium uppercase text-primary/70">
+                        {ev.date ? format(new Date(ev.date), "MMM", { locale: ptBR }) : "---"}
+                      </span>
+                      <span className="text-lg font-bold leading-none text-primary">
+                        {ev.date ? format(new Date(ev.date), "dd") : "--"}
+                      </span>
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-base">{ev.name}</h2>
+                      {ev.location && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                          <MapPin className="w-3 h-3" />
+                          {ev.location}
+                        </p>
+                      )}
+                      <p className="text-xs text-primary font-semibold mt-1">🍳 Cozinha + 🍽️ Salão Prontos</p>
+                    </div>
+                  </div>
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-full shrink-0 border bg-primary/10 text-primary border-primary/30">
+                    📊 Unificada
+                  </span>
+                </div>
+
+                {/* Excel unificado */}
+                {ev.unified_scale_csv_url ? (
+                  <a
+                    href={ev.unified_scale_csv_url}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm font-medium transition-colors border border-primary/40 bg-primary/5 text-primary hover:bg-primary/10"
+                  >
+                    <FileSpreadsheet className="w-4 h-4" />
+                    Ver Excel Unificado
+                  </a>
+                ) : (
+                  <div className="flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm text-muted-foreground border border-dashed border-border">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Gerando Excel Unificado...
+                  </div>
+                )}
+
+                {/* Aprovação individual — Cozinha */}
+                {!ev.scale_approved && (
+                  <div className="space-y-2 bg-orange-50 border border-orange-200 rounded-xl p-3">
+                    <p className="text-xs font-semibold text-orange-700">🍳 Cozinha</p>
+                    <Button
+                      onClick={() => handleApprove({ ...ev, _area: "cozinha" })}
+                      disabled={approvingId === `${ev.id}_cozinha`}
+                      className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
+                    >
+                      {approvingId === `${ev.id}_cozinha` ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                      {approvingId === `${ev.id}_cozinha` ? "Aprovando..." : "Aprovar Cozinha"}
+                    </Button>
+                    <Button
+                      onClick={() => setShowRejectInput(prev => ({ ...prev, [`${ev.id}_cozinha`]: !prev[`${ev.id}_cozinha`] }))}
+                      variant="outline"
+                      className="w-full h-10 border-red-300 text-red-600 rounded-xl gap-2 hover:bg-red-50"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      {showRejectInput[`${ev.id}_cozinha`] ? "Cancelar" : "Reprovar Cozinha"}
+                    </Button>
+                    {showRejectInput[`${ev.id}_cozinha`] && (
+                      <div className="space-y-2">
+                        <Textarea
+                          placeholder="Motivo da reprovação da cozinha..."
+                          value={rejectReason[`${ev.id}_cozinha`] || ""}
+                          onChange={e => setRejectReason(prev => ({ ...prev, [`${ev.id}_cozinha`]: e.target.value }))}
+                          className="resize-none text-sm"
+                          rows={3}
+                        />
+                        <Button
+                          onClick={() => handleReject({ ...ev, _area: "cozinha" })}
+                          disabled={rejectingId === `${ev.id}_cozinha`}
+                          className="w-full h-10 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
+                        >
+                          {rejectingId === `${ev.id}_cozinha` ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                          {rejectingId === `${ev.id}_cozinha` ? "Reprovando..." : "Confirmar Reprovação"}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {ev.scale_approved && (
+                  <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700 font-medium">
+                    <CheckCircle2 className="w-4 h-4" /> Cozinha aprovada
+                  </div>
+                )}
+
+                {/* Aprovação individual — Salão */}
+                {!ev.salao_approved && (
+                  <div className="space-y-2 bg-blue-50 border border-blue-200 rounded-xl p-3">
+                    <p className="text-xs font-semibold text-blue-700">🍽️ Salão</p>
+                    <Button
+                      onClick={() => handleApprove({ ...ev, _area: "salao" })}
+                      disabled={approvingId === `${ev.id}_salao`}
+                      className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
+                    >
+                      {approvingId === `${ev.id}_salao` ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                      {approvingId === `${ev.id}_salao` ? "Aprovando..." : "Aprovar Salão"}
+                    </Button>
+                    <Button
+                      onClick={() => setShowRejectInput(prev => ({ ...prev, [`${ev.id}_salao`]: !prev[`${ev.id}_salao`] }))}
+                      variant="outline"
+                      className="w-full h-10 border-red-300 text-red-600 rounded-xl gap-2 hover:bg-red-50"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      {showRejectInput[`${ev.id}_salao`] ? "Cancelar" : "Reprovar Salão"}
+                    </Button>
+                    {showRejectInput[`${ev.id}_salao`] && (
+                      <div className="space-y-2">
+                        <Textarea
+                          placeholder="Motivo da reprovação do salão..."
+                          value={rejectReason[`${ev.id}_salao`] || ""}
+                          onChange={e => setRejectReason(prev => ({ ...prev, [`${ev.id}_salao`]: e.target.value }))}
+                          className="resize-none text-sm"
+                          rows={3}
+                        />
+                        <Button
+                          onClick={() => handleReject({ ...ev, _area: "salao" })}
+                          disabled={rejectingId === `${ev.id}_salao`}
+                          className="w-full h-10 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
+                        >
+                          {rejectingId === `${ev.id}_salao` ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                          {rejectingId === `${ev.id}_salao` ? "Reprovando..." : "Confirmar Reprovação"}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {ev.salao_approved && (
+                  <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700 font-medium">
+                    <CheckCircle2 className="w-4 h-4" /> Salão aprovado
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Escalas individuais (apenas uma pronta) */}
+            {pendingIndividual.map((item) => {
               const isSalao = item._area === "salao";
               const itemKey = `${item.id}_${item._area}`;
               const csvUrl = isSalao ? item.salao_csv_url : item.scale_csv_url;
