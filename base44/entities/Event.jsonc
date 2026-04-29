@@ -30,6 +30,30 @@
       ],
       "default": "Planejado"
     },
+    "ceremony_start": {
+      "type": "string",
+      "title": "Hora de In\u00edcio da Cerim\u00f4nia"
+    },
+    "ceremony_end": {
+      "type": "string",
+      "title": "Hora de T\u00e9rmino da Cerim\u00f4nia"
+    },
+    "party_start": {
+      "type": "string",
+      "title": "Hora de In\u00edcio da Festa"
+    },
+    "party_end": {
+      "type": "string",
+      "title": "Hora de T\u00e9rmino da Festa"
+    },
+    "guest_count": {
+      "type": "number",
+      "title": "Quantidade de Convidados"
+    },
+    "sale_value": {
+      "type": "string",
+      "title": "Valor de Venda do Evento (admin)"
+    },
     "employees": {
       "type": "array",
       "title": "Funcion\u00e1rios",

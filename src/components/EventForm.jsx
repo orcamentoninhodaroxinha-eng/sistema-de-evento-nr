@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, MapPin, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Loader2, Clock, Users } from "lucide-react";
 
 export default function EventForm({ onSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -21,6 +21,11 @@ export default function EventForm({ onSuccess }) {
     location: "",
     description: "",
     status: "Planejado",
+    ceremony_start: "",
+    ceremony_end: "",
+    party_start: "",
+    party_end: "",
+    guest_count: "",
   });
 
   const handleChange = (field, value) => {
@@ -89,6 +94,40 @@ export default function EventForm({ onSuccess }) {
           onChange={(e) => handleChange("description", e.target.value)}
           className="rounded-xl min-h-24"
         />
+      </div>
+
+      {/* Horários */}
+      <div className="space-y-2">
+        <Label className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Horários da Cerimônia</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label htmlFor="ceremony_start" className="text-xs text-muted-foreground">Início</Label>
+            <Input id="ceremony_start" type="time" value={formData.ceremony_start} onChange={(e) => handleChange("ceremony_start", e.target.value)} className="h-10 rounded-xl" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="ceremony_end" className="text-xs text-muted-foreground">Término</Label>
+            <Input id="ceremony_end" type="time" value={formData.ceremony_end} onChange={(e) => handleChange("ceremony_end", e.target.value)} className="h-10 rounded-xl" />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Horários da Festa</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label htmlFor="party_start" className="text-xs text-muted-foreground">Início</Label>
+            <Input id="party_start" type="time" value={formData.party_start} onChange={(e) => handleChange("party_start", e.target.value)} className="h-10 rounded-xl" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="party_end" className="text-xs text-muted-foreground">Término</Label>
+            <Input id="party_end" type="time" value={formData.party_end} onChange={(e) => handleChange("party_end", e.target.value)} className="h-10 rounded-xl" />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="guest_count" className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> Nº de Convidados</Label>
+        <Input id="guest_count" type="number" placeholder="Ex: 200" value={formData.guest_count} onChange={(e) => handleChange("guest_count", e.target.value)} className="h-11 rounded-xl" />
       </div>
 
       <div className="space-y-2">

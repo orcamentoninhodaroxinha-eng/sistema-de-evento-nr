@@ -6,7 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, MapPin, CalendarDays, FileText, Users,
   Plus, X, Search, Loader2, UserCheck, CheckCircle2, ShieldCheck, PlayCircle,
-  Paperclip, ExternalLink, Upload, FileDown, FileSpreadsheet, ClipboardCheck
+  Paperclip, ExternalLink, Upload, FileDown, FileSpreadsheet, ClipboardCheck,
+  Clock, DollarSign
 } from "lucide-react";
 import EventScale from "./EventScale";
 import { format } from "date-fns";
@@ -221,6 +222,37 @@ export default function EventDetail({ event, onBack, onRefresh }) {
             <div className="flex items-start gap-3 text-sm">
               <FileText className="w-4 h-4 text-muted-foreground mt-0.5" />
               <span className="text-muted-foreground">{event.description}</span>
+            </div>
+          )}
+
+          {/* Horários e convidados — visível para todos */}
+          {(event.ceremony_start || event.ceremony_end || event.party_start || event.party_end || event.guest_count) && (
+            <div className="mt-3 pt-3 border-t border-border space-y-2">
+              {(event.ceremony_start || event.ceremony_end) && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Cerimônia:</span>
+                  <span className="font-medium">
+                    {event.ceremony_start || "--:--"} às {event.ceremony_end || "--:--"}
+                  </span>
+                </div>
+              )}
+              {(event.party_start || event.party_end) && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Festa:</span>
+                  <span className="font-medium">
+                    {event.party_start || "--:--"} às {event.party_end || "--:--"}
+                  </span>
+                </div>
+              )}
+              {event.guest_count && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Users className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Convidados:</span>
+                  <span className="font-medium">{event.guest_count}</span>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -490,6 +522,27 @@ export default function EventDetail({ event, onBack, onRefresh }) {
             <div>
               <h2 className="font-bold text-emerald-800">Escala Unificada Aprovada</h2>
               <p className="text-xs text-emerald-600">Cozinha + Salão — pronta para lançar no ME Eventos</p>
+            </div>
+          </div>
+          {/* Valor de Venda — apenas admin */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-emerald-800 flex items-center gap-1.5">
+              <DollarSign className="w-3.5 h-3.5" />
+              Valor de Venda do Evento
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Ex: R$ 15.000,00"
+                defaultValue={event.sale_value || ""}
+                onBlur={async (e) => {
+                  if (e.target.value !== (event.sale_value || "")) {
+                    await base44.entities.Event.update(event.id, { sale_value: e.target.value });
+                    event.sale_value = e.target.value;
+                  }
+                }}
+                className="flex-1 h-10 px-3 rounded-xl border border-emerald-300 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-emerald-400"
+              />
             </div>
           </div>
           <a
