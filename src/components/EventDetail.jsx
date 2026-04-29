@@ -260,7 +260,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 <FileSpreadsheet className="w-4 h-4" />
                 Baixar Excel da Escala
               </a>
-              {!scaleSubmitted && (
+              {!scaleApproved && (
                 <>
                   <Button
                     onClick={() => setShowScaleBuilder(true)}
@@ -270,21 +270,23 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                     <Plus className="w-4 h-4" />
                     Editar Escala
                   </Button>
-                  <Button
-                    onClick={async () => {
-                      setSubmitting(true);
-                      await base44.entities.Event.update(event.id, { scale_submitted: true, scale_rejected: false });
-                      setScaleSubmitted(true);
-                      setScaleRejected(false);
-                      setSubmitting(false);
-                      toast({ title: "Escala enviada para aprovação!" });
-                    }}
-                    disabled={submitting}
-                    className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2"
-                  >
-                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                    {submitting ? "Enviando..." : "Enviar para Aprovação"}
-                  </Button>
+                  {!scaleSubmitted && (
+                    <Button
+                      onClick={async () => {
+                        setSubmitting(true);
+                        await base44.entities.Event.update(event.id, { scale_submitted: true, scale_rejected: false });
+                        setScaleSubmitted(true);
+                        setScaleRejected(false);
+                        setSubmitting(false);
+                        toast({ title: "Escala enviada para aprovação!" });
+                      }}
+                      disabled={submitting}
+                      className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2"
+                    >
+                      {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                      {submitting ? "Enviando..." : "Enviar para Aprovação"}
+                    </Button>
+                  )}
                 </>
               )}
             </div>
@@ -342,7 +344,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 <FileSpreadsheet className="w-4 h-4" />
                 Baixar Excel da Escala
               </a>
-              {!salaoSubmitted && (
+              {!salaoApproved && (
                 <>
                   <Button
                     onClick={() => setSalaoScaleBuilder(true)}
@@ -352,21 +354,23 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                     <Plus className="w-4 h-4" />
                     Editar Escala
                   </Button>
-                  <Button
-                    onClick={async () => {
-                      setSubmitting(true);
-                      await base44.entities.Event.update(event.id, { salao_submitted: true, salao_rejected: false });
-                      setSalaoSubmitted(true);
-                      setSalaoRejected(false);
-                      setSubmitting(false);
-                      toast({ title: "Escala enviada para aprovação!" });
-                    }}
-                    disabled={submitting}
-                    className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2"
-                  >
-                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                    {submitting ? "Enviando..." : "Enviar para Aprovação"}
-                  </Button>
+                  {!salaoSubmitted && (
+                    <Button
+                      onClick={async () => {
+                        setSubmitting(true);
+                        await base44.entities.Event.update(event.id, { salao_submitted: true, salao_rejected: false });
+                        setSalaoSubmitted(true);
+                        setSalaoRejected(false);
+                        setSubmitting(false);
+                        toast({ title: "Escala enviada para aprovação!" });
+                      }}
+                      disabled={submitting}
+                      className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2"
+                    >
+                      {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                      {submitting ? "Enviando..." : "Enviar para Aprovação"}
+                    </Button>
+                  )}
                 </>
               )}
             </div>
