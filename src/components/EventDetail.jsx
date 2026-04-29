@@ -394,6 +394,29 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       )}
 
+      {/* Excel Unificado - ambas escalas aprovadas - apenas admin */}
+      {isAdmin && scaleApproved && salaoApproved && (event.unified_scale_csv_url || scaleCsvUrl) && (
+        <div className="mt-6 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-300 rounded-2xl p-5 shadow-sm space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">📊</span>
+            <div>
+              <h2 className="font-bold text-emerald-800">Escala Unificada Aprovada</h2>
+              <p className="text-xs text-emerald-600">Cozinha + Salão — pronta para lançar no ME Eventos</p>
+            </div>
+          </div>
+          <a
+            href={event.unified_scale_csv_url || scaleCsvUrl}
+            download
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors"
+          >
+            <FileSpreadsheet className="w-5 h-5" />
+            Baixar Excel Unificado
+          </a>
+        </div>
+      )}
+
       {/* PDF da Escala - apenas admin */}
       {isAdmin && <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
