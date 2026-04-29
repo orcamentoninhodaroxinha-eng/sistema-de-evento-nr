@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, XCircle, FileSpreadsheet, MapPin, Loader2, ClipboardCheck, ArrowLeft } from "lucide-react";
+import FinanceCalcBox from "@/components/FinanceCalcBox";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
@@ -148,16 +149,22 @@ export default function Approvals() {
 
                 {/* Excel unificado */}
                 {ev.unified_scale_csv_url ? (
-                  <a
-                    href={ev.unified_scale_csv_url}
-                    download
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm font-medium transition-colors border border-primary/40 bg-primary/5 text-primary hover:bg-primary/10"
-                  >
-                    <FileSpreadsheet className="w-4 h-4" />
-                    Ver Excel Unificado
-                  </a>
+                  <>
+                    <a
+                      href={ev.unified_scale_csv_url}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm font-medium transition-colors border border-primary/40 bg-primary/5 text-primary hover:bg-primary/10"
+                    >
+                      <FileSpreadsheet className="w-4 h-4" />
+                      Ver Excel Unificado
+                    </a>
+                    {/* Cálculo financeiro */}
+                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
+                      <FinanceCalcBox event={ev} csvUrl={ev.unified_scale_csv_url} editable={true} />
+                    </div>
+                  </>
                 ) : (
                   <div className="flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm text-muted-foreground border border-dashed border-border">
                     <Loader2 className="w-4 h-4 animate-spin" />
