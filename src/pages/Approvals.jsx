@@ -238,8 +238,7 @@ export default function Approvals() {
                     </Button>
                     <Button
                       onClick={() => setShowRejectInput(prev => ({ ...prev, [itemKey]: !prev[itemKey] }))}
-                      variant="outline"
-                      className="flex-1 h-11 border-red-300 text-red-600 hover:bg-red-50 rounded-xl gap-2"
+                      className="flex-1 h-11 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
                     >
                       <XCircle className="w-4 h-4" />
                       Reprovar
