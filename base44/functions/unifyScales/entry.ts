@@ -64,12 +64,17 @@ Deno.serve(async (req) => {
       return sum + valor;
     }, 0);
 
+    // Remove acentos e caracteres especiais
+    const removeAccents = (str) => {
+      if (!str) return '';
+      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7E]/g, '');
+    };
+
     // Gera CSV unificado com coluna Setor
-    const bom = '\uFEFF';
-    const header = 'Setor;Nome;Função;Valor (R$)\n';
-    const rows = allRows.map(r => `${r.setor};${r.nome};${r.funcao};${r.valor}`).join('\n');
+    const header = 'Setor;Nome;Funcao;Valor (R$)\n';
+    const rows = allRows.map(r => `${removeAccents(r.setor)};${removeAccents(r.nome)};${removeAccents(r.funcao)};${r.valor}`).join('\n');
     const totalRow = `\nTOTAL;;;${total.toFixed(2).replace('.', ',')}`;
-    const unifiedCsv = bom + header + rows + totalRow;
+    const unifiedCsv = header + rows + totalRow;
 
     // Upload do CSV unificado
     const csvBlob = new Blob([unifiedCsv], { type: 'text/csv;charset=utf-8;' });
