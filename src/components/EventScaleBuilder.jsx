@@ -442,25 +442,24 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
             style={{ y: newEmpDragY, opacity: newEmpOpacity }}
             className="fixed inset-0 z-50 bg-background flex flex-col"
+            onTouchStart={(e) => {
+              if (e.target.closest("[data-scroll-area]")) return;
+              newEmpTouchStart.current = e.touches[0].clientY;
+            }}
+            onTouchMove={(e) => {
+              if (newEmpTouchStart.current === null) return;
+              const dy = e.touches[0].clientY - newEmpTouchStart.current;
+              if (dy > 0) newEmpDragY.set(dy);
+            }}
+            onTouchEnd={() => {
+              if (newEmpTouchStart.current === null) return;
+              if (newEmpDragY.get() > 100) setShowNewEmpDialog(false);
+              newEmpDragY.set(0);
+              newEmpTouchStart.current = null;
+            }}
           >
-            {/* Drag handle */}
-            <div
-              className="flex justify-center pt-4 pb-3 cursor-grab active:cursor-grabbing select-none"
-              style={{ touchAction: "none" }}
-              onTouchStart={(e) => { newEmpTouchStart.current = e.touches[0].clientY; }}
-              onTouchMove={(e) => {
-                if (newEmpTouchStart.current === null) return;
-                const dy = e.touches[0].clientY - newEmpTouchStart.current;
-                if (dy > 0) newEmpDragY.set(dy);
-              }}
-              onTouchEnd={() => {
-                if (newEmpDragY.get() > 100) {
-                  setShowNewEmpDialog(false);
-                }
-                newEmpDragY.set(0);
-                newEmpTouchStart.current = null;
-              }}
-            >
+            {/* Handle visual */}
+            <div className="flex justify-center pt-4 pb-3 select-none">
               <div className="w-12 h-1.5 rounded-full bg-muted-foreground/25" />
             </div>
 
@@ -472,7 +471,7 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
               <h2 className="font-bold text-base flex-1 text-center pr-16">Novo Funcionário</h2>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-5" style={{ touchAction: "pan-y" }}>
+            <div data-scroll-area className="flex-1 overflow-y-auto px-4 py-6 space-y-5" style={{ touchAction: "pan-y" }}>
               <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
                 <p className="text-xs text-amber-700 font-medium">⭐ Este funcionário será marcado como <strong>NOVO</strong> no Excel gerado.</p>
               </div>
