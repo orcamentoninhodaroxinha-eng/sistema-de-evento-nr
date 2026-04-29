@@ -29,13 +29,18 @@ function isSalaoRole(role = "") {
 function generateExcel(scale, eventName) {
   // Gera CSV com BOM para abrir corretamente no Excel
   const bom = "\uFEFF";
-  const header = "Nome;Funcao;Valor (R$)\n";
-  const rows = scale.map(emp => `${removeAccents(emp.full_name)};${removeAccents(emp.funcao)};${emp.valor}`).join("\n");
+  const header = "Nome;Funcao;Valor (R$);Pix;Celular;Obs\n";
+  const rows = scale.map(emp => {
+    const obs = emp.isNew ? "*** FUNCIONARIO NOVO ***" : "";
+    const pix = emp.pix || "";
+    const celular = emp.celular || "";
+    return `${removeAccents(emp.full_name)};${removeAccents(emp.funcao)};${emp.valor};${pix};${celular};${obs}`;
+  }).join("\n");
   const total = scale.reduce((acc, emp) => {
     const v = parseFloat(emp.valor?.replace(",", ".")) || 0;
     return acc + v;
   }, 0);
-  const totalRow = `\nTOTAL;;${total.toFixed(2).replace(".", ",")}`;
+  const totalRow = `\nTOTAL GERAL;;${total.toFixed(2).replace(".", ",")};;;`;
   const csv = bom + header + rows + totalRow;
 
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -79,6 +84,12 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
   const [valor, setValor] = useState("");
   const [saving, setSaving] = useState(false);
   const [loadingCsv, setLoadingCsv] = useState(false);
+  const [showNewEmpDialog, setShowNewEmpDialog] = useState(false);
+  const [newEmpName, setNewEmpName] = useState("");
+  const [newEmpPix, setNewEmpPix] = useState("");
+  const [newEmpCelular, setNewEmpCelular] = useState("");
+  const [newEmpFuncao, setNewEmpFuncao] = useState("");
+  const [newEmpValor, setNewEmpValor] = useState("");
   const listRef = useRef(null);
   const reviewListRef = useRef(null);
   const dragStart = useRef(null);
@@ -169,19 +180,45 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
     localStorage.setItem(scaleKey, JSON.stringify(newScale));
   };
 
+  const handleAddNewEmployee = () => {
+    if (!newEmpName || !newEmpFuncao || !newEmpValor) {
+      toast.error("Preencha nome, função e valor");
+      return;
+    }
+    const newEntry = {
+      employeeId: `new_${Date.now()}`,
+      full_name: newEmpName,
+      role: newEmpFuncao,
+      funcao: newEmpFuncao,
+      valor: newEmpValor,
+      pix: newEmpPix,
+      celular: newEmpCelular,
+      isNew: true,
+    };
+    const newScale = [...scale, newEntry];
+    setScale(newScale);
+    localStorage.setItem(scaleKey, JSON.stringify(newScale));
+    setShowNewEmpDialog(false);
+    setNewEmpName(""); setNewEmpPix(""); setNewEmpCelular(""); setNewEmpFuncao(""); setNewEmpValor("");
+    toast(`${newEmpName} adicionado(a) como novo funcionário!`, { duration: 1500 });
+  };
+
   const handleConfirmAndExport = async () => {
     setSaving(true);
-    const ids = scale.map(s => s.employeeId);
+    const ids = scale.filter(s => !s.isNew).map(s => s.employeeId);
 
     // Gera o CSV em memória e faz upload para armazenar a URL
     const bom = "\uFEFF";
-    const header = "Nome;Funcao;Valor (R$)\n";
-    const rows = scale.map(emp => `${removeAccents(emp.full_name)};${removeAccents(emp.funcao)};${emp.valor}`).join("\n");
+    const header = "Nome;Funcao;Valor (R$);Pix;Celular;Obs\n";
+    const rows = scale.map(emp => {
+      const obs = emp.isNew ? "*** FUNCIONARIO NOVO ***" : "";
+      return `${removeAccents(emp.full_name)};${removeAccents(emp.funcao)};${emp.valor};${emp.pix || ""};${emp.celular || ""};${obs}`;
+    }).join("\n");
     const total = scale.reduce((acc, emp) => {
       const v = parseFloat(emp.valor?.replace(",", ".")) || 0;
       return acc + v;
     }, 0);
-    const totalRow = `\nTOTAL;;${total.toFixed(2).replace(".", ",")}`;
+    const totalRow = `\nTOTAL GERAL;;${total.toFixed(2).replace(".", ",")};;;`;
     const csv = bom + header + rows + totalRow;
     const csvBlob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const csvFile = new File([csvBlob], `escala_${event.name.replace(/\s+/g, "_")}.csv`, { type: "text/csv" });
@@ -249,7 +286,16 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
 
       {/* Buscar e adicionar */}
       <div className="bg-card rounded-2xl border border-border p-4 shadow-sm flex flex-col" style={{ minHeight: 'calc(100vh - 200px)' }}>
-        <h2 className="font-semibold mb-3">Adicionar Funcionário {isSalao ? "do Salão" : "da Cozinha"}</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold">Adicionar Funcionário {isSalao ? "do Salão" : "da Cozinha"}</h2>
+          <button
+            onClick={() => setShowNewEmpDialog(true)}
+            className="flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Novo Funcionário
+          </button>
+        </div>
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -357,6 +403,92 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
         )}
       </AnimatePresence>
 
+      {/* Dialog: Novo Funcionário */}
+      <AnimatePresence>
+        {showNewEmpDialog && (
+          <motion.div
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 28, stiffness: 300 }}
+            className="fixed inset-0 z-50 bg-background flex flex-col"
+          >
+            <div className="flex items-center justify-between px-4 pt-6 pb-4 border-b border-border">
+              <button onClick={() => setShowNewEmpDialog(false)} className="p-2 -ml-2 text-muted-foreground">
+                <X className="w-5 h-5" />
+              </button>
+              <h2 className="font-bold text-base">Novo Funcionário</h2>
+              <div className="w-9" />
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-5">
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
+                <p className="text-xs text-amber-700 font-medium">⭐ Este funcionário será marcado como <strong>NOVO</strong> no Excel gerado.</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Nome Completo *</Label>
+                <Input
+                  placeholder="Ex: João da Silva"
+                  value={newEmpName}
+                  onChange={e => setNewEmpName(e.target.value)}
+                  className="h-12 text-base rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Chave Pix *</Label>
+                <Input
+                  placeholder="CPF, e-mail, telefone ou chave aleatória"
+                  value={newEmpPix}
+                  onChange={e => setNewEmpPix(e.target.value)}
+                  className="h-12 text-base rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Celular</Label>
+                <Input
+                  placeholder="Ex: (11) 99999-9999"
+                  value={newEmpCelular}
+                  onChange={e => setNewEmpCelular(e.target.value)}
+                  inputMode="tel"
+                  className="h-12 text-base rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Função no Evento *</Label>
+                <Input
+                  placeholder="Ex: Cozinheira, Garçom..."
+                  value={newEmpFuncao}
+                  onChange={e => setNewEmpFuncao(e.target.value)}
+                  className="h-12 text-base rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Valor do Extra (R$) *</Label>
+                <Input
+                  placeholder="Ex: 150"
+                  value={newEmpValor}
+                  onChange={e => setNewEmpValor(e.target.value)}
+                  inputMode="numeric"
+                  className="h-12 text-base rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="px-4 pb-8 pt-3 border-t border-border">
+              <Button onClick={handleAddNewEmployee} className="w-full h-14 text-base rounded-2xl gap-2 bg-amber-500 hover:bg-amber-600 text-white">
+                <Plus className="w-5 h-5" />
+                Adicionar à Escala
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Dialog: Conferir Escala */}
       <Dialog open={showReview} onOpenChange={setShowReview}>
         <DialogContent className="max-w-sm">
@@ -374,12 +506,15 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             onTouchMove={handleReviewTouchMove}
           >
             {scale.map((emp) => (
-              <div key={emp.employeeId} className="flex items-center gap-2 bg-muted/40 rounded-lg px-2.5 py-2">
-                <div className="w-7 h-7 rounded-md bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                  {emp.full_name?.charAt(0).toUpperCase()}
+              <div key={emp.employeeId} className={`flex items-center gap-2 rounded-lg px-2.5 py-2 ${emp.isNew ? "bg-amber-50 border border-amber-300" : "bg-muted/40"}`}>
+                <div className={`w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold shrink-0 ${emp.isNew ? "bg-amber-200 text-amber-800" : "bg-gradient-to-br from-primary/20 to-purple-200 text-primary"}`}>
+                  {emp.isNew ? "★" : emp.full_name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-xs truncate">{emp.full_name}</p>
+                  <div className="flex items-center gap-1">
+                    <p className="font-semibold text-xs truncate">{emp.full_name}</p>
+                    {emp.isNew && <span className="text-[10px] font-bold text-amber-600 bg-amber-100 px-1 rounded shrink-0">NOVO</span>}
+                  </div>
                   <p className="text-xs text-muted-foreground truncate">{emp.funcao}</p>
                 </div>
                 <span className="text-xs font-semibold text-emerald-700 shrink-0">R$ {emp.valor}</span>
