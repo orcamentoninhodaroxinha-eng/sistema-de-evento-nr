@@ -51,6 +51,9 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [receiptsPdfUrl, setReceiptsPdfUrl] = useState(event.receipts_pdf_url || "");
   const [eventStatus, setEventStatus] = useState(event.status || "Planejado");
   const [sendingNotif, setSendingNotif] = useState(false);
+  const [editingDate, setEditingDate] = useState(false);
+  const [newDate, setNewDate] = useState(event.date || "");
+  const [savingDate, setSavingDate] = useState(false);
   const [uploadingPdf, setUploadingPdf] = useState(false);
   const [pdfEmployees, setPdfEmployees] = useState([]);
   const [extractingPdf, setExtractingPdf] = useState(false);
@@ -211,7 +214,45 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           {event.date && (
             <div className="flex items-center gap-3 text-sm">
               <CalendarDays className="w-4 h-4 text-muted-foreground" />
-              <span>{format(new Date(event.date), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</span>
+              {isAdmin && editingDate ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    value={newDate}
+                    onChange={(e) => setNewDate(e.target.value)}
+                    className="h-8 px-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                  <Button
+                    size="sm"
+                    disabled={savingDate}
+                    onClick={async () => {
+                      if (!newDate) return;
+                      setSavingDate(true);
+                      await base44.entities.Event.update(event.id, { date: newDate });
+                      event.date = newDate;
+                      setEditingDate(false);
+                      setSavingDate(false);
+                      onRefresh();
+                      toast({ title: "Data atualizada!" });
+                    }}
+                    className="h-8 px-3 rounded-lg text-xs"
+                  >
+                    {savingDate ? <Loader2 className="w-3 h-3 animate-spin" /> : "Salvar"}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setEditingDate(false)} className="h-8 px-2 rounded-lg text-xs">
+                    Cancelar
+                  </Button>
+                </div>
+              ) : (
+                <span className="flex items-center gap-2">
+                  {format(new Date(event.date), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                  {isAdmin && (
+                    <button onClick={() => setEditingDate(true)} className="text-muted-foreground hover:text-primary transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                  )}
+                </span>
+              )}
             </div>
           )}
           {event.location && (
