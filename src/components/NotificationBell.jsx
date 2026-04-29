@@ -19,18 +19,13 @@ export default function NotificationBell() {
 
   const fetchNotifications = async () => {
     if (!loginUser) return;
-    const role = loginUser.role;
-    const all = await base44.entities.Notification.list("-created_date", 50);
-    // filtra notificações destinadas ao papel deste usuário
-    const mine = (all || []).filter(n =>
-      !n.target_roles || n.target_roles.length === 0 || n.target_roles.includes(role)
-    );
-    setNotifications(mine);
+    const res = await base44.functions.invoke("getNotifications", { role: loginUser.role });
+    setNotifications(res.data?.notifications || []);
   };
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
+    const interval = setInterval(fetchNotifications, 60000);
     return () => clearInterval(interval);
   }, [loginUser]);
 
