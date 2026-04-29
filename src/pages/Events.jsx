@@ -114,6 +114,12 @@ export default function Events() {
   const { user } = useAuth();
   const loginUser = useLoginUser();
 
+  useEffect(() => {
+    if (loginUser?.role === "aprovador") {
+      navigate("/approvals", { replace: true });
+    }
+  }, [loginUser, navigate]);
+
   const { data: events, isLoading } = useQuery({
     queryKey: ["events"],
     queryFn: () => base44.entities.Event.list("-date", 100),
