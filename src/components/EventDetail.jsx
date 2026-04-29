@@ -367,10 +367,13 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           {eventStatus !== "Concluído" && (
             <Button
               onClick={async () => {
-                if (salaoScaleCsvUrl && pdfEmployees.length === 0) {
+                // Prioridade: PDF da escala completa (anexado pelo admin), depois CSV do salão
+                const sourceUrl = scalePdfUrl || salaoScaleCsvUrl;
+                if (sourceUrl && pdfEmployees.length === 0) {
                   setExtractingPdf(true);
+                  const isPdf = scalePdfUrl && !salaoScaleCsvUrl;
                   const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
-                    file_url: salaoScaleCsvUrl,
+                    file_url: sourceUrl,
                     json_schema: {
                       type: "object",
                       properties: {
@@ -380,6 +383,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                             type: "object",
                             properties: {
                               full_name: { type: "string" },
+                              cpf: { type: "string" },
                               funcao: { type: "string" },
                               valor: { type: "string" }
                             }
@@ -390,7 +394,6 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                   });
                   setExtractingPdf(false);
                   if (result?.output?.employees?.length > 0) {
-                    // Cruza com banco para pegar CPF e dados completos
                     const empsCsv = result.output.employees.filter(e => e.full_name && !e.full_name.toUpperCase().startsWith("TOTAL"));
                     const enriched = empsCsv.map(csvEmp => {
                       const found = (allEmployees || []).find(e =>
@@ -401,7 +404,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                         role: csvEmp.funcao || found?.role || "",
                         funcao: csvEmp.funcao || "",
                         valor: csvEmp.valor || "",
-                        cpf: found?.cpf || "",
+                        cpf: csvEmp.cpf || found?.cpf || "",
                       };
                     });
                     setPdfEmployees(enriched);
