@@ -54,8 +54,8 @@ export default function Approvals() {
     }
     setRejectingId(key);
     const updatePayload = item._area === "salao"
-      ? { salao_submitted: false, salao_approved: false, salao_rejected: true, salao_rejected_reason: reason, salao_csv_url: "" }
-      : { scale_submitted: false, scale_approved: false, scale_rejected: true, scale_rejected_reason: reason, scale_csv_url: "", unified_scale_csv_url: "" };
+      ? { salao_submitted: false, salao_approved: false, salao_rejected: true, salao_rejected_reason: reason }
+      : { scale_submitted: false, scale_approved: false, scale_rejected: true, scale_rejected_reason: reason, unified_scale_csv_url: "" };
     await base44.entities.Event.update(item.id, updatePayload);
     queryClient.invalidateQueries(["events-approvals"]);
     queryClient.invalidateQueries(["events"]);
