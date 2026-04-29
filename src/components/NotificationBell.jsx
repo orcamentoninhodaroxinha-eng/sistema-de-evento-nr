@@ -19,14 +19,22 @@ export default function NotificationBell() {
 
   const fetchNotifications = async () => {
     if (!loginUser) return;
-    const res = await base44.functions.invoke("getNotifications", { role: loginUser.role });
-    setNotifications(res.data?.notifications || []);
+    try {
+      const res = await base44.functions.invoke("getNotifications", { role: loginUser.role });
+      setNotifications(res.data?.notifications || []);
+    } catch {
+      // Silently ignore rate limit or network errors
+    }
   };
 
   useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 120000);
-    return () => clearInterval(interval);
+    // Delay initial fetch to avoid all users hitting at the same time
+    const initialDelay = setTimeout(fetchNotifications, 2000 + Math.random() * 3000);
+    const interval = setInterval(fetchNotifications, 300000); // 5 minutes
+    return () => {
+      clearTimeout(initialDelay);
+      clearInterval(interval);
+    };
   }, [loginUser]);
 
   // Fecha ao clicar fora

@@ -23,6 +23,11 @@ Deno.serve(async (req) => {
 
     return Response.json({ notifications: mine });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    // On rate limit, return cached data if available, otherwise empty list
+    if (error.message?.includes('429') || error.message?.includes('Rate limit')) {
+      const { role } = (() => { try { return { role: 'admin' }; } catch { return { role: '' }; } })();
+      return Response.json({ notifications: cache ? cache.filter(n => !n.target_roles || n.target_roles.length === 0) : [] });
+    }
+    return Response.json({ notifications: [] }, { status: 200 });
   }
 });
