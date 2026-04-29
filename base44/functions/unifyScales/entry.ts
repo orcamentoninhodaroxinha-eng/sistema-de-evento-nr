@@ -3,13 +3,16 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { event_id } = await req.json();
+    const body = await req.json();
+
+    // Suporta chamada via automação (payload com event.entity_id) ou direta (event_id)
+    const event_id = body.event_id || body.event?.entity_id || body.data?.id;
 
     if (!event_id) {
       return Response.json({ error: 'event_id é obrigatório' }, { status: 400 });
     }
 
-    const events = await base44.entities.Event.filter({ id: event_id });
+    const events = await base44.asServiceRole.entities.Event.filter({ id: event_id });
     if (!events || events.length === 0) {
       return Response.json({ error: 'Evento não encontrado' }, { status: 404 });
     }
@@ -33,7 +36,7 @@ Deno.serve(async (req) => {
       const rows = [];
       for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
-        if (!line || line.startsWith('TOTAL')) continue;
+        if (!line || line.toUpperCase().startsWith('TOTAL')) continue;
         const parts = line.split(';');
         if (parts.length >= 3) {
           rows.push({
@@ -46,11 +49,13 @@ Deno.serve(async (req) => {
       return rows;
     };
 
-    const cozinhaCsv = await fetch(scale_csv_url).then(r => r.text());
-    const salaoCSv = await fetch(salao_csv_url).then(r => r.text());
+    const [cozinhaCsv, salaoCsv] = await Promise.all([
+      fetch(scale_csv_url).then(r => r.text()),
+      fetch(salao_csv_url).then(r => r.text()),
+    ]);
 
-    const cozinhaRows = parseCsv(cozinhaCsv);
-    const salaoRows = parseCsv(salaoCSv);
+    const cozinhaRows = parseCsv(cozinhaCsv).map(r => ({ ...r, setor: 'Cozinha' }));
+    const salaoRows = parseCsv(salaoCsv).map(r => ({ ...r, setor: 'Salão' }));
     const allRows = [...cozinhaRows, ...salaoRows];
 
     // Calcula total
@@ -59,20 +64,20 @@ Deno.serve(async (req) => {
       return sum + valor;
     }, 0);
 
-    // Gera CSV unificado
+    // Gera CSV unificado com coluna Setor
     const bom = '\uFEFF';
-    const header = 'Nome;Função;Valor (R$)\n';
-    const rows = allRows.map(r => `${r.nome};${r.funcao};${r.valor}`).join('\n');
-    const totalRow = `\nTOTAL;;${total.toFixed(2).replace('.', ',')}`;
+    const header = 'Setor;Nome;Função;Valor (R$)\n';
+    const rows = allRows.map(r => `${r.setor};${r.nome};${r.funcao};${r.valor}`).join('\n');
+    const totalRow = `\nTOTAL;;;${total.toFixed(2).replace('.', ',')}`;
     const unifiedCsv = bom + header + rows + totalRow;
 
     // Upload do CSV unificado
     const csvBlob = new Blob([unifiedCsv], { type: 'text/csv;charset=utf-8;' });
     const csvFile = new File([csvBlob], `escala_unificada_${event.name.replace(/\s+/g, '_')}.csv`, { type: 'text/csv' });
-    const uploadRes = await base44.integrations.Core.UploadFile({ file: csvFile });
+    const uploadRes = await base44.asServiceRole.integrations.Core.UploadFile({ file: csvFile });
 
     // Atualiza o evento com a URL da escala unificada
-    await base44.entities.Event.update(event_id, { unified_scale_csv_url: uploadRes.file_url });
+    await base44.asServiceRole.entities.Event.update(event_id, { unified_scale_csv_url: uploadRes.file_url });
 
     return Response.json({ success: true, unified_scale_csv_url: uploadRes.file_url });
   } catch (error) {
