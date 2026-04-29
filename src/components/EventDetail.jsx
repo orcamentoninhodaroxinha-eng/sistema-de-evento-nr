@@ -10,6 +10,7 @@ import {
   Clock, DollarSign
 } from "lucide-react";
 import EventScale from "./EventScale";
+import UnifiedScaleAdminBox from "./UnifiedScaleAdminBox";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -516,46 +517,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
 
       {/* Excel Unificado - ambas escalas aprovadas - apenas admin */}
       {isAdmin && scaleApproved && salaoApproved && (event.unified_scale_csv_url || scaleCsvUrl) && (
-        <div className="mt-6 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-300 rounded-2xl p-5 shadow-sm space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">📊</span>
-            <div>
-              <h2 className="font-bold text-emerald-800">Escala Unificada Aprovada</h2>
-              <p className="text-xs text-emerald-600">Cozinha + Salão — pronta para lançar no ME Eventos</p>
-            </div>
-          </div>
-          {/* Valor de Venda — apenas admin */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-emerald-800 flex items-center gap-1.5">
-              <DollarSign className="w-3.5 h-3.5" />
-              Valor de Venda do Evento
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Ex: R$ 15.000,00"
-                defaultValue={event.sale_value || ""}
-                onBlur={async (e) => {
-                  if (e.target.value !== (event.sale_value || "")) {
-                    await base44.entities.Event.update(event.id, { sale_value: e.target.value });
-                    event.sale_value = e.target.value;
-                  }
-                }}
-                className="flex-1 h-10 px-3 rounded-xl border border-emerald-300 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-emerald-400"
-              />
-            </div>
-          </div>
-          <a
-            href={event.unified_scale_csv_url || scaleCsvUrl}
-            download
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors"
-          >
-            <FileSpreadsheet className="w-5 h-5" />
-            Baixar Excel Unificado
-          </a>
-        </div>
+        <UnifiedScaleAdminBox event={event} scaleCsvUrl={scaleCsvUrl} />
       )}
 
       {/* PDF da Escala - apenas admin */}

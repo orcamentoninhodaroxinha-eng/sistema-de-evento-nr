@@ -3,9 +3,12 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EventForm from "@/components/EventForm";
 import PageTransition from "@/components/PageTransition";
+import { useLoginUser } from "@/hooks/useLoginUser";
 
 export default function EventFormPage() {
   const navigate = useNavigate();
+  const loginUser = useLoginUser();
+  const isAdmin = loginUser?.role === "admin" || loginUser?.role === "aprovador";
 
   return (
     <PageTransition>
@@ -25,7 +28,7 @@ export default function EventFormPage() {
             <p className="text-muted-foreground text-sm mt-1">Preencha os dados para criar um novo evento</p>
           </div>
 
-          <EventForm onSuccess={() => navigate("/")} />
+          <EventForm onSuccess={() => navigate("/")} isAdmin={isAdmin} />
         </div>
       </div>
     </PageTransition>
