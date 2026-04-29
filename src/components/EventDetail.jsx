@@ -226,16 +226,11 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       </div>
 
-      {/* Juberly: Aviso de reprovação */}
-      {isJuberly && scaleRejected && !scaleSubmitted && (
-        <div className="mt-6 bg-red-50 border border-red-200 rounded-2xl p-5 space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">❌</span>
-            <h2 className="font-semibold text-red-800">Escala da Cozinha Reprovada</h2>
-          </div>
-          <p className="text-sm text-red-700 font-medium">Motivo:</p>
-          <p className="text-sm text-red-600 bg-red-100 rounded-xl px-4 py-3">{event.scale_rejected_reason || "Sem motivo informado."}</p>
-          <p className="text-xs text-red-500 mt-1">Por favor, crie a escala novamente corrigindo os problemas.</p>
+      {/* Juberly: Aviso de reprovação com motivo */}
+      {isJuberly && scaleRejected && !scaleSubmitted && event.scale_rejected_reason && (
+        <div className="mt-6 bg-red-50 border border-red-200 rounded-2xl p-4 space-y-1">
+          <p className="text-sm text-red-700 font-medium">Motivo da reprovação:</p>
+          <p className="text-sm text-red-600 bg-red-100 rounded-xl px-4 py-3">{event.scale_rejected_reason}</p>
         </div>
       )}
 
@@ -243,15 +238,15 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       {isJuberly && (
         <div className="mt-6">
           {scaleCsvUrl ? (
-            <div className={`rounded-2xl p-5 shadow-sm space-y-3 border ${scaleSubmitted ? "bg-emerald-50 border-emerald-200" : "bg-orange-50 border-orange-200"}`}>
+            <div className={`rounded-2xl p-5 shadow-sm space-y-3 border ${scaleSubmitted ? "bg-emerald-50 border-emerald-200" : scaleRejected ? "bg-red-50 border-red-200" : "bg-orange-50 border-orange-200"}`}>
               <div className="flex items-center gap-2">
                 <span className="text-lg">🍳</span>
                 <div>
-                  <h2 className={`font-semibold ${scaleSubmitted ? "text-emerald-800" : "text-orange-800"}`}>
-                    Escala da Cozinha — Pronta
+                  <h2 className={`font-semibold ${scaleSubmitted ? "text-emerald-800" : scaleRejected ? "text-red-800" : "text-orange-800"}`}>
+                    Escala da Cozinha — {scaleSubmitted ? "Enviada" : scaleRejected ? "Reprovada" : "Pronta"}
                   </h2>
-                  <p className={`text-xs ${scaleSubmitted ? "text-emerald-600" : "text-orange-600"}`}>
-                    {scaleSubmitted ? "✅ Enviada para aprovação" : "Escala gerada — envie para o admin aprovar"}
+                  <p className={`text-xs ${scaleSubmitted ? "text-emerald-600" : scaleRejected ? "text-red-600" : "text-orange-600"}`}>
+                    {scaleSubmitted ? "✅ Aguardando aprovação" : scaleRejected ? "❌ Corrija e reenvie" : "Escala gerada — envie para o admin aprovar"}
                   </p>
                 </div>
               </div>
@@ -266,20 +261,31 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 Baixar Excel da Escala
               </a>
               {!scaleSubmitted && (
-                <Button
-                  onClick={async () => {
-                    setSubmitting(true);
-                    await base44.entities.Event.update(event.id, { scale_submitted: true });
-                    setScaleSubmitted(true);
-                    setSubmitting(false);
-                    toast({ title: "Escala enviada para aprovação!" });
-                  }}
-                  disabled={submitting}
-                  className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2"
-                >
-                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                  {submitting ? "Enviando..." : "Enviar para Aprovação"}
-                </Button>
+                <>
+                  <Button
+                    onClick={() => setShowScaleBuilder(true)}
+                    variant="outline"
+                    className="w-full h-11 border-orange-300 text-orange-700 rounded-xl gap-2 hover:bg-orange-50"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Editar Escala
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      setSubmitting(true);
+                      await base44.entities.Event.update(event.id, { scale_submitted: true, scale_rejected: false });
+                      setScaleSubmitted(true);
+                      setScaleRejected(false);
+                      setSubmitting(false);
+                      toast({ title: "Escala enviada para aprovação!" });
+                    }}
+                    disabled={submitting}
+                    className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2"
+                  >
+                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                    {submitting ? "Enviando..." : "Enviar para Aprovação"}
+                  </Button>
+                </>
               )}
             </div>
           ) : (
@@ -302,16 +308,11 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       )}
 
-      {/* AndreF: Aviso de reprovação */}
-      {isAndreF && salaoRejected && !salaoSubmitted && (
-        <div className="mt-6 bg-red-50 border border-red-200 rounded-2xl p-5 space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">❌</span>
-            <h2 className="font-semibold text-red-800">Escala do Salão Reprovada</h2>
-          </div>
-          <p className="text-sm text-red-700 font-medium">Motivo:</p>
-          <p className="text-sm text-red-600 bg-red-100 rounded-xl px-4 py-3">{event.salao_rejected_reason || "Sem motivo informado."}</p>
-          <p className="text-xs text-red-500 mt-1">Por favor, crie a escala novamente corrigindo os problemas.</p>
+      {/* AndreF: Aviso de reprovação com motivo */}
+      {isAndreF && salaoRejected && !salaoSubmitted && event.salao_rejected_reason && (
+        <div className="mt-6 bg-red-50 border border-red-200 rounded-2xl p-4 space-y-1">
+          <p className="text-sm text-red-700 font-medium">Motivo da reprovação:</p>
+          <p className="text-sm text-red-600 bg-red-100 rounded-xl px-4 py-3">{event.salao_rejected_reason}</p>
         </div>
       )}
 
@@ -319,15 +320,15 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       {isAndreF && (
         <div className="mt-6">
           {salaoScaleCsvUrl ? (
-            <div className={`rounded-2xl p-5 shadow-sm space-y-3 border ${salaoSubmitted ? "bg-emerald-50 border-emerald-200" : "bg-blue-50 border-blue-200"}`}>
+            <div className={`rounded-2xl p-5 shadow-sm space-y-3 border ${salaoSubmitted ? "bg-emerald-50 border-emerald-200" : salaoRejected ? "bg-red-50 border-red-200" : "bg-blue-50 border-blue-200"}`}>
               <div className="flex items-center gap-2">
                 <span className="text-lg">🍽️</span>
                 <div>
-                  <h2 className={`font-semibold ${salaoSubmitted ? "text-emerald-800" : "text-blue-800"}`}>
-                    Escala do Salão — Pronta
+                  <h2 className={`font-semibold ${salaoSubmitted ? "text-emerald-800" : salaoRejected ? "text-red-800" : "text-blue-800"}`}>
+                    Escala do Salão — {salaoSubmitted ? "Enviada" : salaoRejected ? "Reprovada" : "Pronta"}
                   </h2>
-                  <p className={`text-xs ${salaoSubmitted ? "text-emerald-600" : "text-blue-600"}`}>
-                    {salaoSubmitted ? "✅ Enviada para aprovação" : "Escala gerada — envie para o admin aprovar"}
+                  <p className={`text-xs ${salaoSubmitted ? "text-emerald-600" : salaoRejected ? "text-red-600" : "text-blue-600"}`}>
+                    {salaoSubmitted ? "✅ Aguardando aprovação" : salaoRejected ? "❌ Corrija e reenvie" : "Escala gerada — envie para o admin aprovar"}
                   </p>
                 </div>
               </div>
@@ -342,20 +343,31 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 Baixar Excel da Escala
               </a>
               {!salaoSubmitted && (
-                <Button
-                  onClick={async () => {
-                    setSubmitting(true);
-                    await base44.entities.Event.update(event.id, { salao_submitted: true });
-                    setSalaoSubmitted(true);
-                    setSubmitting(false);
-                    toast({ title: "Escala enviada para aprovação!" });
-                  }}
-                  disabled={submitting}
-                  className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2"
-                >
-                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                  {submitting ? "Enviando..." : "Enviar para Aprovação"}
-                </Button>
+                <>
+                  <Button
+                    onClick={() => setSalaoScaleBuilder(true)}
+                    variant="outline"
+                    className="w-full h-11 border-blue-300 text-blue-700 rounded-xl gap-2 hover:bg-blue-50"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Editar Escala
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      setSubmitting(true);
+                      await base44.entities.Event.update(event.id, { salao_submitted: true, salao_rejected: false });
+                      setSalaoSubmitted(true);
+                      setSalaoRejected(false);
+                      setSubmitting(false);
+                      toast({ title: "Escala enviada para aprovação!" });
+                    }}
+                    disabled={submitting}
+                    className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2"
+                  >
+                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                    {submitting ? "Enviando..." : "Enviar para Aprovação"}
+                  </Button>
+                </>
               )}
             </div>
           ) : (

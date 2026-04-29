@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Plus, Trash2, Save, Loader2, Search, Eye, X, CheckCircle2, FileSpreadsheet } from "lucide-react";
@@ -47,6 +47,27 @@ function generateExcel(scale, eventName) {
   URL.revokeObjectURL(url);
 }
 
+async function parseCsvFromUrl(url) {
+  try {
+    const text = await fetch(url).then(r => r.text());
+    const lines = text.trim().split("\n").slice(1); // pula header
+    return lines
+      .filter(l => l.trim() && !l.toUpperCase().startsWith("TOTAL"))
+      .map((line, i) => {
+        const parts = line.split(";");
+        return {
+          employeeId: `csv_${i}_${Date.now()}`,
+          full_name: parts[0]?.trim() || "",
+          role: "",
+          funcao: parts[1]?.trim() || "",
+          valor: parts[2]?.trim() || "",
+        };
+      });
+  } catch {
+    return [];
+  }
+}
+
 export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
   const isSalao = area === "salao";
   const queryClient = useQueryClient();
@@ -57,6 +78,7 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
   const [funcao, setFuncao] = useState("");
   const [valor, setValor] = useState("");
   const [saving, setSaving] = useState(false);
+  const [loadingCsv, setLoadingCsv] = useState(false);
   const listRef = useRef(null);
   const reviewListRef = useRef(null);
   const dragStart = useRef(null);
@@ -83,9 +105,26 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
 
   const [scale, setScale] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem(isSalao ? `salao_scale_${event.id}` : `juberly_scale_${event.id}`)) || [];
+      return JSON.parse(localStorage.getItem(scaleKey)) || [];
     } catch { return []; }
   });
+
+  // Se escala foi reprovada e localStorage está vazio, carrega do CSV existente
+  const existingCsvUrl = isSalao ? event.salao_csv_url : event.scale_csv_url;
+  const isRejected = isSalao ? event.salao_rejected : event.scale_rejected;
+
+  useEffect(() => {
+    if (scale.length === 0 && isRejected && existingCsvUrl) {
+      setLoadingCsv(true);
+      parseCsvFromUrl(existingCsvUrl).then(rows => {
+        if (rows.length > 0) {
+          setScale(rows);
+          localStorage.setItem(scaleKey, JSON.stringify(rows));
+        }
+        setLoadingCsv(false);
+      });
+    }
+  }, []);
 
   const { data: allEmployees } = useQuery({
     queryKey: ["employees"],
@@ -180,11 +219,21 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
       </Button>
 
       <div className="mb-5">
-        <h1 className="text-2xl font-bold">Criar Escala</h1>
+        <h1 className="text-2xl font-bold">{isRejected && existingCsvUrl ? "Editar Escala" : "Criar Escala"}</h1>
         <p className="text-sm text-muted-foreground mt-1">
           {event.name} — {event.date ? format(new Date(event.date), "dd/MM/yyyy") : ""}
         </p>
+        {isRejected && existingCsvUrl && (
+          <p className="text-xs text-red-600 mt-1 font-medium">⚠️ Escala reprovada — faça as correções e reenvie</p>
+        )}
       </div>
+
+      {loadingCsv && (
+        <div className="flex items-center justify-center py-8 gap-2 text-muted-foreground">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span className="text-sm">Carregando escala anterior...</span>
+        </div>
+      )}
 
       {/* Botão Conferir Escala */}
       {scale.length > 0 && (
