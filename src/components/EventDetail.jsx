@@ -40,8 +40,10 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [salaoScaleCsvUrl, setSalaoScaleCsvUrl] = useState(event.salao_csv_url || "");
   const [scaleSubmitted, setScaleSubmitted] = useState(event.scale_submitted || false);
   const [scaleApproved, setScaleApproved] = useState(event.scale_approved || false);
+  const [scaleRejected, setScaleRejected] = useState(event.scale_rejected || false);
   const [salaoSubmitted, setSalaoSubmitted] = useState(event.salao_submitted || false);
   const [salaoApproved, setSalaoApproved] = useState(event.salao_approved || false);
+  const [salaoRejected, setSalaoRejected] = useState(event.salao_rejected || false);
   const [salaoScaleBuilder, setSalaoScaleBuilder] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [receiptsPdfUrl, setReceiptsPdfUrl] = useState(event.receipts_pdf_url || "");
@@ -224,6 +226,19 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       </div>
 
+      {/* Juberly: Aviso de reprovação */}
+      {isJuberly && scaleRejected && !scaleSubmitted && (
+        <div className="mt-6 bg-red-50 border border-red-200 rounded-2xl p-5 space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">❌</span>
+            <h2 className="font-semibold text-red-800">Escala da Cozinha Reprovada</h2>
+          </div>
+          <p className="text-sm text-red-700 font-medium">Motivo:</p>
+          <p className="text-sm text-red-600 bg-red-100 rounded-xl px-4 py-3">{event.scale_rejected_reason || "Sem motivo informado."}</p>
+          <p className="text-xs text-red-500 mt-1">Por favor, crie a escala novamente corrigindo os problemas.</p>
+        </div>
+      )}
+
       {/* Juberly: Criar Escala da Cozinha */}
       {isJuberly && (
         <div className="mt-6">
@@ -284,6 +299,19 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* AndreF: Aviso de reprovação */}
+      {isAndreF && salaoRejected && !salaoSubmitted && (
+        <div className="mt-6 bg-red-50 border border-red-200 rounded-2xl p-5 space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">❌</span>
+            <h2 className="font-semibold text-red-800">Escala do Salão Reprovada</h2>
+          </div>
+          <p className="text-sm text-red-700 font-medium">Motivo:</p>
+          <p className="text-sm text-red-600 bg-red-100 rounded-xl px-4 py-3">{event.salao_rejected_reason || "Sem motivo informado."}</p>
+          <p className="text-xs text-red-500 mt-1">Por favor, crie a escala novamente corrigindo os problemas.</p>
         </div>
       )}
 

@@ -60,6 +60,15 @@
       "title": "Escala Cozinha Aprovada",
       "default": false
     },
+    "scale_rejected": {
+      "type": "boolean",
+      "title": "Escala Cozinha Reprovada",
+      "default": false
+    },
+    "scale_rejected_reason": {
+      "type": "string",
+      "title": "Motivo da Reprova\u00e7\u00e3o (Cozinha)"
+    },
     "salao_csv_url": {
       "type": "string",
       "title": "Excel da Escala do Sal\u00e3o"
@@ -73,6 +82,15 @@
       "type": "boolean",
       "title": "Escala Sal\u00e3o Aprovada",
       "default": false
+    },
+    "salao_rejected": {
+      "type": "boolean",
+      "title": "Escala Sal\u00e3o Reprovada",
+      "default": false
+    },
+    "salao_rejected_reason": {
+      "type": "string",
+      "title": "Motivo da Reprova\u00e7\u00e3o (Sal\u00e3o)"
     },
     "unified_scale_csv_url": {
       "type": "string",

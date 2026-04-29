@@ -2,8 +2,9 @@ import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, FileSpreadsheet, CalendarDays, MapPin, Loader2, ClipboardCheck, ArrowLeft } from "lucide-react";
+import { CheckCircle2, XCircle, FileSpreadsheet, MapPin, Loader2, ClipboardCheck, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -15,6 +16,9 @@ export default function Approvals() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [approvingId, setApprovingId] = useState(null);
+  const [rejectingId, setRejectingId] = useState(null);
+  const [rejectReason, setRejectReason] = useState({});
+  const [showRejectInput, setShowRejectInput] = useState({});
 
   const { data: events, isLoading } = useQuery({
     queryKey: ["events-approvals"],
@@ -29,7 +33,9 @@ export default function Approvals() {
   const handleApprove = async (item) => {
     const key = `${item.id}_${item._area}`;
     setApprovingId(key);
-    const updatePayload = item._area === "salao" ? { salao_approved: true } : { scale_approved: true };
+    const updatePayload = item._area === "salao"
+      ? { salao_approved: true, salao_rejected: false, salao_rejected_reason: "" }
+      : { scale_approved: true, scale_rejected: false, scale_rejected_reason: "" };
     await base44.entities.Event.update(item.id, updatePayload);
     queryClient.invalidateQueries(["events-approvals"]);
     queryClient.invalidateQueries(["events"]);
@@ -37,6 +43,28 @@ export default function Approvals() {
     setApprovingId(null);
     const areaLabel = item._area === "salao" ? "Salão" : "Cozinha";
     toast.success(`Escala do ${areaLabel} de "${item.name}" aprovada!`);
+  };
+
+  const handleReject = async (item) => {
+    const key = `${item.id}_${item._area}`;
+    const reason = rejectReason[key] || "";
+    if (!reason.trim()) {
+      toast.error("Informe o motivo da reprovação.");
+      return;
+    }
+    setRejectingId(key);
+    const updatePayload = item._area === "salao"
+      ? { salao_submitted: false, salao_approved: false, salao_rejected: true, salao_rejected_reason: reason, salao_csv_url: "" }
+      : { scale_submitted: false, scale_approved: false, scale_rejected: true, scale_rejected_reason: reason, scale_csv_url: "", unified_scale_csv_url: "" };
+    await base44.entities.Event.update(item.id, updatePayload);
+    queryClient.invalidateQueries(["events-approvals"]);
+    queryClient.invalidateQueries(["events"]);
+    queryClient.invalidateQueries(["event", item.id]);
+    setRejectingId(null);
+    setShowRejectInput(prev => ({ ...prev, [key]: false }));
+    setRejectReason(prev => ({ ...prev, [key]: "" }));
+    const areaLabel = item._area === "salao" ? "Salão" : "Cozinha";
+    toast.success(`Escala do ${areaLabel} reprovada. ${item._area === "salao" ? "AndreF" : "Juberly"} será notificado.`);
   };
 
   if (loginUser?.role !== "admin" && loginUser?.role !== "aprovador") {
@@ -199,18 +227,44 @@ export default function Approvals() {
                     </a>
                   )}
 
-                  <Button
-                    onClick={() => handleApprove(item)}
-                    disabled={approvingId === itemKey}
-                    className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
-                  >
-                    {approvingId === itemKey ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <CheckCircle2 className="w-4 h-4" />
-                    )}
-                    {approvingId === itemKey ? "Aprovando..." : "Aprovar Escala"}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleApprove(item)}
+                      disabled={approvingId === itemKey}
+                      className="flex-1 h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
+                    >
+                      {approvingId === itemKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                      {approvingId === itemKey ? "Aprovando..." : "Aprovar"}
+                    </Button>
+                    <Button
+                      onClick={() => setShowRejectInput(prev => ({ ...prev, [itemKey]: !prev[itemKey] }))}
+                      variant="outline"
+                      className="flex-1 h-11 border-red-300 text-red-600 hover:bg-red-50 rounded-xl gap-2"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      Reprovar
+                    </Button>
+                  </div>
+
+                  {showRejectInput[itemKey] && (
+                    <div className="space-y-2 pt-1">
+                      <Textarea
+                        placeholder="Motivo da reprovação..."
+                        value={rejectReason[itemKey] || ""}
+                        onChange={e => setRejectReason(prev => ({ ...prev, [itemKey]: e.target.value }))}
+                        className="resize-none text-sm"
+                        rows={3}
+                      />
+                      <Button
+                        onClick={() => handleReject(item)}
+                        disabled={rejectingId === itemKey}
+                        className="w-full h-10 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
+                      >
+                        {rejectingId === itemKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                        {rejectingId === itemKey ? "Reprovando..." : "Confirmar Reprovação"}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               );
             })}
