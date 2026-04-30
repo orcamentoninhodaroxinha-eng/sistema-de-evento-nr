@@ -472,68 +472,68 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             </div>
 
             <div data-scroll-area className="flex-1 flex flex-col justify-between px-4 py-2 gap-2">
-              <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
-                <p className="text-xs text-amber-700 font-medium">⭐ Será marcado como <strong>NOVO</strong> no Excel.</p>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
+                <p className="text-[11px] text-amber-700 font-medium">⭐ Será marcado como <strong>NOVO</strong> no Excel.</p>
               </div>
 
-              <div className="space-y-1">
-                <Label className="text-sm font-semibold">Nome Completo *</Label>
+              <div className="space-y-0.5">
+                <Label className="text-xs font-semibold">Nome Completo *</Label>
                 <Input
                   placeholder="Ex: João da Silva"
                   value={newEmpName}
                   onChange={e => setNewEmpName(e.target.value)}
-                  className="h-10 text-sm rounded-xl"
+                  className="h-9 text-sm rounded-lg"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <Label className="text-sm font-semibold">Chave Pix *</Label>
+                <div className="space-y-0.5">
+                  <Label className="text-xs font-semibold">Chave Pix *</Label>
                   <Input
                     placeholder="CPF, e-mail..."
                     value={newEmpPix}
                     onChange={e => setNewEmpPix(e.target.value)}
-                    className="h-10 text-sm rounded-xl"
+                    className="h-9 text-sm rounded-lg"
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-sm font-semibold">Celular</Label>
+                <div className="space-y-0.5">
+                  <Label className="text-xs font-semibold">Celular</Label>
                   <Input
                     placeholder="(11) 99999-9999"
                     value={newEmpCelular}
                     onChange={e => setNewEmpCelular(e.target.value)}
                     inputMode="tel"
-                    className="h-10 text-sm rounded-xl"
+                    className="h-9 text-sm rounded-lg"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <Label className="text-sm font-semibold">Função *</Label>
+                <div className="space-y-0.5">
+                  <Label className="text-xs font-semibold">Função *</Label>
                   <Input
                     placeholder="Ex: Cozinheira..."
                     value={newEmpFuncao}
                     onChange={e => setNewEmpFuncao(e.target.value)}
-                    className="h-10 text-sm rounded-xl"
+                    className="h-9 text-sm rounded-lg"
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-sm font-semibold">Valor (R$) *</Label>
+                <div className="space-y-0.5">
+                  <Label className="text-xs font-semibold">Valor (R$) *</Label>
                   <Input
                     placeholder="Ex: 150"
                     value={newEmpValor}
                     onChange={e => setNewEmpValor(e.target.value)}
                     inputMode="numeric"
-                    className="h-10 text-sm rounded-xl"
+                    className="h-9 text-sm rounded-lg"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="px-4 pb-8 pt-3 border-t border-border">
-              <Button onClick={handleAddNewEmployee} className="w-full h-14 text-base rounded-2xl gap-2 bg-amber-500 hover:bg-amber-600 text-white">
-                <Plus className="w-5 h-5" />
+            <div className="px-4 pb-6 pt-2 border-t border-border">
+              <Button onClick={handleAddNewEmployee} className="w-full h-11 text-sm rounded-xl gap-2 bg-amber-500 hover:bg-amber-600 text-white">
+                <Plus className="w-4 h-4" />
                 Adicionar à Escala
               </Button>
             </div>
