@@ -220,7 +220,7 @@ export default function Events() {
           <TabsContent value="proximos" className="space-y-3">
             {displayedActiveEvents.length > 0 ? (
               <>
-                <div className="grid gap-3">
+                <div className="grid gap-3 w-full">
                   {displayedActiveEvents.map((event) => (
                     <EventCard
                       key={event.id}
