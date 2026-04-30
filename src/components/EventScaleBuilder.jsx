@@ -471,7 +471,7 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
               <h2 className="font-bold text-base flex-1 text-center pr-16">Novo Funcionário</h2>
             </div>
 
-            <div data-scroll-area className="flex-1 overflow-y-auto px-4 py-3 space-y-3" style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
+            <div data-scroll-area className="flex-1 flex flex-col justify-between px-4 py-2 gap-2">
               <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
                 <p className="text-xs text-amber-700 font-medium">⭐ Será marcado como <strong>NOVO</strong> no Excel.</p>
               </div>
