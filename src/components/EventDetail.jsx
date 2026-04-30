@@ -26,7 +26,7 @@ import { toast } from "@/components/ui/use-toast";
 export default function EventDetail({ event, onBack, onRefresh }) {
   const loginUser = useLoginUser();
   const isJuberly = loginUser?.role === "cozinha";
-  const isAndreF = loginUser?.role === "salao" || loginUser?.role === "cozinha";
+  const isAndreF = loginUser?.role === "salao";
   const isAdmin = loginUser?.role === "admin" || loginUser?.role === "aprovador";
   const [showScaleBuilder, setShowScaleBuilder] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
