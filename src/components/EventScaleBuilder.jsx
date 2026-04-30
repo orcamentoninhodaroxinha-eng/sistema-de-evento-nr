@@ -435,109 +435,107 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
       {/* Dialog: Novo Funcionário */}
       <AnimatePresence>
         {showNewEmpDialog && (
-          <>
-            {/* Overlay */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-              onClick={() => { setShowNewEmpDialog(false); newEmpDragY.set(0); }}
-            />
-            {/* Bottom Sheet */}
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 320 }}
-              style={{ y: newEmpDragY }}
-              className="fixed bottom-0 left-0 right-0 z-50 bg-background flex flex-col rounded-t-3xl shadow-2xl"
-              onTouchStart={(e) => {
-                if (e.target.closest("[data-scroll-area]")) return;
-                newEmpTouchStart.current = e.touches[0].clientY;
-              }}
-              onTouchMove={(e) => {
-                if (newEmpTouchStart.current === null) return;
-                const dy = e.touches[0].clientY - newEmpTouchStart.current;
-                if (dy > 0) newEmpDragY.set(dy);
-              }}
-              onTouchEnd={() => {
-                if (newEmpTouchStart.current === null) return;
-                if (newEmpDragY.get() > 100) {
-                  setShowNewEmpDialog(false);
-                  newEmpDragY.set(0);
-                } else {
-                  newEmpDragY.set(0);
-                }
-                newEmpTouchStart.current = null;
-              }}
-              style={{ y: newEmpDragY, maxHeight: "92dvh" }}
-            >
-              {/* Drag handle */}
-              <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none shrink-0">
-                <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+          <motion.div
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 28, stiffness: 300 }}
+            style={{ y: newEmpDragY, opacity: newEmpOpacity }}
+            className="fixed inset-0 z-50 bg-background flex flex-col"
+            onTouchStart={(e) => {
+              if (e.target.closest("[data-scroll-area]")) return;
+              newEmpTouchStart.current = e.touches[0].clientY;
+            }}
+            onTouchMove={(e) => {
+              if (newEmpTouchStart.current === null) return;
+              const dy = e.touches[0].clientY - newEmpTouchStart.current;
+              if (dy > 0) newEmpDragY.set(dy);
+            }}
+            onTouchEnd={() => {
+              if (newEmpTouchStart.current === null) return;
+              if (newEmpDragY.get() > 100) setShowNewEmpDialog(false);
+              newEmpDragY.set(0);
+              newEmpTouchStart.current = null;
+            }}
+          >
+            {/* Handle visual */}
+            <div className="flex justify-center pt-4 pb-3 select-none">
+              <div className="w-12 h-1.5 rounded-full bg-muted-foreground/25" />
+            </div>
+
+            <div className="flex items-center px-4 pt-2 pb-4 border-b border-border gap-2">
+              <button onClick={() => { setShowNewEmpDialog(false); newEmpDragY.set(0); }} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-1 p-1">
+                <ChevronLeft className="w-5 h-5" />
+                Voltar
+              </button>
+              <h2 className="font-bold text-base flex-1 text-center pr-16">Novo Funcionário</h2>
+            </div>
+
+            <div data-scroll-area className="flex-1 overflow-y-auto px-4 py-6 space-y-5" style={{ touchAction: "pan-y" }}>
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
+                <p className="text-xs text-amber-700 font-medium">⭐ Este funcionário será marcado como <strong>NOVO</strong> no Excel gerado.</p>
               </div>
 
-              {/* Header */}
-              <div className="flex items-center px-4 pt-1 pb-3 border-b border-border gap-2 shrink-0">
-                <button
-                  onClick={() => { setShowNewEmpDialog(false); newEmpDragY.set(0); }}
-                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-1 p-1"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                  Voltar
-                </button>
-                <h2 className="font-bold text-base flex-1 text-center pr-16">Novo Funcionário</h2>
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Nome Completo *</Label>
+                <Input
+                  placeholder="Ex: João da Silva"
+                  value={newEmpName}
+                  onChange={e => setNewEmpName(e.target.value)}
+                  className="h-12 text-base rounded-xl"
+                />
               </div>
 
-              {/* Scrollable content */}
-              <div
-                data-scroll-area
-                className="flex-1 overflow-y-auto px-4 py-5 space-y-4"
-                style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}
-              >
-                <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
-                  <p className="text-xs text-amber-700 font-medium">⭐ Este funcionário será marcado como <strong>NOVO</strong> no Excel gerado.</p>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-semibold">Nome Completo *</Label>
-                  <Input placeholder="Ex: João da Silva" value={newEmpName} onChange={e => setNewEmpName(e.target.value)} className="h-12 text-base rounded-xl" />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-semibold">Chave Pix</Label>
-                  <Input placeholder="CPF, e-mail, telefone ou chave aleatória" value={newEmpPix} onChange={e => setNewEmpPix(e.target.value)} className="h-12 text-base rounded-xl" />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-semibold">Celular</Label>
-                  <Input placeholder="Ex: (11) 99999-9999" value={newEmpCelular} onChange={e => setNewEmpCelular(e.target.value)} inputMode="tel" className="h-12 text-base rounded-xl" />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-semibold">Função no Evento *</Label>
-                  <Input placeholder="Ex: Cozinheira, Garçom..." value={newEmpFuncao} onChange={e => setNewEmpFuncao(e.target.value)} className="h-12 text-base rounded-xl" />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-semibold">Valor do Extra (R$) *</Label>
-                  <Input placeholder="Ex: 150" value={newEmpValor} onChange={e => setNewEmpValor(e.target.value)} inputMode="numeric" className="h-12 text-base rounded-xl" />
-                </div>
-
-                {/* Espaço extra para não ficar atrás do botão */}
-                <div className="h-4" />
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Chave Pix *</Label>
+                <Input
+                  placeholder="CPF, e-mail, telefone ou chave aleatória"
+                  value={newEmpPix}
+                  onChange={e => setNewEmpPix(e.target.value)}
+                  className="h-12 text-base rounded-xl"
+                />
               </div>
 
-              {/* Botão fixo no fundo */}
-              <div className="px-4 pt-3 pb-safe border-t border-border shrink-0" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>
-                <Button onClick={handleAddNewEmployee} className="w-full h-14 text-base rounded-2xl gap-2 bg-amber-500 hover:bg-amber-600 text-white">
-                  <Plus className="w-5 h-5" />
-                  Adicionar à Escala
-                </Button>
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Celular</Label>
+                <Input
+                  placeholder="Ex: (11) 99999-9999"
+                  value={newEmpCelular}
+                  onChange={e => setNewEmpCelular(e.target.value)}
+                  inputMode="tel"
+                  className="h-12 text-base rounded-xl"
+                />
               </div>
-            </motion.div>
-          </>
+
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Função no Evento *</Label>
+                <Input
+                  placeholder="Ex: Cozinheira, Garçom..."
+                  value={newEmpFuncao}
+                  onChange={e => setNewEmpFuncao(e.target.value)}
+                  className="h-12 text-base rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Valor do Extra (R$) *</Label>
+                <Input
+                  placeholder="Ex: 150"
+                  value={newEmpValor}
+                  onChange={e => setNewEmpValor(e.target.value)}
+                  inputMode="numeric"
+                  className="h-12 text-base rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="px-4 pb-8 pt-3 border-t border-border">
+              <Button onClick={handleAddNewEmployee} className="w-full h-14 text-base rounded-2xl gap-2 bg-amber-500 hover:bg-amber-600 text-white">
+                <Plus className="w-5 h-5" />
+                Adicionar à Escala
+              </Button>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
