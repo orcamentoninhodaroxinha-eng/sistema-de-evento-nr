@@ -471,7 +471,7 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
               <h2 className="font-bold text-base flex-1 text-center pr-16">Novo Funcionário</h2>
             </div>
 
-            <div data-scroll-area className="flex-1 overflow-y-auto px-4 py-6 space-y-5" style={{ touchAction: "pan-y" }}>
+            <div data-scroll-area className="flex-1 overflow-y-auto px-4 py-4 space-y-4" style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
               <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
                 <p className="text-xs text-amber-700 font-medium">⭐ Este funcionário será marcado como <strong>NOVO</strong> no Excel gerado.</p>
               </div>
