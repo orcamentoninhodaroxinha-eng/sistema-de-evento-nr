@@ -364,7 +364,6 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                         setScaleSubmitted(true);
                         setScaleRejected(false);
                         setSubmitting(false);
-                        toast({ title: "Escala enviada para aprovação!" });
                       }}
                       disabled={submitting}
                       className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2"
@@ -534,7 +533,6 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                         setSalaoSubmitted(true);
                         setSalaoRejected(false);
                         setSubmitting(false);
-                        toast({ title: "Escala enviada para aprovação!" });
                       }}
                       disabled={submitting}
                       className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2"
