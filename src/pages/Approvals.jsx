@@ -120,149 +120,115 @@ export default function Approvals() {
           <div className="space-y-4">
             {/* Eventos com ambas escalas submetidas — mostra unificado com aprovação individual */}
             {unifiedEvents.map((ev) => (
-              <div key={`unified_${ev.id}`} className="bg-card rounded-2xl p-5 shadow-sm space-y-4 border border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 bg-gradient-to-br from-primary/20 to-purple-200">
-                      <span className="text-[10px] font-medium uppercase text-primary/70">
+              <div key={`unified_${ev.id}`} className="bg-card rounded-xl p-3 shadow-sm space-y-2 border border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-lg flex flex-col items-center justify-center shrink-0 bg-gradient-to-br from-primary/20 to-purple-200">
+                      <span className="text-[9px] font-medium uppercase text-primary/70">
                         {ev.date ? format(new Date(ev.date), "MMM", { locale: ptBR }) : "---"}
                       </span>
-                      <span className="text-lg font-bold leading-none text-primary">
+                      <span className="text-sm font-bold leading-none text-primary">
                         {ev.date ? format(new Date(ev.date), "dd") : "--"}
                       </span>
                     </div>
                     <div>
-                      <h2 className="font-bold text-base">{ev.name}</h2>
+                      <h2 className="font-bold text-sm leading-tight">{ev.name}</h2>
                       {ev.location && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3" />
-                          {ev.location}
+                        <p className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                          <MapPin className="w-2.5 h-2.5" />{ev.location}
                         </p>
                       )}
-                      <p className="text-xs text-primary font-semibold mt-1">🍳 Cozinha + 🍽️ Salão Prontos</p>
+                      <p className="text-[11px] text-primary font-semibold">🍳 Cozinha + 🍽️ Salão</p>
                     </div>
                   </div>
-                  <span className="text-xs font-medium px-2.5 py-1 rounded-full shrink-0 border bg-primary/10 text-primary border-primary/30">
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0 border bg-primary/10 text-primary border-primary/30">
                     📊 Unificada
                   </span>
                 </div>
 
-                {/* Excel unificado */}
                 {ev.unified_scale_csv_url ? (
                   <>
-                    <a
-                      href={ev.unified_scale_csv_url}
-                      download
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm font-medium transition-colors border border-primary/40 bg-primary/5 text-primary hover:bg-primary/10"
-                    >
-                      <FileSpreadsheet className="w-4 h-4" />
-                      Ver Excel Unificado
+                    <a href={ev.unified_scale_csv_url} download target="_blank" rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-1.5 w-full h-8 rounded-lg text-xs font-medium transition-colors border border-primary/40 bg-primary/5 text-primary hover:bg-primary/10">
+                      <FileSpreadsheet className="w-3.5 h-3.5" />Ver Excel Unificado
                     </a>
-                    {/* Cálculo financeiro */}
-                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
+                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-lg p-3">
                       <FinanceCalcBox event={ev} csvUrl={ev.unified_scale_csv_url} editable={true} />
                     </div>
                   </>
                 ) : (
-                  <div className="flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm text-muted-foreground border border-dashed border-border">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Gerando Excel Unificado...
+                  <div className="flex items-center justify-center gap-2 w-full h-8 rounded-lg text-xs text-muted-foreground border border-dashed border-border">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />Gerando Excel...
                   </div>
                 )}
 
-                {/* Aprovação individual — Cozinha */}
                 {!ev.scale_approved && (
-                  <div className="space-y-2 bg-orange-50 border border-orange-200 rounded-xl p-3">
-                    <p className="text-xs font-semibold text-orange-700">🍳 Cozinha</p>
-                    <Button
-                      onClick={() => handleApprove({ ...ev, _area: "cozinha" })}
-                      disabled={approvingId === `${ev.id}_cozinha`}
-                      className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
-                    >
-                      {approvingId === `${ev.id}_cozinha` ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                      {approvingId === `${ev.id}_cozinha` ? "Aprovando..." : "Aprovar Cozinha"}
-                    </Button>
-                    <Button
-                      onClick={() => setShowRejectInput(prev => ({ ...prev, [`${ev.id}_cozinha`]: !prev[`${ev.id}_cozinha`] }))}
-                      variant="outline"
-                      className="w-full h-10 border-red-300 text-red-600 rounded-xl gap-2 hover:bg-red-50"
-                    >
-                      <XCircle className="w-4 h-4" />
-                      {showRejectInput[`${ev.id}_cozinha`] ? "Cancelar" : "Reprovar Cozinha"}
-                    </Button>
+                  <div className="space-y-1.5 bg-orange-50 border border-orange-200 rounded-lg p-2.5">
+                    <p className="text-[11px] font-semibold text-orange-700">🍳 Cozinha</p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <Button onClick={() => handleApprove({ ...ev, _area: "cozinha" })} disabled={approvingId === `${ev.id}_cozinha`}
+                        className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg gap-1">
+                        {approvingId === `${ev.id}_cozinha` ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                        Aprovar
+                      </Button>
+                      <Button onClick={() => setShowRejectInput(prev => ({ ...prev, [`${ev.id}_cozinha`]: !prev[`${ev.id}_cozinha`] }))}
+                        variant="outline" className="h-8 text-xs border-red-300 text-red-600 rounded-lg gap-1 hover:bg-red-50">
+                        <XCircle className="w-3 h-3" />
+                        {showRejectInput[`${ev.id}_cozinha`] ? "Cancelar" : "Reprovar"}
+                      </Button>
+                    </div>
                     {showRejectInput[`${ev.id}_cozinha`] && (
-                      <div className="space-y-2">
-                        <Textarea
-                          placeholder="Motivo da reprovação da cozinha..."
-                          value={rejectReason[`${ev.id}_cozinha`] || ""}
+                      <div className="space-y-1.5">
+                        <Textarea placeholder="Motivo..." value={rejectReason[`${ev.id}_cozinha`] || ""}
                           onChange={e => setRejectReason(prev => ({ ...prev, [`${ev.id}_cozinha`]: e.target.value }))}
-                          className="resize-none text-sm"
-                          rows={3}
-                        />
-                        <Button
-                          onClick={() => handleReject({ ...ev, _area: "cozinha" })}
-                          disabled={rejectingId === `${ev.id}_cozinha`}
-                          className="w-full h-10 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
-                        >
-                          {rejectingId === `${ev.id}_cozinha` ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                          {rejectingId === `${ev.id}_cozinha` ? "Reprovando..." : "Confirmar Reprovação"}
+                          className="resize-none text-xs" rows={2} />
+                        <Button onClick={() => handleReject({ ...ev, _area: "cozinha" })} disabled={rejectingId === `${ev.id}_cozinha`}
+                          className="w-full h-8 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg gap-1">
+                          {rejectingId === `${ev.id}_cozinha` ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3" />}
+                          Confirmar Reprovação
                         </Button>
                       </div>
                     )}
                   </div>
                 )}
                 {ev.scale_approved && (
-                  <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700 font-medium">
-                    <CheckCircle2 className="w-4 h-4" /> Cozinha aprovada
+                  <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 text-xs text-emerald-700 font-medium">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Cozinha aprovada
                   </div>
                 )}
 
-                {/* Aprovação individual — Salão */}
                 {!ev.salao_approved && (
-                  <div className="space-y-2 bg-blue-50 border border-blue-200 rounded-xl p-3">
-                    <p className="text-xs font-semibold text-blue-700">🍽️ Salão</p>
-                    <Button
-                      onClick={() => handleApprove({ ...ev, _area: "salao" })}
-                      disabled={approvingId === `${ev.id}_salao`}
-                      className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
-                    >
-                      {approvingId === `${ev.id}_salao` ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                      {approvingId === `${ev.id}_salao` ? "Aprovando..." : "Aprovar Salão"}
-                    </Button>
-                    <Button
-                      onClick={() => setShowRejectInput(prev => ({ ...prev, [`${ev.id}_salao`]: !prev[`${ev.id}_salao`] }))}
-                      variant="outline"
-                      className="w-full h-10 border-red-300 text-red-600 rounded-xl gap-2 hover:bg-red-50"
-                    >
-                      <XCircle className="w-4 h-4" />
-                      {showRejectInput[`${ev.id}_salao`] ? "Cancelar" : "Reprovar Salão"}
-                    </Button>
+                  <div className="space-y-1.5 bg-blue-50 border border-blue-200 rounded-lg p-2.5">
+                    <p className="text-[11px] font-semibold text-blue-700">🍽️ Salão</p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <Button onClick={() => handleApprove({ ...ev, _area: "salao" })} disabled={approvingId === `${ev.id}_salao`}
+                        className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg gap-1">
+                        {approvingId === `${ev.id}_salao` ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                        Aprovar
+                      </Button>
+                      <Button onClick={() => setShowRejectInput(prev => ({ ...prev, [`${ev.id}_salao`]: !prev[`${ev.id}_salao`] }))}
+                        variant="outline" className="h-8 text-xs border-red-300 text-red-600 rounded-lg gap-1 hover:bg-red-50">
+                        <XCircle className="w-3 h-3" />
+                        {showRejectInput[`${ev.id}_salao`] ? "Cancelar" : "Reprovar"}
+                      </Button>
+                    </div>
                     {showRejectInput[`${ev.id}_salao`] && (
-                      <div className="space-y-2">
-                        <Textarea
-                          placeholder="Motivo da reprovação do salão..."
-                          value={rejectReason[`${ev.id}_salao`] || ""}
+                      <div className="space-y-1.5">
+                        <Textarea placeholder="Motivo..." value={rejectReason[`${ev.id}_salao`] || ""}
                           onChange={e => setRejectReason(prev => ({ ...prev, [`${ev.id}_salao`]: e.target.value }))}
-                          className="resize-none text-sm"
-                          rows={3}
-                        />
-                        <Button
-                          onClick={() => handleReject({ ...ev, _area: "salao" })}
-                          disabled={rejectingId === `${ev.id}_salao`}
-                          className="w-full h-10 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
-                        >
-                          {rejectingId === `${ev.id}_salao` ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                          {rejectingId === `${ev.id}_salao` ? "Reprovando..." : "Confirmar Reprovação"}
+                          className="resize-none text-xs" rows={2} />
+                        <Button onClick={() => handleReject({ ...ev, _area: "salao" })} disabled={rejectingId === `${ev.id}_salao`}
+                          className="w-full h-8 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg gap-1">
+                          {rejectingId === `${ev.id}_salao` ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3" />}
+                          Confirmar Reprovação
                         </Button>
                       </div>
                     )}
                   </div>
                 )}
                 {ev.salao_approved && (
-                  <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700 font-medium">
-                    <CheckCircle2 className="w-4 h-4" /> Salão aprovado
+                  <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 text-xs text-emerald-700 font-medium">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Salão aprovado
                   </div>
                 )}
               </div>
@@ -274,77 +240,59 @@ export default function Approvals() {
               const itemKey = `${item.id}_${item._area}`;
               const csvUrl = isSalao ? item.salao_csv_url : item.scale_csv_url;
               return (
-                <div key={itemKey} className={`bg-card rounded-2xl p-5 shadow-sm space-y-4 border ${isSalao ? "border-blue-200" : "border-orange-200"}`}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 ${isSalao ? "bg-gradient-to-br from-blue-100 to-blue-200" : "bg-gradient-to-br from-orange-100 to-orange-200"}`}>
-                        <span className={`text-[10px] font-medium uppercase ${isSalao ? "text-blue-600" : "text-orange-600"}`}>
+                <div key={itemKey} className={`bg-card rounded-xl p-3 shadow-sm space-y-2 border ${isSalao ? "border-blue-200" : "border-orange-200"}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-10 h-10 rounded-lg flex flex-col items-center justify-center shrink-0 ${isSalao ? "bg-gradient-to-br from-blue-100 to-blue-200" : "bg-gradient-to-br from-orange-100 to-orange-200"}`}>
+                        <span className={`text-[9px] font-medium uppercase ${isSalao ? "text-blue-600" : "text-orange-600"}`}>
                           {item.date ? format(new Date(item.date), "MMM", { locale: ptBR }) : "---"}
                         </span>
-                        <span className={`text-lg font-bold leading-none ${isSalao ? "text-blue-700" : "text-orange-700"}`}>
+                        <span className={`text-sm font-bold leading-none ${isSalao ? "text-blue-700" : "text-orange-700"}`}>
                           {item.date ? format(new Date(item.date), "dd") : "--"}
                         </span>
                       </div>
                       <div>
-                        <h2 className="font-bold text-base">{item.name}</h2>
+                        <h2 className="font-bold text-sm leading-tight">{item.name}</h2>
                         {item.location && (
-                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                            <MapPin className="w-3 h-3" />
-                            {item.location}
+                          <p className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                            <MapPin className="w-2.5 h-2.5" />{item.location}
                           </p>
                         )}
                       </div>
                     </div>
-                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 border ${isSalao ? "bg-blue-100 text-blue-700 border-blue-200" : "bg-orange-100 text-orange-700 border-orange-200"}`}>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0 border ${isSalao ? "bg-blue-100 text-blue-700 border-blue-200" : "bg-orange-100 text-orange-700 border-orange-200"}`}>
                       {isSalao ? "🍽️ Salão" : "🍳 Cozinha"}
                     </span>
                   </div>
 
                   {csvUrl && (
-                    <a
-                      href={csvUrl}
-                      download
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`flex items-center justify-center gap-2 w-full h-10 rounded-xl text-sm font-medium transition-colors border ${isSalao ? "border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100" : "border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100"}`}
-                    >
-                      <FileSpreadsheet className="w-4 h-4" />
-                      Ver Excel da Escala
+                    <a href={csvUrl} download target="_blank" rel="noopener noreferrer"
+                      className={`flex items-center justify-center gap-1.5 w-full h-8 rounded-lg text-xs font-medium transition-colors border ${isSalao ? "border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100" : "border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100"}`}>
+                      <FileSpreadsheet className="w-3.5 h-3.5" />Ver Excel da Escala
                     </a>
                   )}
 
-                  <Button
-                    onClick={() => handleApprove(item)}
-                    disabled={approvingId === itemKey}
-                    className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-2"
-                  >
-                    {approvingId === itemKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                    {approvingId === itemKey ? "Aprovando..." : `Aprovar ${isSalao ? "Salão" : "Cozinha"}`}
-                  </Button>
-
-                  <Button
-                    onClick={() => setShowRejectInput(prev => ({ ...prev, [itemKey]: !prev[itemKey] }))}
-                    className="w-full h-11 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
-                  >
-                    <XCircle className="w-4 h-4" />
-                    {showRejectInput[itemKey] ? "Cancelar" : `Reprovar ${isSalao ? "Salão" : "Cozinha"}`}
-                  </Button>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <Button onClick={() => handleApprove(item)} disabled={approvingId === itemKey}
+                      className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg gap-1">
+                      {approvingId === itemKey ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                      {approvingId === itemKey ? "Aprovando..." : `Aprovar`}
+                    </Button>
+                    <Button onClick={() => setShowRejectInput(prev => ({ ...prev, [itemKey]: !prev[itemKey] }))}
+                      className="h-8 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg gap-1">
+                      <XCircle className="w-3 h-3" />
+                      {showRejectInput[itemKey] ? "Cancelar" : "Reprovar"}
+                    </Button>
+                  </div>
 
                   {showRejectInput[itemKey] && (
-                    <div className="space-y-2 pt-1">
-                      <Textarea
-                        placeholder="Motivo da reprovação..."
-                        value={rejectReason[itemKey] || ""}
+                    <div className="space-y-1.5">
+                      <Textarea placeholder="Motivo da reprovação..." value={rejectReason[itemKey] || ""}
                         onChange={e => setRejectReason(prev => ({ ...prev, [itemKey]: e.target.value }))}
-                        className="resize-none text-sm"
-                        rows={3}
-                      />
-                      <Button
-                        onClick={() => handleReject(item)}
-                        disabled={rejectingId === itemKey}
-                        className="w-full h-10 bg-red-600 hover:bg-red-700 text-white rounded-xl gap-2"
-                      >
-                        {rejectingId === itemKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                        className="resize-none text-xs" rows={2} />
+                      <Button onClick={() => handleReject(item)} disabled={rejectingId === itemKey}
+                        className="w-full h-8 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg gap-1">
+                        {rejectingId === itemKey ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3" />}
                         {rejectingId === itemKey ? "Reprovando..." : "Confirmar Reprovação"}
                       </Button>
                     </div>
