@@ -12,20 +12,20 @@ export default function EventFormPage() {
 
   return (
     <PageTransition>
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto px-3 py-4">
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
-          className="gap-2 mb-6 -ml-2 text-muted-foreground hover:text-foreground"
+          className="gap-2 mb-3 -ml-2 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="w-4 h-4" />
           Voltar
         </Button>
 
-        <div className="bg-white rounded-2xl border border-border/60 p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold">Novo Evento</h1>
-            <p className="text-muted-foreground text-sm mt-1">Preencha os dados para criar um novo evento</p>
+        <div className="bg-white rounded-2xl border border-border/60 p-4">
+          <div className="mb-4">
+            <h1 className="text-xl font-bold">Novo Evento</h1>
+            <p className="text-muted-foreground text-xs mt-0.5">Preencha os dados para criar um novo evento</p>
           </div>
 
           <EventForm onSuccess={() => navigate("/")} isAdmin={isAdmin} />

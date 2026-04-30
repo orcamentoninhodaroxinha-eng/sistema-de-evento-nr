@@ -59,120 +59,111 @@ export default function EventForm({ onSuccess, isAdmin = false }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="space-y-2">
-        <Label htmlFor="name">Nome do Evento *</Label>
-        <Input
-          id="name"
-          placeholder="Ex: Festa de Formatura"
-          value={formData.name}
-          onChange={(e) => handleChange("name", e.target.value)}
-          className="h-11 rounded-xl"
-        />
+    <form onSubmit={handleSubmit} className="space-y-3">
+      {/* Nome + Data lado a lado no mobile */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="col-span-2 space-y-1">
+          <Label htmlFor="name" className="text-xs font-semibold">Nome do Evento *</Label>
+          <Input
+            id="name"
+            placeholder="Ex: Festa de Formatura"
+            value={formData.name}
+            onChange={(e) => handleChange("name", e.target.value)}
+            className="h-9 rounded-lg text-sm"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="date" className="text-xs font-semibold">Data *</Label>
+          <Input
+            id="date"
+            type="date"
+            value={formData.date}
+            onChange={(e) => handleChange("date", e.target.value)}
+            className="h-9 rounded-lg text-sm"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="guest_count" className="text-xs font-semibold flex items-center gap-1"><Users className="w-3 h-3" /> Convidados</Label>
+          <Input id="guest_count" type="number" placeholder="Ex: 200" value={formData.guest_count} onChange={(e) => handleChange("guest_count", e.target.value)} className="h-9 rounded-lg text-sm" />
+        </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="date">Data *</Label>
-        <Input
-          id="date"
-          type="date"
-          value={formData.date}
-          onChange={(e) => handleChange("date", e.target.value)}
-          className="h-11 rounded-xl"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="location">Local</Label>
+      <div className="space-y-1">
+        <Label htmlFor="location" className="text-xs font-semibold">Local</Label>
         <Input
           id="location"
           placeholder="Ex: Salão Principal"
           value={formData.location}
           onChange={(e) => handleChange("location", e.target.value)}
-          className="h-11 rounded-xl"
+          className="h-9 rounded-lg text-sm"
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="description">Descrição</Label>
+      <div className="space-y-1">
+        <Label htmlFor="description" className="text-xs font-semibold">Descrição</Label>
         <Textarea
           id="description"
           placeholder="Detalhes do evento..."
           value={formData.description}
           onChange={(e) => handleChange("description", e.target.value)}
-          className="rounded-xl min-h-24"
+          className="rounded-lg text-sm min-h-[60px] resize-none"
         />
       </div>
 
-      {/* Horários */}
-      <div className="space-y-2">
-        <Label className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Horários da Cerimônia</Label>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1">
-            <Label htmlFor="ceremony_start" className="text-xs text-muted-foreground">Início</Label>
-            <Input id="ceremony_start" type="time" value={formData.ceremony_start} onChange={(e) => handleChange("ceremony_start", e.target.value)} className="h-10 rounded-xl" />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="ceremony_end" className="text-xs text-muted-foreground">Término</Label>
-            <Input id="ceremony_end" type="time" value={formData.ceremony_end} onChange={(e) => handleChange("ceremony_end", e.target.value)} className="h-10 rounded-xl" />
-          </div>
+      {/* Horários em grid compacto */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold flex items-center gap-1"><Clock className="w-3 h-3" /> Cerimônia início</Label>
+          <Input id="ceremony_start" type="time" value={formData.ceremony_start} onChange={(e) => handleChange("ceremony_start", e.target.value)} className="h-9 rounded-lg text-sm" />
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Horários da Festa</Label>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1">
-            <Label htmlFor="party_start" className="text-xs text-muted-foreground">Início</Label>
-            <Input id="party_start" type="time" value={formData.party_start} onChange={(e) => handleChange("party_start", e.target.value)} className="h-10 rounded-xl" />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="party_end" className="text-xs text-muted-foreground">Término</Label>
-            <Input id="party_end" type="time" value={formData.party_end} onChange={(e) => handleChange("party_end", e.target.value)} className="h-10 rounded-xl" />
-          </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold flex items-center gap-1"><Clock className="w-3 h-3" /> Cerimônia fim</Label>
+          <Input id="ceremony_end" type="time" value={formData.ceremony_end} onChange={(e) => handleChange("ceremony_end", e.target.value)} className="h-9 rounded-lg text-sm" />
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="guest_count" className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> Nº de Convidados</Label>
-        <Input id="guest_count" type="number" placeholder="Ex: 200" value={formData.guest_count} onChange={(e) => handleChange("guest_count", e.target.value)} className="h-11 rounded-xl" />
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold flex items-center gap-1"><Clock className="w-3 h-3" /> Festa início</Label>
+          <Input id="party_start" type="time" value={formData.party_start} onChange={(e) => handleChange("party_start", e.target.value)} className="h-9 rounded-lg text-sm" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold flex items-center gap-1"><Clock className="w-3 h-3" /> Festa fim</Label>
+          <Input id="party_end" type="time" value={formData.party_end} onChange={(e) => handleChange("party_end", e.target.value)} className="h-9 rounded-lg text-sm" />
+        </div>
       </div>
 
       {isAdmin && (
-        <div className="space-y-2">
-          <Label htmlFor="sale_value" className="flex items-center gap-1.5 text-emerald-700">
-            <DollarSign className="w-3.5 h-3.5" /> Valor de Venda do Evento <span className="text-xs text-muted-foreground">(apenas você vê)</span>
+        <div className="space-y-1">
+          <Label htmlFor="sale_value" className="text-xs font-semibold flex items-center gap-1 text-emerald-700">
+            <DollarSign className="w-3 h-3" /> Valor de Venda <span className="text-muted-foreground font-normal">(só você vê)</span>
           </Label>
           <Input
             id="sale_value"
             placeholder="Ex: 15000"
             value={formData.sale_value}
             onChange={(e) => handleChange("sale_value", e.target.value)}
-            className="h-11 rounded-xl border-emerald-200 focus-visible:ring-emerald-400"
+            className="h-9 rounded-lg text-sm border-emerald-200 focus-visible:ring-emerald-400"
           />
         </div>
       )}
 
-      <div className="space-y-2">
-        <Label htmlFor="status">Status</Label>
-        <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
-          <SelectTrigger className="h-11 rounded-xl">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Planejado">Planejado</SelectItem>
-            <SelectItem value="Em Andamento">Em Andamento</SelectItem>
-            <SelectItem value="Concluído">Concluído</SelectItem>
-            <SelectItem value="Cancelado">Cancelado</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="flex gap-3 pt-4">
+      <div className="grid grid-cols-2 gap-2 items-end">
+        <div className="space-y-1">
+          <Label htmlFor="status" className="text-xs font-semibold">Status</Label>
+          <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
+            <SelectTrigger className="h-9 rounded-lg text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Planejado">Planejado</SelectItem>
+              <SelectItem value="Em Andamento">Em Andamento</SelectItem>
+              <SelectItem value="Concluído">Concluído</SelectItem>
+              <SelectItem value="Cancelado">Cancelado</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <Button
           type="submit"
           disabled={loading}
-          className="flex-1 h-11 rounded-xl font-semibold gap-2"
+          className="h-9 rounded-lg font-semibold gap-2 text-sm"
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
           {loading ? "Criando..." : "Criar Evento"}
