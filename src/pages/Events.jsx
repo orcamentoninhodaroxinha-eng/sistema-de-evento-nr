@@ -38,10 +38,10 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish, isAdmin }) {
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-purple-100 flex flex-col items-center justify-center shrink-0">
           <span className="text-xs font-medium text-primary/70 uppercase">
-            {event.date ? format(new Date(event.date), "MMM", { locale: ptBR }) : "---"}
+            {event.date ? format(new Date(event.date + "T12:00:00"), "MMM", { locale: ptBR }) : "---"}
           </span>
           <span className="text-lg font-bold text-primary leading-none">
-            {event.date ? format(new Date(event.date), "dd") : "--"}
+            {event.date ? format(new Date(event.date + "T12:00:00"), "dd") : "--"}
           </span>
         </div>
         <div className="flex-1 min-w-0">
