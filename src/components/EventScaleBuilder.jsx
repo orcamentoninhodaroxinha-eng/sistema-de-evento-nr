@@ -442,24 +442,24 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
             style={{ y: newEmpDragY, opacity: newEmpOpacity }}
             className="fixed inset-0 z-50 bg-background flex flex-col"
+            onTouchStart={(e) => {
+              if (e.target.closest("[data-scroll-area]")) return;
+              newEmpTouchStart.current = e.touches[0].clientY;
+            }}
+            onTouchMove={(e) => {
+              if (newEmpTouchStart.current === null) return;
+              const dy = e.touches[0].clientY - newEmpTouchStart.current;
+              if (dy > 0) newEmpDragY.set(dy);
+            }}
+            onTouchEnd={() => {
+              if (newEmpTouchStart.current === null) return;
+              if (newEmpDragY.get() > 100) setShowNewEmpDialog(false);
+              newEmpDragY.set(0);
+              newEmpTouchStart.current = null;
+            }}
           >
-            {/* Handle visual — drag only here */}
-            <div
-              className="flex justify-center pt-4 pb-3 select-none cursor-grab active:cursor-grabbing"
-              style={{ touchAction: "none" }}
-              onTouchStart={(e) => { newEmpTouchStart.current = e.touches[0].clientY; }}
-              onTouchMove={(e) => {
-                if (newEmpTouchStart.current === null) return;
-                const dy = e.touches[0].clientY - newEmpTouchStart.current;
-                if (dy > 0) newEmpDragY.set(dy);
-              }}
-              onTouchEnd={() => {
-                if (newEmpTouchStart.current === null) return;
-                if (newEmpDragY.get() > 100) setShowNewEmpDialog(false);
-                newEmpDragY.set(0);
-                newEmpTouchStart.current = null;
-              }}
-            >
+            {/* Handle visual */}
+            <div className="flex justify-center pt-4 pb-3 select-none">
               <div className="w-12 h-1.5 rounded-full bg-muted-foreground/25" />
             </div>
 
