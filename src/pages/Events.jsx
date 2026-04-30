@@ -33,36 +33,39 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish, isAdmin }) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left bg-white rounded-2xl border border-border/60 p-4 hover:shadow-xl hover:shadow-black/5 hover:-translate-y-0.5 hover:border-primary/20 transition-all duration-300 group"
+      className="w-full text-left bg-white rounded-xl border border-border/60 px-3 py-3 active:scale-[0.99] hover:border-primary/20 transition-all duration-200 group"
     >
-      <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-purple-100 flex flex-col items-center justify-center shrink-0">
-          <span className="text-xs font-medium text-primary/70 uppercase">
+      <div className="flex items-center gap-3">
+        {/* Data */}
+        <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-primary/10 to-purple-100 flex flex-col items-center justify-center shrink-0">
+          <span className="text-[10px] font-medium text-primary/70 uppercase leading-none">
             {event.date ? format(new Date(event.date + "T12:00:00"), "MMM", { locale: ptBR }) : "---"}
           </span>
-          <span className="text-lg font-bold text-primary leading-none">
+          <span className="text-base font-bold text-primary leading-none">
             {event.date ? format(new Date(event.date + "T12:00:00"), "dd") : "--"}
           </span>
         </div>
+
+        {/* Conteúdo */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <h3 className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors leading-tight">
               {event.name}
             </h3>
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${statusColors[event.status] || statusColors.Planejado}`}>
+            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full border shrink-0 ${statusColors[event.status] || statusColors.Planejado}`}>
               {event.status || "Planejado"}
             </span>
           </div>
-          <div className="mt-1.5 flex items-center gap-3 text-sm text-muted-foreground">
+          <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
             {event.location && (
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5" />
-                {event.location}
+              <span className="flex items-center gap-0.5 truncate max-w-[120px]">
+                <MapPin className="w-3 h-3 shrink-0" />
+                <span className="truncate">{event.location}</span>
               </span>
             )}
-            <span className="flex items-center gap-1">
-              <Users className="w-3.5 h-3.5" />
-              {event.employees?.length || 0} funcionário(s)
+            <span className="flex items-center gap-0.5 shrink-0">
+              <Users className="w-3 h-3" />
+              {event.employees?.length || 0} func.
             </span>
           </div>
           {event.receipts_pdf_url && (
@@ -71,18 +74,20 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish, isAdmin }) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg hover:bg-emerald-100 transition-colors"
+              className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md hover:bg-emerald-100 transition-colors"
             >
-              <FileDown className="w-3.5 h-3.5" />
-              Baixar PDF dos Recibos
+              <FileDown className="w-3 h-3" />
+              PDF dos Recibos
             </a>
           )}
         </div>
+
+        {/* Menu admin */}
         {isAdmin && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors">
-                <MoreVertical className="w-4 h-4 text-muted-foreground" />
+              <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors shrink-0">
+                <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -99,7 +104,7 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish, isAdmin }) {
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-        </div>
+      </div>
     </button>
   );
 }
