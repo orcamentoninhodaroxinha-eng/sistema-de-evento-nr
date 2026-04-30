@@ -153,8 +153,12 @@ export default function Events() {
     return ev.name?.toLowerCase().includes(q) || ev.location?.toLowerCase().includes(q);
   });
 
-  const activeEvents = filtered.filter(ev => ev.status !== "Concluído");
-  const finishedEvents = filtered.filter(ev => ev.status === "Concluído");
+  const activeEvents = filtered
+    .filter(ev => ev.status !== "Concluído")
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+  const finishedEvents = filtered
+    .filter(ev => ev.status === "Concluído")
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const displayedActiveEvents = activeEvents.slice(startIndex, startIndex + itemsPerPage);
