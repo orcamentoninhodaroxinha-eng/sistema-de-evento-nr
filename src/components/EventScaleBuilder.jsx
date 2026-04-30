@@ -471,61 +471,63 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
               <h2 className="font-bold text-base flex-1 text-center pr-16">Novo Funcionário</h2>
             </div>
 
-            <div data-scroll-area className="flex-1 overflow-y-auto px-4 py-4 space-y-4" style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
-                <p className="text-xs text-amber-700 font-medium">⭐ Este funcionário será marcado como <strong>NOVO</strong> no Excel gerado.</p>
+            <div data-scroll-area className="flex-1 overflow-y-auto px-4 py-3 space-y-3" style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                <p className="text-xs text-amber-700 font-medium">⭐ Será marcado como <strong>NOVO</strong> no Excel.</p>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">Nome Completo *</Label>
+              <div className="space-y-1">
+                <Label className="text-sm font-semibold">Nome Completo *</Label>
                 <Input
                   placeholder="Ex: João da Silva"
                   value={newEmpName}
                   onChange={e => setNewEmpName(e.target.value)}
-                  className="h-12 text-base rounded-xl"
+                  className="h-10 text-sm rounded-xl"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">Chave Pix *</Label>
-                <Input
-                  placeholder="CPF, e-mail, telefone ou chave aleatória"
-                  value={newEmpPix}
-                  onChange={e => setNewEmpPix(e.target.value)}
-                  className="h-12 text-base rounded-xl"
-                />
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-sm font-semibold">Chave Pix *</Label>
+                  <Input
+                    placeholder="CPF, e-mail..."
+                    value={newEmpPix}
+                    onChange={e => setNewEmpPix(e.target.value)}
+                    className="h-10 text-sm rounded-xl"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm font-semibold">Celular</Label>
+                  <Input
+                    placeholder="(11) 99999-9999"
+                    value={newEmpCelular}
+                    onChange={e => setNewEmpCelular(e.target.value)}
+                    inputMode="tel"
+                    className="h-10 text-sm rounded-xl"
+                  />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">Celular</Label>
-                <Input
-                  placeholder="Ex: (11) 99999-9999"
-                  value={newEmpCelular}
-                  onChange={e => setNewEmpCelular(e.target.value)}
-                  inputMode="tel"
-                  className="h-12 text-base rounded-xl"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">Função no Evento *</Label>
-                <Input
-                  placeholder="Ex: Cozinheira, Garçom..."
-                  value={newEmpFuncao}
-                  onChange={e => setNewEmpFuncao(e.target.value)}
-                  className="h-12 text-base rounded-xl"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-base font-semibold">Valor do Extra (R$) *</Label>
-                <Input
-                  placeholder="Ex: 150"
-                  value={newEmpValor}
-                  onChange={e => setNewEmpValor(e.target.value)}
-                  inputMode="numeric"
-                  className="h-12 text-base rounded-xl"
-                />
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-sm font-semibold">Função *</Label>
+                  <Input
+                    placeholder="Ex: Cozinheira..."
+                    value={newEmpFuncao}
+                    onChange={e => setNewEmpFuncao(e.target.value)}
+                    className="h-10 text-sm rounded-xl"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm font-semibold">Valor (R$) *</Label>
+                  <Input
+                    placeholder="Ex: 150"
+                    value={newEmpValor}
+                    onChange={e => setNewEmpValor(e.target.value)}
+                    inputMode="numeric"
+                    className="h-10 text-sm rounded-xl"
+                  />
+                </div>
               </div>
             </div>
 
