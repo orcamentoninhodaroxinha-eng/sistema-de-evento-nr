@@ -206,7 +206,7 @@ export default function Events() {
         </div>
       ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-2 mb-4 max-w-xs">
             <TabsTrigger value="proximos" className="flex items-center gap-2">
               Próximos Eventos
               {activeEvents.length > 0 && <span className="text-xs font-semibold bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center">{activeEvents.length}</span>}
