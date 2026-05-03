@@ -29,7 +29,7 @@ const statusColors = {
   "Cancelado": "bg-slate-50 text-slate-500 border-slate-200",
 };
 
-function EventCard({ event, onClick, onEdit, onDelete, onFinish, isAdmin }) {
+function EventCard({ event, onClick, onEdit, onDelete, onFinish, onReactivate, isAdmin, isNinho }) {
   return (
     <button
       onClick={onClick}
@@ -95,6 +95,12 @@ function EventCard({ event, onClick, onEdit, onDelete, onFinish, isAdmin }) {
                 <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onFinish(event); }} className="text-emerald-600">
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Finalizar Evento
+                </DropdownMenuItem>
+              )}
+              {event.status === "Concluído" && isNinho && (
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onReactivate(event); }} className="text-blue-600">
+                  <CalendarDays className="w-4 h-4 mr-2" />
+                  Reativar Evento
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDelete(event); }} className="text-destructive">
@@ -167,6 +173,14 @@ export default function Events() {
   const totalFinishedPages = Math.ceil(finishedEvents.length / itemsPerPage);
 
   const isAdmin = loginUser?.role === 'admin';
+  const isNinho = loginUser?.username === 'Ninho';
+
+  const handleReactivate = async (event) => {
+    if (confirm(`Reativar o evento "${event.name}"?`)) {
+      await base44.entities.Event.update(event.id, { status: "Planejado" });
+      queryClient.invalidateQueries(["events"]);
+    }
+  };
 
   return (
     <PageTransition>
@@ -233,7 +247,9 @@ export default function Events() {
                       onEdit={(ev) => navigate(`/events/${ev.id}/edit`, { state: { event: ev } })}
                       onDelete={handleDelete}
                       onFinish={handleFinish}
+                      onReactivate={handleReactivate}
                       isAdmin={isAdmin}
+                      isNinho={isNinho}
                     />
                   ))}
                 </div>
@@ -285,7 +301,9 @@ export default function Events() {
                       onEdit={(ev) => navigate(`/events/${ev.id}/edit`, { state: { event: ev } })}
                       onDelete={handleDelete}
                       onFinish={handleFinish}
+                      onReactivate={handleReactivate}
                       isAdmin={isAdmin}
+                      isNinho={isNinho}
                     />
                   ))}
                 </div>
