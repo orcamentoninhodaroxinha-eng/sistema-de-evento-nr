@@ -1,3 +1,5 @@
+importScripts("https://cdn.pushalert.co/sw-89134.js");
+
 self.addEventListener('push', function(event) {
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'Ninho da Roxinha';
