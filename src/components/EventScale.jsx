@@ -325,8 +325,7 @@ export default function EventScale({ event, employees, onBack }) {
     });
   };
 
-  const generatePDFForCompleted = async (completedList) => {
-    setGeneratingPdf(true);
+  const buildPDF = async (completedList) => {
     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     const pageW = 210;
     const margin = 20;
@@ -337,8 +336,26 @@ export default function EventScale({ event, employees, onBack }) {
       : "___/___/______";
     const todayStr = format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
 
+    // Pré-carrega todas as imagens em paralelo para ser mais rápido
+    const imageCache = await Promise.all(
+      completedList.map(async (emp) => {
+        const [sigData, photoData] = await Promise.all([
+          (emp.signatureBase64
+            ? Promise.resolve(emp.signatureBase64)
+            : emp.signatureUrl ? toBase64FromUrl(emp.signatureUrl).catch(() => null) : Promise.resolve(null)
+          ),
+          (emp.photoBase64
+            ? Promise.resolve(emp.photoBase64)
+            : emp.photoUrl ? toBase64FromUrl(emp.photoUrl).catch(() => null) : Promise.resolve(null)
+          ),
+        ]);
+        return { sigData, photoData };
+      })
+    );
+
     for (let i = 0; i < completedList.length; i++) {
       const emp = completedList[i];
+      const { sigData, photoData } = imageCache[i];
       if (i > 0) doc.addPage();
 
       let y = 18;
@@ -384,15 +401,11 @@ export default function EventScale({ event, employees, onBack }) {
 
       doc.text("sem mais para o momento, firmo o presente.", margin, y);
       y += 24;
-
       doc.text(`Serra, Espírito Santo ${todayStr}`, pageW - margin, y, { align: "right" });
       y += 28;
 
-      if (emp.signatureBase64 || emp.signatureUrl) {
-        try {
-          const sigData = emp.signatureBase64 || await toBase64FromUrl(emp.signatureUrl);
-          doc.addImage(sigData, "PNG", margin, y - 18, 70, 18, undefined, "FAST");
-        } catch (e) {}
+      if (sigData) {
+        try { doc.addImage(sigData, "PNG", margin, y - 18, 70, 18, undefined, "FAST"); } catch (e) {}
       }
 
       doc.setDrawColor(60, 60, 60);
@@ -403,156 +416,57 @@ export default function EventScale({ event, employees, onBack }) {
       doc.setFontSize(10);
       doc.setTextColor(30, 30, 30);
       doc.text(`${emp.full_name}${pixInfo}`, margin, y);
-      if (emp.cpf) {
-        y += 5;
-        doc.text(emp.cpf, margin, y);
-      }
+      if (emp.cpf) { y += 5; doc.text(emp.cpf, margin, y); }
       y += 10;
 
-      if (emp.photoBase64 || emp.photoUrl) {
-        try {
-          const photoData = emp.photoBase64 || await toBase64FromUrl(emp.photoUrl);
-          doc.addImage(photoData, "JPEG", margin, y, 55, 70, undefined, "FAST");
-        } catch (e) {}
+      if (photoData) {
+        try { doc.addImage(photoData, "JPEG", margin, y, 55, 70, undefined, "FAST"); } catch (e) {}
       }
     }
 
+    return doc;
+  };
+
+  const generatePDFForCompleted = async (completedList) => {
+    setGeneratingPdf(true);
+    const doc = await buildPDF(completedList);
     const fileName = `recibos_${event.name.replace(/\s+/g, "_")}.pdf`;
     const pdfBlob = doc.output("blob");
 
-    // Cria URL local para download via botão (compatível com mobile)
     const localUrl = URL.createObjectURL(pdfBlob);
     setPdfDownloadUrl(localUrl);
     setPdfFileName(fileName);
 
-    // Upload para armazenar e disponibilizar para download futuro
     const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
-    const uploadRes = await base44.integrations.Core.UploadFile({ file: pdfFile });
+    const [uploadRes] = await Promise.all([
+      base44.integrations.Core.UploadFile({ file: pdfFile }),
+      base44.entities.Event.update(event.id, { status: "Concluído" }),
+    ]);
+    await base44.entities.Event.update(event.id, { receipts_pdf_url: uploadRes.file_url });
 
     clearSession();
-    await base44.entities.Event.update(event.id, { status: "Concluído", receipts_pdf_url: uploadRes.file_url });
     setGeneratingPdf(false);
     toast.success("PDF gerado e evento finalizado!");
   };
 
   const generatePDF = async () => {
     setGeneratingPdf(true);
-    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    const pageW = 210;
-    const margin = 20;
-    const contentW = pageW - margin * 2;
+    const doc = await buildPDF(completed);
+    const fileName = `recibos_${event.name.replace(/\s+/g, "_")}.pdf`;
+    const pdfBlob = doc.output("blob");
 
-    const eventDateStr = event.date
-      ? format(new Date(event.date), "dd/MM/yyyy")
-      : "___/___/______";
-    const todayStr = format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+    const localUrl = URL.createObjectURL(pdfBlob);
+    setPdfDownloadUrl(localUrl);
+    setPdfFileName(fileName);
 
-    for (let i = 0; i < completed.length; i++) {
-      const emp = completed[i];
-      if (i > 0) doc.addPage();
-
-      let y = 18;
-
-      // --- LOGO area (left) ---
-      doc.setFont("helvetica", "bolditalic");
-      doc.setFontSize(9);
-      doc.setTextColor(120, 40, 60);
-      doc.text("ninho da roxinha", margin, y + 4);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(6);
-      doc.text("RESTAURANTE & EVENTOS", margin, y + 8);
-
-      // --- RECIBO title (center) ---
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(22);
-      doc.setTextColor(30, 30, 30);
-      doc.text("RECIBO", pageW / 2, y + 6, { align: "center" });
-
-      // --- VALOR (right) ---
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.setTextColor(30, 30, 30);
-      doc.text("VALOR:", pageW - margin, y + 2, { align: "right" });
-      doc.setFontSize(11);
-      doc.text(`R$  ${emp.valor || "________"}`, pageW - margin, y + 8, { align: "right" });
-
-      // --- Divider ---
-      y += 18;
-      doc.setDrawColor(200, 200, 200);
-      doc.line(margin, y, pageW - margin, y);
-      y += 12;
-
-      // --- Declaration body ---
-      const pixInfo = emp.cpf ? ` / PIX ${emp.cpf}` : "";
-      const declaration =
-        `Eu ${emp.full_name}${pixInfo}, aqui denominado Free Lancer, Declaro ter Recebido da empresa ` +
-        `Ninho da Roxinha Eventos, a quantia de R$ ${emp.valor || "________"}, referente prestação de serviços -Extras ` +
-        `no evento do dia ${eventDateStr} ( ${event.name} ) e declaro ainda não haver de minha parte nenhuma obrigação ` +
-        `de de serviços solicitada esporadicamente, sendo a mim facultada decisão de aceitar ou não o serviço e Horarios ` +
-        `propostos.`;
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(11);
-      doc.setTextColor(30, 30, 30);
-      const bodyLines = doc.splitTextToSize(declaration, contentW);
-      doc.text(bodyLines, margin, y);
-      y += bodyLines.length * 6 + 8;
-
-      // --- "sem mais..." ---
-      doc.text("sem mais para o momento, firmo o presente.", margin, y);
-      y += 24;
-
-      // --- City / Date (right aligned) ---
-      doc.text(`Serra, Espírito Santo ${todayStr}`, pageW - margin, y, { align: "right" });
-      y += 28;
-
-      // --- Signature image ---
-      if (emp.signatureUrl) {
-        try {
-          const sigData = await toBase64FromUrl(emp.signatureUrl);
-          doc.addImage(sigData, "PNG", margin, y - 18, 70, 18, undefined, "FAST");
-        } catch (e) {}
-      }
-
-      // --- Signature line ---
-      doc.setDrawColor(60, 60, 60);
-      doc.line(margin, y, margin + 100, y);
-      y += 6;
-
-      // --- Name / PIX below line ---
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      doc.setTextColor(30, 30, 30);
-      doc.text(`${emp.full_name}${pixInfo}`, margin, y);
-      if (emp.cpf) {
-        y += 5;
-        doc.text(emp.cpf, margin, y);
-      }
-      y += 10;
-
-      // --- Photo ---
-      if (emp.photoUrl) {
-        try {
-          const photoData = await toBase64FromUrl(emp.photoUrl);
-          doc.addImage(photoData, "JPEG", margin, y, 55, 70, undefined, "FAST");
-        } catch (e) {}
-      }
-    }
-
-    const fileName2 = `recibos_${event.name.replace(/\s+/g, "_")}.pdf`;
-    const pdfBlob2 = doc.output("blob");
-
-    // Cria URL local para download via botão (compatível com mobile)
-    const localUrl2 = URL.createObjectURL(pdfBlob2);
-    setPdfDownloadUrl(localUrl2);
-    setPdfFileName(fileName2);
-
-    // Upload para armazenar e disponibilizar para download futuro
-    const pdfFile2 = new File([pdfBlob2], fileName2, { type: "application/pdf" });
-    const uploadRes2 = await base44.integrations.Core.UploadFile({ file: pdfFile2 });
+    const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
+    const [uploadRes] = await Promise.all([
+      base44.integrations.Core.UploadFile({ file: pdfFile }),
+      base44.entities.Event.update(event.id, { status: "Concluído" }),
+    ]);
+    await base44.entities.Event.update(event.id, { receipts_pdf_url: uploadRes.file_url });
 
     clearSession();
-    await base44.entities.Event.update(event.id, { status: "Concluído", receipts_pdf_url: uploadRes2.file_url });
     setGeneratingPdf(false);
     toast.success("PDF gerado e evento finalizado!");
   };
