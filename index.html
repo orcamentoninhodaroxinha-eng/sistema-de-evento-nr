@@ -26,15 +26,18 @@
       }, { passive: false });
     </script>
 
-    <!-- PushAlert Unified Code -->
-    <script type="text/javascript">
-      (function(d, t) {
-        var g = d.createElement(t),
-        s = d.getElementsByTagName(t)[0];
-        g.src = "https://cdn.pushalert.co/unified_78407d16500a4049376ac9a97fb43ef9.js";
-        s.parentNode.insertBefore(g, s);
-      }(document, "script"));
+    <!-- OneSignal Web Push -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "9b17635e-87cb-4c7b-92dc-ecbf7a927acd",
+          notifyButton: { enable: false },
+          allowLocalhostAsSecureOrigin: true,
+        });
+      });
     </script>
-    <!-- End PushAlert Unified Code -->
+    <!-- End OneSignal -->
     </body>
 </html>

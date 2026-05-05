@@ -7,24 +7,26 @@ export function usePushNotifications() {
   useEffect(() => {
     if (!loginUser || typeof window === 'undefined') return;
 
-    // Wait for OneSignal to be available
     const tryInit = () => {
-      if (!window.OneSignal) return;
+      if (!window.OneSignalDeferred) return;
 
-      window.OneSignal.push(() => {
-        // Set the user's role as a tag for targeting
-        if (loginUser.role) {
-          window.OneSignal.sendTag('role', loginUser.role);
-        }
-        if (loginUser.username) {
-          window.OneSignal.sendTag('username', loginUser.username);
+      window.OneSignalDeferred.push(async (OneSignal) => {
+        try {
+          // Set role tag for targeting
+          if (loginUser.role) {
+            await OneSignal.User.addTag('role', loginUser.role);
+          }
+          if (loginUser.username) {
+            await OneSignal.User.addTag('username', loginUser.username);
+          }
+        } catch (e) {
+          console.warn('OneSignal tag error:', e.message);
         }
       });
     };
 
-    // Try immediately, then wait a bit for SDK to load
     tryInit();
-    const timer = setTimeout(tryInit, 3000);
+    const timer = setTimeout(tryInit, 2000);
     return () => clearTimeout(timer);
   }, [loginUser?.username]);
 }
