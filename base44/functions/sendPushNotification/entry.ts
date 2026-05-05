@@ -1,42 +1,50 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
-import webpush from 'npm:web-push@3.6.7';
 
 Deno.serve(async (req) => {
   try {
-    const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY');
-    const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY');
-    const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') || 'mailto:admin@ninho.com';
+    const ONESIGNAL_APP_ID = Deno.env.get('ONESIGNAL_APP_ID');
+    const ONESIGNAL_API_KEY = Deno.env.get('ONESIGNAL_API_KEY');
 
-    if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
-      return Response.json({ skipped: true, reason: 'VAPID keys not configured' });
+    if (!ONESIGNAL_APP_ID || !ONESIGNAL_API_KEY) {
+      return Response.json({ skipped: true, reason: 'OneSignal keys not configured' });
     }
-
-    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
     const base44 = createClientFromRequest(req);
     const { title, body, target_roles } = await req.json();
 
-    // Get all subscriptions
-    const allSubs = await base44.asServiceRole.entities.PushSubscription.list('-created_date', 200);
+    // Build the OneSignal notification payload
+    // Filter by role using tags, or send to all if no roles specified
+    let filters = [];
+    if (target_roles && target_roles.length > 0) {
+      target_roles.forEach((role, i) => {
+        if (i > 0) filters.push({ operator: 'OR' });
+        filters.push({ field: 'tag', key: 'role', relation: '=', value: role });
+      });
+    }
 
-    // Filter by role if provided
-    const subs = target_roles && target_roles.length > 0
-      ? allSubs.filter(s => target_roles.includes(s.role))
-      : allSubs;
+    const payload = {
+      app_id: ONESIGNAL_APP_ID,
+      headings: { pt: title, en: title },
+      contents: { pt: body, en: body },
+      ...(filters.length > 0 ? { filters } : { included_segments: ['All'] }),
+    };
 
-    const payload = JSON.stringify({ title, body });
+    const response = await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${ONESIGNAL_API_KEY}`,
+      },
+      body: JSON.stringify(payload),
+    });
 
-    const results = await Promise.allSettled(
-      subs.map(sub =>
-        webpush.sendNotification(
-          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          payload
-        )
-      )
-    );
+    const result = await response.json();
 
-    const sent = results.filter(r => r.status === 'fulfilled').length;
-    return Response.json({ success: true, sent, total: subs.length });
+    if (!response.ok) {
+      return Response.json({ error: result }, { status: response.status });
+    }
+
+    return Response.json({ success: true, recipients: result.recipients, id: result.id });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
