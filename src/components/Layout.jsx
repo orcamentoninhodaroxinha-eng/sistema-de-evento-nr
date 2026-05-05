@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import NotificationBell from "@/components/NotificationBell";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import InstallPWABanner from "@/components/InstallPWABanner";
 
 export default function Layout() {
   const mainRef = useRef(null);
@@ -120,6 +121,7 @@ export default function Layout() {
         </div>
       </header>
 
+      <InstallPWABanner />
       <main
         ref={mainRef}
         onTouchStart={handleTouchStart}
