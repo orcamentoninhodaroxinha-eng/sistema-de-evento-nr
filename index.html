@@ -26,18 +26,6 @@
       }, { passive: false });
     </script>
 
-    <!-- OneSignal Web Push -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "9b17635e-87cb-4c7b-92dc-ecbf7a927acd",
-          notifyButton: { enable: false },
-          allowLocalhostAsSecureOrigin: true,
-        });
-      });
-    </script>
-    <!-- End OneSignal -->
+    <!-- Firebase Messaging handled via SDK in hooks/usePushNotifications.js -->
     </body>
 </html>

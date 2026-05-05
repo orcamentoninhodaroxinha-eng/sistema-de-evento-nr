@@ -3,10 +3,10 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { username, role, endpoint, p256dh, auth } = await req.json();
+    const { username, role, token } = await req.json();
 
-    if (!username || !endpoint) {
-      return Response.json({ error: 'username and endpoint required' }, { status: 400 });
+    if (!username || !token) {
+      return Response.json({ error: 'username and token required' }, { status: 400 });
     }
 
     // Remove old subscriptions for this user
@@ -15,13 +15,11 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.PushSubscription.delete(sub.id);
     }
 
-    // Save new subscription
+    // Save FCM token in the endpoint field (reusing existing entity)
     const saved = await base44.asServiceRole.entities.PushSubscription.create({
       username,
       role,
-      endpoint,
-      p256dh,
-      auth,
+      endpoint: token, // FCM token stored in endpoint field
     });
 
     return Response.json({ success: true, id: saved.id });
