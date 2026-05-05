@@ -2,8 +2,7 @@ import { useEffect } from 'react';
 import { useLoginUser } from './useLoginUser';
 import { base44 } from '@/api/base44Client';
 
-// VAPID key from Firebase Console -> Project Settings -> Cloud Messaging -> Web Push certificates
-const VAPID_KEY = "BFyJ3VWKCy5nXvuCkHRiS2p6XkLbFM7w4xk8qHbKkKxK5H2p1yQ5ik3N8V3M2t5w3K8w9L6p7V4y7xK3Q2S1"; // substitua pela sua chave VAPID real
+const VAPID_KEY = "BJFk1LADEJArJ0E9-Yk7DjvmeDkdwvbZDzzu6sKW5MQ_GOV_bNFCWNSNDp-43cCxLWmE0mgKrgZXDfk1Bnr2eOg";
 
 export function usePushNotifications() {
   const loginUser = useLoginUser();
