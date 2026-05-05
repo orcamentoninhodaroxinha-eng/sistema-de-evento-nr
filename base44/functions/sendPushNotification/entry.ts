@@ -41,10 +41,13 @@ Deno.serve(async (req) => {
     const result = await response.json();
 
     if (!response.ok) {
-      return Response.json({ error: result }, { status: response.status });
+      return Response.json({ error: result, status_code: response.status }, { status: response.status });
     }
 
-    return Response.json({ success: true, recipients: result.recipients, id: result.id });
+    // Log full result to help debug
+    console.log('OneSignal result:', JSON.stringify(result));
+
+    return Response.json({ success: true, recipients: result.recipients, id: result.id, errors: result.errors, warnings: result.warnings });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
