@@ -9,7 +9,19 @@ Deno.serve(async (req) => {
     }
 
     const base44 = createClientFromRequest(req);
-    const { title, body, target_roles } = await req.json();
+
+    let body = {};
+    try {
+      body = await req.json();
+    } catch {
+      // body may be empty
+    }
+
+    const { title, body: msgBody, target_roles } = body;
+
+    if (!title) {
+      return Response.json({ error: 'title is required' }, { status: 400 });
+    }
 
     // Get all FCM tokens from PushSubscription entity, filtered by role
     let subscriptions = await base44.asServiceRole.entities.PushSubscription.list();
@@ -29,12 +41,12 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, recipients: 0, reason: 'No tokens' });
     }
 
-    // Send via FCM HTTP v1 (legacy API)
+    // Send via FCM legacy HTTP API
     const payload = {
       registration_ids: tokens,
       notification: {
         title,
-        body,
+        body: msgBody || '',
         icon: "https://media.base44.com/images/public/69cbd80727489d185bf14962/7cb5516e1_download.png",
         click_action: "/",
       },
@@ -51,11 +63,23 @@ Deno.serve(async (req) => {
       body: JSON.stringify(payload),
     });
 
-    const result = await response.json();
-    console.log('FCM result:', JSON.stringify(result));
+    const responseText = await response.text();
+    
+    let result;
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      console.error('FCM non-JSON response (status ' + response.status + '):', responseText.substring(0, 200));
+      return Response.json({ 
+        error: 'FCM rejected the request. Check if FIREBASE_SERVER_KEY is correct.',
+        fcm_status: response.status
+      }, { status: 500 });
+    }
 
-    return Response.json({ success: true, recipients: result.success, failure: result.failure, results: result.results });
+    console.log('FCM result:', JSON.stringify(result));
+    return Response.json({ success: true, recipients: result.success, failure: result.failure });
   } catch (error) {
+    console.error('sendPushNotification error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
