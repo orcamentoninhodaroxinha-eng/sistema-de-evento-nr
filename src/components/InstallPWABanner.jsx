@@ -9,8 +9,6 @@ export default function InstallPWABanner() {
   useEffect(() => {
     // Já está instalado como PWA
     if (window.matchMedia("(display-mode: standalone)").matches) return;
-    // Já foi dispensado antes
-    if (localStorage.getItem("pwa_banner_dismissed")) return;
 
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
     setIsIOS(ios);
@@ -41,7 +39,6 @@ export default function InstallPWABanner() {
 
   const dismiss = () => {
     setShow(false);
-    localStorage.setItem("pwa_banner_dismissed", "1");
   };
 
   if (!show) return null;
