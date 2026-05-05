@@ -11,22 +11,23 @@ export default function InstallPWABanner() {
     if (window.matchMedia("(display-mode: standalone)").matches) return;
 
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
     setIsIOS(ios);
 
     if (ios) {
-      // No iOS, só mostra se for Safari
-      const isSafari = /safari/i.test(navigator.userAgent) && !/chrome|crios|fxios/i.test(navigator.userAgent);
-      if (isSafari) setShow(true);
-    } else {
-      // Android / Desktop: espera o evento beforeinstallprompt
+      // iOS: mostra sempre (instrução manual)
+      setShow(true);
+    } else if (isMobile) {
+      // Android: tenta o prompt nativo, mas mostra o banner de qualquer forma
+      setShow(true);
       const handler = (e) => {
         e.preventDefault();
         setDeferredPrompt(e);
-        setShow(true);
       };
       window.addEventListener("beforeinstallprompt", handler);
       return () => window.removeEventListener("beforeinstallprompt", handler);
     }
+    // Desktop: não mostra
   }, []);
 
   const handleInstall = async () => {
