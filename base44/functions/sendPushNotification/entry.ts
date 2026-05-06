@@ -17,19 +17,20 @@ Deno.serve(async (req) => {
     }
 
     // Usa PushAlert se configurado (envia para TODOS os assinantes de uma vez)
-    if (PUSHALERT_API_KEY && PUSHALERT_APP_ID) {
-      const res = await fetch(`https://api.pushalert.co/rest/v1/send`, {
+    if (PUSHALERT_API_KEY) {
+      const params = new URLSearchParams({
+        title,
+        message: msgBody || '',
+        url: 'https://ninhrodaroxinha.base44.app/',
+      });
+
+      const res = await fetch('https://api.pushalert.co/rest/v2/web-push/send', {
         method: 'POST',
         headers: {
           'Authorization': `api_key=${PUSHALERT_API_KEY}`,
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams({
-          app_id: PUSHALERT_APP_ID,
-          title,
-          message: msgBody || '',
-          send_to_all: '1',
-        }).toString(),
+        body: params.toString(),
       });
 
       const data = await res.json();
