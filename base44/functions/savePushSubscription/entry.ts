@@ -2,29 +2,33 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
-    const { username, role, token, p256dh, auth } = await req.json();
-
-    if (!username || !token) {
-      return Response.json({ error: 'username and token required' }, { status: 400 });
+    const KODEPUSH_API_KEY = Deno.env.get('KODEPUSH_API_KEY');
+    if (!KODEPUSH_API_KEY) {
+      return Response.json({ error: 'KODEPUSH_API_KEY not set' }, { status: 500 });
     }
 
-    // Remove old subscriptions for this user
+    const base44 = createClientFromRequest(req);
+    const { username, role } = await req.json();
+
+    if (!username) {
+      return Response.json({ error: 'username is required' }, { status: 400 });
+    }
+
+    // Remove registros antigos deste usuário
     const existing = await base44.asServiceRole.entities.PushSubscription.filter({ username });
     for (const sub of existing) {
       await base44.asServiceRole.entities.PushSubscription.delete(sub.id);
     }
 
-    // Save new subscription with p256dh and auth for encrypted Web Push
+    // Salva registro simples com external_user_id = username
     const saved = await base44.asServiceRole.entities.PushSubscription.create({
       username,
       role,
-      endpoint: token,
-      p256dh: p256dh || null,
-      auth: auth || null,
+      endpoint: username, // mantém campo obrigatório
+      external_user_id: username,
     });
 
-    return Response.json({ success: true, id: saved.id });
+    return Response.json({ success: true, id: saved.id, external_user_id: username });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
