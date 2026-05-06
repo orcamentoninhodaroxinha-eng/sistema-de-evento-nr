@@ -117,7 +117,7 @@ export default function Layout() {
             )}
             <NotificationBell />
             <button
-              onClick={() => { localStorage.removeItem("ninho_auth"); window.location.reload(); }}
+              onClick={() => { localStorage.removeItem("ninho_auth"); window.location.href = window.location.origin; }}
               className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-destructive transition-colors px-2 py-1.5 rounded-lg hover:bg-destructive/10"
               title="Sair"
             >
