@@ -118,11 +118,11 @@ export default function Layout() {
             <NotificationBell />
             <button
               onClick={() => { localStorage.removeItem("ninho_auth"); window.location.href = window.location.origin; }}
-              className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-destructive transition-colors px-2 py-1.5 rounded-lg hover:bg-destructive/10"
+              className="flex items-center gap-2 text-sm font-semibold text-destructive bg-destructive/10 hover:bg-destructive hover:text-white transition-colors px-3 py-2 rounded-lg"
               title="Sair"
             >
               <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Sair</span>
+              <span>Sair</span>
             </button>
             {isAdmin && (
               <Link to="/approvals" className="relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
