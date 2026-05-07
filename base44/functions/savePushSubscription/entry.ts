@@ -2,34 +2,40 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   try {
-    const KODEPUSH_API_KEY = Deno.env.get('KODEPUSH_API_KEY');
-    if (!KODEPUSH_API_KEY) {
-      return Response.json({ error: 'KODEPUSH_API_KEY not set' }, { status: 500 });
-    }
-
     const base44 = createClientFromRequest(req);
-    const { username, role } = await req.json();
+    const user = await base44.auth.me();
 
-    if (!username) {
-      return Response.json({ error: 'username is required' }, { status: 400 });
+    const body = await req.json().catch(() => ({}));
+    const { endpoint, p256dh, auth } = body;
+
+    if (!endpoint || !p256dh || !auth) {
+      return Response.json({ error: 'endpoint, p256dh e auth são obrigatórios' }, { status: 400 });
     }
 
-    // Remove registros antigos deste usuário
-    const existing = await base44.asServiceRole.entities.PushSubscription.filter({ username });
-    for (const sub of existing) {
-      await base44.asServiceRole.entities.PushSubscription.delete(sub.id);
+    // Verifica se já existe
+    const existing = await base44.asServiceRole.entities.PushSubscription.filter({ endpoint });
+
+    if (existing && existing.length > 0) {
+      await base44.asServiceRole.entities.PushSubscription.update(existing[0].id, {
+        p256dh,
+        auth,
+        username: user?.email || user?.full_name || 'unknown',
+        role: user?.role || 'user',
+      });
+      return Response.json({ success: true, action: 'updated' });
     }
 
-    // Salva registro simples com external_user_id = username
-    const saved = await base44.asServiceRole.entities.PushSubscription.create({
-      username,
-      role,
-      endpoint: username, // mantém campo obrigatório
-      external_user_id: username,
+    await base44.asServiceRole.entities.PushSubscription.create({
+      endpoint,
+      p256dh,
+      auth,
+      username: user?.email || user?.full_name || 'unknown',
+      role: user?.role || 'user',
     });
 
-    return Response.json({ success: true, id: saved.id, external_user_id: username });
-  } catch (error) {
+    return Response.json({ success: true, action: 'created' });
+  } catch (error: any) {
+    console.error('Erro:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
