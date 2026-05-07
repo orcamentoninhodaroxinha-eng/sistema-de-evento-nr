@@ -1,14 +1,12 @@
 import { useRef, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
-import { ClipboardCheck, LogOut, BellOff, Bell } from "lucide-react";
+import { ClipboardCheck, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import NotificationBell from "@/components/NotificationBell";
-import { usePushNotifications } from "@/hooks/usePushNotifications";
-import InstallPWABanner from "@/components/InstallPWABanner";
 
 export default function Layout() {
   const mainRef = useRef(null);
@@ -16,15 +14,6 @@ export default function Layout() {
   const loginUser = useLoginUser();
   const isAdmin = loginUser?.role === "admin" || loginUser?.role === "aprovador";
   useDeviceDetection();
-  const { requestPushPermission, permission } = usePushNotifications();
-  const [requestingPush, setRequestingPush] = useState(false);
-
-  const handleRequestPush = async () => {
-    setRequestingPush(true);
-    await requestPushPermission();
-    setRequestingPush(false);
-  };
-
   const { data: events } = useQuery({
     queryKey: ["events-approvals"],
     queryFn: () => base44.entities.Event.list("-date", 100),
@@ -104,17 +93,6 @@ export default function Layout() {
             </div>
           </Link>
           <div className="flex items-center gap-2">
-            {permission !== 'granted' && permission !== 'denied' && permission !== 'unsupported' && (
-              <button
-                onClick={handleRequestPush}
-                disabled={requestingPush}
-                title="Ativar notificações"
-                className="flex items-center gap-1.5 text-sm font-medium text-amber-600 hover:text-amber-700 transition-colors px-2 py-1.5 rounded-lg hover:bg-amber-50"
-              >
-                <Bell className="w-4 h-4" />
-                <span className="hidden sm:inline text-xs">{requestingPush ? 'Ativando...' : 'Ativar notificações'}</span>
-              </button>
-            )}
             <NotificationBell />
             <button
               onClick={() => { localStorage.removeItem("ninho_auth"); window.location.href = window.location.origin; }}
@@ -139,7 +117,6 @@ export default function Layout() {
         </div>
       </header>
 
-      <InstallPWABanner />
       <main
         ref={mainRef}
         onTouchStart={handleTouchStart}
