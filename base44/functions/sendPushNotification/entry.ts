@@ -34,6 +34,8 @@ Deno.serve(async (req) => {
       });
 
       const data = await res.json();
+      console.log('PushAlert key prefix:', PUSHALERT_API_KEY?.substring(0, 8));
+      console.log('PushAlert response status:', res.status);
       console.log('PushAlert response:', JSON.stringify(data));
       return Response.json({ success: res.ok, data });
     }
