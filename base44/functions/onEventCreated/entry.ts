@@ -27,6 +27,9 @@ Deno.serve(async (req) => {
         body: message,
         target_roles,
       }),
+      base44.asServiceRole.functions.invoke("sendWhatsApp", {
+        message: `${title}\n${message}`,
+      }),
     ]);
 
     return Response.json({ success: true });
