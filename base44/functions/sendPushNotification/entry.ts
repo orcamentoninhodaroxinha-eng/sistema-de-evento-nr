@@ -1,76 +1,71 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+// @ts-ignore
+import webpush from 'npm:web-push@3.6.7';
 
-const PUSHALERT_API_KEY = Deno.env.get('PUSHALERT_API_KEY');
-const PUSHALERT_APP_ID = Deno.env.get('PUSHALERT_APP_ID');
+const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY')!;
+const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY')!;
+
+webpush.setVapidDetails(
+  'mailto:contato@ninhodaroxinha.com.br',
+  VAPID_PUBLIC_KEY,
+  VAPID_PRIVATE_KEY
+);
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    let body = {};
-    try { body = await req.json(); } catch { /* empty body */ }
-
-    const { title, body: msgBody } = body;
+    const body = await req.json().catch(() => ({}));
+    const { title, body: msgBody, url } = body;
 
     if (!title) {
-      return Response.json({ error: 'title is required' }, { status: 400 });
-    }
-
-    // Usa PushAlert se configurado (envia para TODOS os assinantes de uma vez)
-    if (PUSHALERT_API_KEY) {
-      const params = new URLSearchParams({
-        title,
-        message: msgBody || '',
-        url: 'https://ninhrodaroxinha.base44.app/',
-      });
-
-      const res = await fetch('https://api.pushalert.co/rest/v2/web-push/send', {
-        method: 'POST',
-        headers: {
-          'Authorization': `api_key=${PUSHALERT_API_KEY}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: params.toString(),
-      });
-
-      const data = await res.json();
-      console.log('PushAlert key prefix:', PUSHALERT_API_KEY?.substring(0, 8));
-      console.log('PushAlert response status:', res.status);
-      console.log('PushAlert response:', JSON.stringify(data));
-      return Response.json({ success: res.ok, data });
-    }
-
-    // Fallback: envia via KodePush para assinantes salvos
-    const KODEPUSH_API_KEY = Deno.env.get('KODEPUSH_API_KEY');
-    if (!KODEPUSH_API_KEY) {
-      return Response.json({ error: 'Nenhum serviço de push configurado' }, { status: 500 });
+      return Response.json({ error: 'title é obrigatório' }, { status: 400 });
     }
 
     const subscriptions = await base44.asServiceRole.entities.PushSubscription.list();
-    console.log(`Enviando via KodePush para ${subscriptions.length} usuário(s)`);
 
-    let successCount = 0;
-    let failCount = 0;
-
-    for (const sub of subscriptions) {
-      const userId = sub.external_user_id || sub.username;
-      if (!userId) continue;
-
-      const res = await fetch('https://api.kodebase.us/v1/notifications/send', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${KODEPUSH_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ external_user_id: userId, title, message: msgBody || '' }),
-      });
-
-      if (res.ok) { successCount++; }
-      else { failCount++; const err = await res.text(); console.warn(`Falhou para ${userId}: ${err}`); }
+    if (!subscriptions || subscriptions.length === 0) {
+      return Response.json({ success: true, sent: 0, message: 'Nenhum assinante encontrado' });
     }
 
-    return Response.json({ success: true, recipients: successCount, failure: failCount });
-  } catch (error) {
+    const payload = JSON.stringify({
+      title,
+      body: msgBody || '',
+      url: url || 'https://ninhodaroxinha.base44.app/',
+      icon: 'https://media.base44.com/images/public/69cbd80727489d185bf14962/7cb5516e1_download.png',
+    });
+
+    let sent = 0;
+    let failed = 0;
+    const toDelete: string[] = [];
+
+    for (const sub of subscriptions) {
+      if (!sub.endpoint || !sub.p256dh || !sub.auth) continue;
+
+      const pushSubscription = {
+        endpoint: sub.endpoint,
+        keys: { p256dh: sub.p256dh, auth: sub.auth },
+      };
+
+      try {
+        await webpush.sendNotification(pushSubscription, payload);
+        sent++;
+      } catch (err: any) {
+        console.warn(`Falhou para ${sub.username}: ${err.message}`);
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          toDelete.push(sub.id);
+        }
+        failed++;
+      }
+    }
+
+    for (const id of toDelete) {
+      await base44.asServiceRole.entities.PushSubscription.delete(id).catch(() => {});
+    }
+
+    console.log(`Push enviado: ${sent} sucesso, ${failed} falha`);
+    return Response.json({ success: true, sent, failed });
+  } catch (error: any) {
     console.error('Erro:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
