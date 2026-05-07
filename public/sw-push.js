@@ -1,5 +1,6 @@
+// Service Worker para Web Push nativo
 self.addEventListener('push', (event) => {
-  let data = { title: 'Ninho da Roxinha', body: 'Nova notificação' };
+  let data = { title: 'Ninho da Roxinha', body: 'Nova notificação', url: '/' };
   if (event.data) {
     try { data = event.data.json(); } catch { data.body = event.data.text(); }
   }
