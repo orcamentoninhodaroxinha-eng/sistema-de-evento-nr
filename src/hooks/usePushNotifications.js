@@ -1,38 +1,77 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useLoginUser } from './useLoginUser';
 import { base44 } from '@/api/base44Client';
 
-const KODEPUSH_APP_ID = 'MeuApp-Android';
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+}
 
 export function usePushNotifications() {
   const loginUser = useLoginUser();
+  const [permission, setPermission] = useState(
+    typeof Notification !== 'undefined' ? Notification.permission : 'default'
+  );
 
-  // Registra o usuário no backend ao entrar (sem abrir popup)
+  // Ao logar, tenta registrar automaticamente se já tinha permissão
   useEffect(() => {
     if (!loginUser) return;
-    base44.functions.invoke('savePushSubscription', {
-      username: loginUser.username,
-      role: loginUser.role,
-    }).catch(e => console.warn('savePushSubscription error:', e.message));
-  }, [loginUser?.username]);
+    if (Notification.permission === 'granted') {
+      registerAndSave();
+    }
+  }, [loginUser?.email]);
 
-  // Abre o fluxo de opt-in do KodePush em popup
+  const registerAndSave = async () => {
+    try {
+      // Registra o Service Worker
+      const reg = await navigator.serviceWorker.register('/sw-push.js');
+
+      // Busca a chave pública VAPID do backend
+      const res = await base44.functions.invoke('getVapidPublicKey');
+      const { publicKey } = res;
+
+      if (!publicKey) throw new Error('Chave VAPID não encontrada');
+
+      // Cria ou recupera a assinatura push
+      const subscription = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey),
+      });
+
+      const { endpoint, keys } = subscription.toJSON();
+
+      // Salva no banco
+      await base44.functions.invoke('saveWebPushSubscription', {
+        endpoint,
+        p256dh: keys.p256dh,
+        auth: keys.auth,
+      });
+
+      console.log('✅ Push registrado com sucesso');
+      return true;
+    } catch (err) {
+      console.warn('Erro ao registrar push:', err.message);
+      return false;
+    }
+  };
+
+  // Solicita permissão ao usuário e registra
   const requestPushPermission = useCallback(async () => {
-    if (!loginUser) return false;
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      alert('Seu navegador não suporta notificações push.');
+      return false;
+    }
 
-    const url = `https://notify.kodebase.us/subscribe?app_id=${KODEPUSH_APP_ID}&user_id=${encodeURIComponent(loginUser.username)}`;
-    const popup = window.open(url, '_blank', 'width=500,height=600');
+    const result = await Notification.requestPermission();
+    setPermission(result);
 
-    // Quando o popup fechar, considera inscrito
-    return new Promise((resolve) => {
-      const timer = setInterval(() => {
-        if (!popup || popup.closed) {
-          clearInterval(timer);
-          resolve(true);
-        }
-      }, 500);
-    });
+    if (result === 'granted') {
+      return await registerAndSave();
+    }
+    return false;
   }, [loginUser]);
 
-  return { requestPushPermission, permission: 'default' };
+  return { requestPushPermission, permission };
 }
