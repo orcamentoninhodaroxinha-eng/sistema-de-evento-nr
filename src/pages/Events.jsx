@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import { base44 } from "@/api/base44Client";
-import { useAuth } from "@/lib/AuthContext";
 import PullToRefresh from "@/components/PullToRefresh";
 import PageTransition from "@/components/PageTransition";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -122,7 +121,6 @@ export default function Events() {
   const itemsPerPage = 5;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
   const loginUser = useLoginUser();
 
   useEffect(() => {
