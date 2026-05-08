@@ -37,6 +37,10 @@
       "type": "string",
       "title": "E-mail"
     },
+    "pix": {
+      "type": "string",
+      "title": "Chave Pix"
+    },
     "hire_date": {
       "type": "string",
       "format": "date",
@@ -59,6 +63,11 @@
         "Afastado"
       ],
       "default": "Ativo"
+    },
+    "is_new": {
+      "type": "boolean",
+      "title": "Funcion\u00e1rio Novo",
+      "default": true
     }
   },
   "required": [

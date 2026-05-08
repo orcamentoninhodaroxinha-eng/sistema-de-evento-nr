@@ -187,13 +187,36 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
     localStorage.setItem(scaleKey, JSON.stringify(newScale));
   };
 
-  const handleAddNewEmployee = () => {
+  const handleAddNewEmployee = async () => {
     if (!newEmpName || !newEmpFuncao || !newEmpValor) {
       toast.error("Preencha nome, função e valor");
       return;
     }
+    if (!newEmpPix) {
+      toast.error("Chave Pix é obrigatória para funcionários novos");
+      return;
+    }
+
+    // Salva no banco de dados
+    let savedId = `new_${Date.now()}`;
+    try {
+      const created = await base44.entities.Employee.create({
+        full_name: newEmpName,
+        role: newEmpFuncao,
+        department: "Operações",
+        phone: newEmpCelular || null,
+        pix: newEmpPix,
+        status: "Ativo",
+        is_new: true,
+      });
+      savedId = created.id;
+      toast.success(`${newEmpName} cadastrado(a) no banco de dados!`, { duration: 2000 });
+    } catch {
+      toast.error("Erro ao salvar no banco, mas funcionário adicionado à escala.");
+    }
+
     const newEntry = {
-      employeeId: `new_${Date.now()}`,
+      employeeId: savedId,
       full_name: newEmpName,
       role: newEmpFuncao,
       funcao: newEmpFuncao,
@@ -207,7 +230,7 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
     localStorage.setItem(scaleKey, JSON.stringify(newScale));
     setShowNewEmpDialog(false);
     setNewEmpName(""); setNewEmpPix(""); setNewEmpCelular(""); setNewEmpFuncao(""); setNewEmpValor("");
-    toast(`${newEmpName} adicionado(a) como novo funcionário!`, { duration: 1500 });
+    queryClient.invalidateQueries(["employees"]);
   };
 
   const handleConfirmAndExport = async () => {
@@ -473,7 +496,7 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
 
             <div data-scroll-area className="flex-1 flex flex-col justify-between px-4 py-2 gap-2">
               <div className="bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
-                <p className="text-[11px] text-amber-700 font-medium">⭐ Será marcado como <strong>NOVO</strong> no Excel.</p>
+                <p className="text-[11px] text-amber-700 font-medium">⭐ Será marcado como <strong>NOVO</strong> no Excel e <strong>salvo no banco de dados</strong>.</p>
               </div>
 
               <div className="space-y-0.5">
@@ -488,12 +511,12 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-0.5">
-                  <Label className="text-xs font-semibold">Chave Pix *</Label>
+                  <Label className="text-xs font-semibold text-amber-700">🔑 Chave Pix * (obrigatório)</Label>
                   <Input
-                    placeholder="CPF, e-mail..."
+                    placeholder="CPF, e-mail, telefone..."
                     value={newEmpPix}
                     onChange={e => setNewEmpPix(e.target.value)}
-                    className="h-9 text-sm rounded-lg"
+                    className={`h-9 text-sm rounded-lg ${!newEmpPix ? "border-amber-400 bg-amber-50" : "border-emerald-400"}`}
                   />
                 </div>
                 <div className="space-y-0.5">

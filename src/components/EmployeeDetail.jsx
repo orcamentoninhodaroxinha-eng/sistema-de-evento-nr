@@ -8,6 +8,8 @@ import {
   BadgeCheck,
   FileSignature,
   Hash,
+  Wallet,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -47,8 +49,17 @@ export default function EmployeeDetail({ employee, onBack }) {
       </Button>
 
       <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+        {/* Badge funcionário novo */}
+        {employee.is_new && (
+          <div className="bg-amber-400 text-white text-xs font-bold px-4 py-2 flex items-center justify-center gap-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            FUNCIONÁRIO NOVO — CADASTRADO RECENTEMENTE
+            <Sparkles className="w-3.5 h-3.5" />
+          </div>
+        )}
+
         {/* Header with photo */}
-        <div className="bg-gradient-to-br from-primary/10 via-accent to-primary/5 p-6 flex flex-col items-center text-center">
+        <div className={`bg-gradient-to-br ${employee.is_new ? "from-amber-100 via-amber-50 to-primary/5" : "from-primary/10 via-accent to-primary/5"} p-6 flex flex-col items-center text-center`}>
           {employee.photo_url ? (
             <img
               src={employee.photo_url}
@@ -75,6 +86,7 @@ export default function EmployeeDetail({ employee, onBack }) {
 
         {/* Details */}
         <div className="p-6">
+          <InfoRow icon={Wallet} label="Chave Pix" value={employee.pix} />
           <InfoRow icon={Hash} label="CPF" value={employee.cpf} />
           <InfoRow icon={Building2} label="Departamento" value={employee.department} />
           <InfoRow icon={Phone} label="Telefone" value={employee.phone} />
