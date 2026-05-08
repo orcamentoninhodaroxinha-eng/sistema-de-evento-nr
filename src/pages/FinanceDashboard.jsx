@@ -156,34 +156,36 @@ function MonthBlock({ monthLabel, events, totals }) {
       </div>
 
       {/* Resumo do mês */}
-      {hasFinance && (
-        <div className={`rounded-xl border-2 px-4 py-3 ${diff >= 0 ? "border-emerald-300 bg-emerald-50" : "border-red-300 bg-red-50"}`}>
-          <p className="text-xs font-bold uppercase tracking-wide mb-2 text-slate-600">
-            Resumo de {monthLabel} — {events.length} evento{events.length > 1 ? "s" : ""}
-          </p>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div>
-              <p className="text-muted-foreground">Total eventos</p>
-              <p className="font-bold text-slate-800">{formatBRL(saleTotal)}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Limite 15%</p>
-              <p className="font-bold text-blue-700">{formatBRL(budget15Total)}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Total escala</p>
-              <p className="font-bold text-orange-700">{formatBRL(scaleTotal)}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">{diff >= 0 ? "Sobra" : "Estouro"}</p>
+      <div className={`rounded-xl border-2 px-4 py-3 ${hasFinance ? (diff >= 0 ? "border-emerald-300 bg-emerald-50" : "border-red-300 bg-red-50") : "border-slate-200 bg-slate-50"}`}>
+        <p className="text-xs font-bold uppercase tracking-wide mb-2 text-slate-600">
+          Resumo de {monthLabel} — {events.length} evento{events.length > 1 ? "s" : ""}
+        </p>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <p className="text-muted-foreground">Total eventos</p>
+            <p className="font-bold text-slate-800">{saleTotal > 0 ? formatBRL(saleTotal) : "—"}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Limite 15%</p>
+            <p className="font-bold text-blue-700">{saleTotal > 0 ? formatBRL(budget15Total) : "—"}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Total escala</p>
+            <p className="font-bold text-orange-700">{scaleTotal > 0 ? formatBRL(scaleTotal) : "—"}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">{hasFinance ? (diff >= 0 ? "Sobra" : "Estouro") : "Resultado"}</p>
+            {hasFinance ? (
               <p className={`font-bold flex items-center gap-1 ${diff >= 0 ? "text-emerald-700" : "text-red-700"}`}>
                 {diff > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                 {formatBRL(Math.abs(diff))}
               </p>
-            </div>
+            ) : (
+              <p className="font-bold text-slate-400">—</p>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
