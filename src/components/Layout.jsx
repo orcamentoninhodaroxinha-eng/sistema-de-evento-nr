@@ -95,7 +95,7 @@ export default function Layout() {
           <div className="flex items-center gap-2">
             <NotificationBell />
             <button
-              onClick={() => { localStorage.removeItem("ninho_auth"); window.location.href = window.location.origin; }}
+              onClick={() => { try { localStorage.removeItem("ninho_auth"); } catch {} try { sessionStorage.removeItem("ninho_auth"); } catch {} window.location.href = window.location.origin; }}
               className="flex items-center gap-2 text-sm font-semibold text-destructive bg-destructive/10 hover:bg-destructive hover:text-white transition-colors px-4 py-3 rounded-xl min-w-[44px] min-h-[44px] active:scale-95 touch-manipulation"
               title="Sair"
             >

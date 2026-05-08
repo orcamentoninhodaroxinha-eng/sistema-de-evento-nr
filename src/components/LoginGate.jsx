@@ -12,8 +12,20 @@ const USERS = [
 ];
 const SESSION_KEY = "ninho_auth";
 
+const getStorage = () => {
+  try {
+    localStorage.setItem("__test__", "1");
+    localStorage.removeItem("__test__");
+    return localStorage;
+  } catch {
+    return sessionStorage;
+  }
+};
+
 export default function LoginGate({ children }) {
-  const [authed, setAuthed] = useState(() => !!localStorage.getItem(SESSION_KEY));
+  const [authed, setAuthed] = useState(() => {
+    try { return !!getStorage().getItem(SESSION_KEY); } catch { return false; }
+  });
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,7 +33,7 @@ export default function LoginGate({ children }) {
   const handleLogin = () => {
     const found = USERS.find(u => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password.trim());
     if (found) {
-      localStorage.setItem(SESSION_KEY, JSON.stringify({ username: found.username, role: found.role }));
+      try { getStorage().setItem(SESSION_KEY, JSON.stringify({ username: found.username, role: found.role })); } catch {}
       setAuthed(true);
     } else {
       setError("Usuário ou senha incorretos.");
