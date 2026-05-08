@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
-import { ClipboardCheck, LogOut } from "lucide-react";
+import { ClipboardCheck, LogOut, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import { useQuery } from "@tanstack/react-query";
@@ -102,6 +102,12 @@ export default function Layout() {
               <LogOut className="w-4 h-4" />
               <span>Sair</span>
             </button>
+            {(loginUser?.role === "aprovador" || loginUser?.role === "admin") && (
+              <Link to="/finance" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
+                <BarChart3 className="w-4 h-4" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Link>
+            )}
             {isAdmin && (
               <Link to="/approvals" className="relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
                 <ClipboardCheck className="w-4 h-4" />
