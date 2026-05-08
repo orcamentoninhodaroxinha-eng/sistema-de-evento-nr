@@ -18,14 +18,14 @@ export default function Layout() {
     queryKey: ["events-approvals"],
     queryFn: () => base44.entities.Event.list("-date", 100),
     enabled: isAdmin,
-    refetchInterval: 30000,
+    refetchInterval: 30000
   });
-  const pendingCount = isAdmin
-    ? (events || []).filter(ev =>
-        (ev.scale_submitted && !ev.scale_approved) ||
-        (ev.salao_submitted && !ev.salao_approved)
-      ).length
-    : 0; // Ativa detecção de dispositivo para todos os usuários
+  const pendingCount = isAdmin ?
+  (events || []).filter((ev) =>
+  ev.scale_submitted && !ev.scale_approved ||
+  ev.salao_submitted && !ev.salao_approved
+  ).length :
+  0; // Ativa detecção de dispositivo para todos os usuários
 
   const smoothScroll = (delta) => {
     if (!mainRef.current) return;
@@ -37,9 +37,9 @@ export default function Layout() {
     const scroll = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const easeInOutQuad = progress < 0.5 
-        ? 2 * progress * progress 
-        : -1 + (4 - 2 * progress) * progress;
+      const easeInOutQuad = progress < 0.5 ?
+      2 * progress * progress :
+      -1 + (4 - 2 * progress) * progress;
       mainRef.current.scrollTop = start + distance * easeInOutQuad;
       if (progress < 1) requestAnimationFrame(scroll);
     };
@@ -74,9 +74,9 @@ export default function Layout() {
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         paddingLeft: 'env(safe-area-inset-left, 0px)',
-        paddingRight: 'env(safe-area-inset-right, 0px)',
-      }}
-    >
+        paddingRight: 'env(safe-area-inset-right, 0px)'
+      }}>
+      
       <header className="sticky top-0 z-50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-2xl border-b border-border/50 shadow-sm shadow-black/5">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
@@ -84,8 +84,8 @@ export default function Layout() {
               <img
                 src="https://media.base44.com/images/public/69cbd80727489d185bf14962/7cb5516e1_download.png"
                 alt="Ninho da Roxinha"
-                className="w-full h-full object-cover"
-              />
+                className="w-full h-full object-cover" />
+              
             </div>
             <div>
               <span className="font-bold text-base tracking-tight text-foreground">Ninho da Roxinha</span>
@@ -95,30 +95,30 @@ export default function Layout() {
           <div className="flex items-center gap-2">
             <NotificationBell />
             <button
-              onClick={() => { try { localStorage.removeItem("ninho_auth"); } catch {} try { sessionStorage.removeItem("ninho_auth"); } catch {} window.location.href = window.location.origin; }}
+              onClick={() => {try {localStorage.removeItem("ninho_auth");} catch {}try {sessionStorage.removeItem("ninho_auth");} catch {}window.location.href = window.location.origin;}}
               className="flex items-center gap-2 text-sm font-semibold text-destructive bg-destructive/10 hover:bg-destructive hover:text-white transition-colors px-4 py-3 rounded-xl min-w-[44px] min-h-[44px] active:scale-95 touch-manipulation"
-              title="Sair"
-            >
+              title="Sair">
+              
               <LogOut className="w-4 h-4" />
               <span>Sair</span>
             </button>
-            {(loginUser?.role === "aprovador" || loginUser?.role === "admin") && (
-              <Link to="/finance" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
+            {(loginUser?.role === "aprovador" || loginUser?.role === "admin") &&
+            <Link to="/finance" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
                 <BarChart3 className="w-4 h-4" />
                 <span className="hidden sm:inline">Dashboard</span>
               </Link>
-            )}
-            {isAdmin && (
-              <Link to="/approvals" className="relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
+            }
+            {isAdmin &&
+            <Link to="/approvals" className="relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
                 <ClipboardCheck className="w-4 h-4" />
                 <span className="hidden sm:inline">Aprovações</span>
-                {pendingCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {pendingCount > 0 &&
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {pendingCount}
                   </span>
-                )}
+              }
               </Link>
-            )}
+            }
           </div>
         </div>
       </header>
@@ -129,14 +129,14 @@ export default function Layout() {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         className="flex-1 w-full px-2 sm:px-6 lg:px-8 py-4 sm:py-6 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full"
-        style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--border)) transparent' }}
-      >
+        style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--border)) transparent' }}>
+        
         <div className="max-w-7xl mx-auto">
           <Outlet />
         </div>
       </main>
 
 
-    </div>
-  );
+    </div>);
+
 }
