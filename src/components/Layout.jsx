@@ -105,7 +105,7 @@ export default function Layout() {
             {(loginUser?.role === "aprovador" || loginUser?.role === "admin") &&
             <Link to="/finance" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
                 <BarChart3 className="w-4 h-4" />
-                <span className="hidden sm:inline">Dashboard</span>
+                
               </Link>
             }
             {isAdmin &&
