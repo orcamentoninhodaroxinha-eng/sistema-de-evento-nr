@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/lib/AuthContext';
 
 export function useDeviceDetection() {
+  const { user } = useAuth();
   const [deviceInfo, setDeviceInfo] = useState({
     isMobile: false,
     isWeb: true,
@@ -21,7 +23,7 @@ export function useDeviceDetection() {
 
     setDeviceInfo(info);
     console.log(`[Ninho Connected] Device: ${deviceType}, Screen: ${window.innerWidth}x${window.innerHeight}`);
-  }, []);
+  }, [user]);
 
   return deviceInfo;
 }

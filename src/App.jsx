@@ -2,6 +2,9 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import AuthSplash from './components/AuthSplash';
+import UserNotRegisteredError from './components/UserNotRegisteredError';
 import LoginGate from './components/LoginGate';
 import Layout from './components/Layout.jsx';
 import Events from './pages/Events';
@@ -12,6 +15,21 @@ import EventDetailPage from './pages/EventDetailPage';
 import Approvals from './pages/Approvals';
 
 const AuthenticatedApp = () => {
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+
+  if (isLoadingPublicSettings || isLoadingAuth) {
+    return <AuthSplash />;
+  }
+
+  if (authError) {
+    if (authError.type === 'user_not_registered') {
+      return <UserNotRegisteredError />;
+    } else if (authError.type === 'auth_required') {
+      navigateToLogin();
+      return null;
+    }
+  }
+
   return (
     <Routes>
       <Route element={<Layout />}>
@@ -28,14 +46,16 @@ const AuthenticatedApp = () => {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClientInstance}>
-      <LoginGate>
-        <Router>
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
-      </LoginGate>
-    </QueryClientProvider>
+    <LoginGate>
+      <AuthProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <AuthenticatedApp />
+          </Router>
+          <Toaster />
+        </QueryClientProvider>
+      </AuthProvider>
+    </LoginGate>
   )
 }
 
