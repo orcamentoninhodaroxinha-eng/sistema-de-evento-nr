@@ -2,7 +2,6 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from '@/lib/AuthContext';
 import LoginGate from './components/LoginGate';
 import Layout from './components/Layout.jsx';
 import Events from './pages/Events';
@@ -29,16 +28,14 @@ const AuthenticatedApp = () => {
 
 function App() {
   return (
-    <LoginGate>
-      <AuthProvider>
-        <QueryClientProvider client={queryClientInstance}>
-          <Router>
-            <AuthenticatedApp />
-          </Router>
-          <Toaster />
-        </QueryClientProvider>
-      </AuthProvider>
-    </LoginGate>
+    <QueryClientProvider client={queryClientInstance}>
+      <LoginGate>
+        <Router>
+          <AuthenticatedApp />
+        </Router>
+        <Toaster />
+      </LoginGate>
+    </QueryClientProvider>
   )
 }
 
