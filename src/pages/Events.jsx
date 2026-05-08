@@ -125,7 +125,7 @@ export default function Events() {
 
   useEffect(() => {
     if (loginUser?.role === "aprovador") {
-      navigate("/approvals", { replace: true });
+      navigate("/aprovador", { replace: true });
     }
   }, [loginUser, navigate]);
 

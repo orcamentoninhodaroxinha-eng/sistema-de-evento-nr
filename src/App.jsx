@@ -12,6 +12,7 @@ import AccountDeletion from './pages/AccountDeletion';
 import EventDetailPage from './pages/EventDetailPage';
 import Approvals from './pages/Approvals';
 import FinanceDashboard from './pages/FinanceDashboard';
+import AprovadorHome from './pages/AprovadorHome';
 
 const AuthenticatedApp = () => {
   return (
@@ -23,6 +24,7 @@ const AuthenticatedApp = () => {
         <Route path="/account/delete" element={<AccountDeletion />} />
         <Route path="/approvals" element={<Approvals />} />
         <Route path="/finance" element={<FinanceDashboard />} />
+        <Route path="/aprovador" element={<AprovadorHome />} />
         <Route path="/roulette" element={<Roulette />} />
       </Route>
     </Routes>
