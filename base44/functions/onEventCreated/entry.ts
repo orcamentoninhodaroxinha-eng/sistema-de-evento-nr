@@ -27,6 +27,10 @@ Deno.serve(async (req) => {
         body: message,
         target_roles,
       }),
+      base44.asServiceRole.functions.invoke("sendOneSignalNotification", {
+        title,
+        message,
+      }),
       base44.asServiceRole.functions.invoke("sendWhatsApp", {
         message: `${title}\n${message}`,
       }),
