@@ -104,14 +104,14 @@ export default function Layout() {
             </button>
             {(loginUser?.role === "aprovador" || loginUser?.role === "admin") &&
             <Link to="/finance" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
-                <BarChart3 className="w-4 h-4 hidden" />
+                
                 
               </Link>
             }
             {isAdmin &&
             <Link to="/approvals" className="relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
-                <ClipboardCheck className="w-4 h-4 hidden" />
-                <span className="hidden sm:inline">Aprovações</span>
+                
+                
                 {pendingCount > 0 &&
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {pendingCount}
