@@ -294,8 +294,12 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           )}
           {event.description && (
             <div className="flex items-start gap-3 text-sm">
-              <FileText className="w-4 h-4 text-muted-foreground mt-0.5" />
-              <span className="text-muted-foreground">{event.description}</span>
+              <FileText className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+              <div className="text-muted-foreground space-y-0.5">
+                {event.description.split(/(?<=\.)\s+/).map((line, i) => (
+                  <p key={i}>{line}</p>
+                ))}
+              </div>
             </div>
           )}
 
