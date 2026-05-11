@@ -93,10 +93,17 @@ export default function EventEditForm({ event, onSuccess, onCancel }) {
       <div className="space-y-1">
         <Label className="text-xs font-semibold">Descrição</Label>
         <Textarea
-          placeholder="Detalhes do evento..."
+          placeholder="Cada frase em uma linha. Ex: Cerimônia às 18h. Jantar às 20h."
           value={formData.description}
-          onChange={(e) => handleChange("description", e.target.value)}
-          className="rounded-lg text-sm min-h-[60px] resize-none"
+          onChange={(e) => {
+            const val = e.target.value;
+            if (val.endsWith(".") && val.length > (formData.description || "").length) {
+              handleChange("description", val + "\n");
+            } else {
+              handleChange("description", val);
+            }
+          }}
+          className="rounded-lg text-sm min-h-[80px]"
         />
       </div>
 
