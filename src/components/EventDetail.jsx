@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import EventScale from "./EventScale";
 import UnifiedScaleAdminBox from "./UnifiedScaleAdminBox";
+import EventEditForm from "./EventEditForm";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const isJuberly = loginUser?.role === "cozinha";
   const isAndreF = loginUser?.role === "salao";
   const isAdmin = loginUser?.role === "admin" || loginUser?.role === "aprovador";
+  const isNinho = loginUser?.username === "Ninho";
+  const [showEditForm, setShowEditForm] = useState(false);
   const [showScaleBuilder, setShowScaleBuilder] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchEmployee, setSearchEmployee] = useState("");
@@ -189,6 +192,25 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         Voltar
       </Button>
 
+      {/* Edit Form - apenas Ninho */}
+      {isNinho && showEditForm && (
+        <div className="bg-card rounded-2xl border border-border p-5 shadow-sm mb-6">
+          <h2 className="font-semibold text-base mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editar Evento
+          </h2>
+          <EventEditForm
+            event={event}
+            onSuccess={(updated) => {
+              Object.assign(event, updated);
+              setShowEditForm(false);
+              onRefresh();
+            }}
+            onCancel={() => setShowEditForm(false)}
+          />
+        </div>
+      )}
+
       {/* Event Header */}
       <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm mb-6">
         <div className="bg-gradient-to-br from-primary/10 via-accent to-primary/5 p-6">
@@ -198,6 +220,15 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               <span className={`inline-block mt-2 text-xs font-medium px-3 py-1 rounded-full border ${statusColors[event.status] || statusColors.Planejado}`}>
                 {event.status || "Planejado"}
               </span>
+              {isNinho && !showEditForm && (
+                <button
+                  onClick={() => setShowEditForm(true)}
+                  className="mt-2 ml-2 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Editar
+                </button>
+              )}
             </div>
             <div className="w-16 h-16 rounded-xl bg-white/80 backdrop-blur flex flex-col items-center justify-center shadow-sm">
               <span className="text-xs font-medium text-primary/70 uppercase">
