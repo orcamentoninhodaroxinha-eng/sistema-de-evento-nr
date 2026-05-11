@@ -339,6 +339,22 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                   <span className="font-medium">{event.guest_count}</span>
                 </div>
               )}
+              {event.party_start && event.party_end && (() => {
+                const [sh, sm] = event.party_start.split(":").map(Number);
+                const [eh, em] = event.party_end.split(":").map(Number);
+                const totalMins = (eh * 60 + em) - (sh * 60 + sm);
+                if (totalMins <= 0) return null;
+                const hours = Math.floor(totalMins / 60);
+                const mins = totalMins % 60;
+                const label = hours > 0 && mins > 0 ? `${hours}h ${mins}min` : hours > 0 ? `${hours}h` : `${mins}min`;
+                return (
+                  <div className="flex items-center gap-3 text-sm">
+                    <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <span className="text-muted-foreground">Duração da festa:</span>
+                    <span className="font-medium">{label}</span>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>
