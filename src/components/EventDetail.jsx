@@ -293,21 +293,22 @@ export default function EventDetail({ event, onBack, onRefresh }) {
             </div>
           )}
           {event.description && (
-            <div className="flex items-start gap-3 text-sm">
-              <FileText className="w-4 h-4 text-muted-foreground mt-1 shrink-0" />
-              <div className="bg-muted/40 rounded-xl px-3 py-2.5 space-y-1.5 flex-1">
-                {event.description
-                  .split(/\n/)
-                  .flatMap(line => line.split(/(?<=\.)\s+/))
-                  .map(s => s.trim())
-                  .filter(Boolean)
-                  .map((line, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary/40 shrink-0" />
-                      <p className="text-foreground/80 leading-snug">{line}</p>
-                    </div>
-                  ))}
+            <div className="mt-1 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 space-y-2">
+              <div className="flex items-center gap-2 mb-1">
+                <FileText className="w-4 h-4 text-amber-500 shrink-0" />
+                <span className="text-xs font-bold uppercase tracking-wide text-amber-600">Observações do Evento</span>
               </div>
+              {event.description
+                .split(/\n/)
+                .flatMap(line => line.split(/(?<=\.)\s+/))
+                .map(s => s.trim())
+                .filter(Boolean)
+                .map((line, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                    <p className="text-sm text-amber-900 leading-snug">{line}</p>
+                  </div>
+                ))}
             </div>
           )}
 
