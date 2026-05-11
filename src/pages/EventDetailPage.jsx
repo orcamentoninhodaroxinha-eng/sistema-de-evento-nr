@@ -42,7 +42,13 @@ export default function EventDetailPage() {
   return (
     <EventDetail
       event={event}
-      onBack={() => navigate(-1)}
+      onBack={() => {
+        if (window.history.length > 1) {
+          navigate(-1);
+        } else {
+          navigate("/");
+        }
+      }}
       onRefresh={() => {
         queryClient.invalidateQueries(["events"]);
         queryClient.invalidateQueries(["event", id]);
