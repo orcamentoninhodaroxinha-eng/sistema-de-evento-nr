@@ -67,6 +67,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const { data: allEmployees } = useQuery({
     queryKey: ["employees"],
     queryFn: () => base44.entities.Employee.list("full_name", 500),
+    staleTime: 5 * 60 * 1000, // funcionários mudam raramente
   });
 
   const eventEmployeeIds = localEmployeeIds;

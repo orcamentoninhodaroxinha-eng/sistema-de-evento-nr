@@ -132,6 +132,7 @@ export default function Events() {
   const { data: events, isLoading } = useQuery({
     queryKey: ["events"],
     queryFn: () => base44.entities.Event.list("-date", 100),
+    staleTime: 30 * 1000,
   });
 
   useEffect(() => {
