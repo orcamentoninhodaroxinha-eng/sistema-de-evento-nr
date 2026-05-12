@@ -689,9 +689,13 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
           </div>
 
           <div className="flex gap-2 mt-1">
-            <Button variant="outline" onClick={() => setShowReview(false)} className="flex-1 gap-2">
-              <X className="w-4 h-4" />
-              Fechar
+            <Button
+              variant="outline"
+              onClick={() => { setShowReview(false); }}
+              className="gap-2 border-primary/40 text-primary hover:bg-primary/5"
+            >
+              <Plus className="w-4 h-4" />
+              Adicionar
             </Button>
             <Button onClick={handleConfirmAndExport} disabled={saving} className="flex-1 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
