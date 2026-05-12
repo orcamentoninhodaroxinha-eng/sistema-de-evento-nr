@@ -129,12 +129,12 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
     } catch { return []; }
   });
 
-  // Se escala foi reprovada e localStorage está vazio, carrega do CSV existente
+  // Se localStorage está vazio mas já existe CSV salvo, carrega do CSV
   const existingCsvUrl = isSalao ? event.salao_csv_url : event.scale_csv_url;
   const isRejected = isSalao ? event.salao_rejected : event.scale_rejected;
 
   useEffect(() => {
-    if (scale.length === 0 && isRejected && existingCsvUrl) {
+    if (scale.length === 0 && existingCsvUrl) {
       setLoadingCsv(true);
       parseCsvFromUrl(existingCsvUrl).then(rows => {
         if (rows.length > 0) {

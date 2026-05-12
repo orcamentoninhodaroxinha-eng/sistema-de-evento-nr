@@ -415,7 +415,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                     className="w-full h-11 border-orange-300 text-orange-700 rounded-xl gap-2 hover:bg-orange-50"
                   >
                     <Plus className="w-4 h-4" />
-                    Editar Escala
+                    Editar Escala (Adicionar / Remover)
                   </Button>
                   {!scaleSubmitted && (
                     <Button
@@ -437,20 +437,20 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               )}
             </div>
           ) : (
-            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 shadow-sm">
+            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="font-semibold text-orange-800">🍳 Escala da Cozinha</h2>
                   <p className="text-xs text-orange-600 mt-0.5">Adicione os funcionários e defina funções e valores</p>
                 </div>
-                <Button
-                  onClick={() => setShowScaleBuilder(true)}
-                  className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Criar Escala
-                </Button>
               </div>
+              <Button
+                onClick={() => setShowScaleBuilder(true)}
+                className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white rounded-xl gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Criar / Editar Escala
+              </Button>
             </div>
           )}
         </div>
