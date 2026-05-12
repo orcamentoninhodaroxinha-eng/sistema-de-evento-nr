@@ -94,31 +94,30 @@ export default function Layout() {
           </Link>
           <div className="flex items-center gap-2">
             <NotificationBell />
+            {(loginUser?.role === "aprovador" || loginUser?.role === "admin") &&
+              <Link to="/finance" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-xl hover:bg-accent min-h-[40px]">
+                <BarChart3 className="w-4 h-4 shrink-0" />
+                <span className="hidden xs:inline">Dashboard</span>
+              </Link>
+            }
+            {isAdmin &&
+              <Link to="/approvals" className="relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-xl hover:bg-accent min-h-[40px]">
+                <ClipboardCheck className="w-4 h-4 shrink-0" />
+                <span className="hidden xs:inline">Aprovações</span>
+                {pendingCount > 0 &&
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {pendingCount}
+                  </span>
+                }
+              </Link>
+            }
             <button
               onClick={() => {try {localStorage.removeItem("ninho_auth");} catch {}try {sessionStorage.removeItem("ninho_auth");} catch {}window.location.href = window.location.origin;}}
               className="flex items-center gap-2 text-sm font-semibold text-destructive bg-destructive/10 hover:bg-destructive hover:text-white transition-colors px-4 py-3 rounded-xl min-w-[44px] min-h-[44px] active:scale-95 touch-manipulation"
               title="Sair">
-              
               <LogOut className="w-4 h-4" />
               <span>Sair</span>
             </button>
-            {(loginUser?.role === "aprovador" || loginUser?.role === "admin") &&
-            <Link to="/finance" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
-                <BarChart3 className="w-4 h-4" />
-                <span className="hidden sm:inline">Dashboard</span>
-              </Link>
-            }
-            {isAdmin &&
-            <Link to="/approvals" className="relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-accent">
-                <ClipboardCheck className="w-4 h-4" />
-                <span className="hidden sm:inline">Aprovações</span>
-                {pendingCount > 0 &&
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {pendingCount}
-                  </span>
-              }
-              </Link>
-            }
           </div>
         </div>
       </header>
