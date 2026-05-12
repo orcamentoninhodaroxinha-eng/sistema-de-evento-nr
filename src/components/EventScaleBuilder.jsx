@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useMotionValue, useTransform } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Plus, Trash2, Save, Loader2, Search, Eye, X, ChevronLeft, CheckCircle2, FileSpreadsheet } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Loader2, Search, Eye, X, ChevronLeft, CheckCircle2, FileSpreadsheet, ArrowLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,6 +85,8 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
   const [valor, setValor] = useState("");
   const [saving, setSaving] = useState(false);
   const [loadingCsv, setLoadingCsv] = useState(false);
+  const [swapTarget, setSwapTarget] = useState(null); // employeeId being swapped
+  const [searchSwap, setSearchSwap] = useState("");
   const [showNewEmpDialog, setShowNewEmpDialog] = useState(false);
   const [newEmpName, setNewEmpName] = useState("");
   const [newEmpPix, setNewEmpPix] = useState("");
@@ -185,6 +187,27 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
     const newScale = scale.filter(s => s.employeeId !== employeeId);
     setScale(newScale);
     localStorage.setItem(scaleKey, JSON.stringify(newScale));
+  };
+
+  const handleSwap = (newEmp) => {
+    const newScale = scale.map(s => {
+      if (s.employeeId !== swapTarget) return s;
+      return {
+        ...s,
+        employeeId: newEmp.id,
+        full_name: newEmp.full_name,
+        role: newEmp.role,
+        funcao: s.funcao, // mantém função e valor originais
+        pix: newEmp.pix || s.pix,
+        celular: newEmp.phone || s.celular,
+        isNew: false,
+      };
+    });
+    setScale(newScale);
+    localStorage.setItem(scaleKey, JSON.stringify(newScale));
+    setSwapTarget(null);
+    setSearchSwap("");
+    toast(`Funcionário trocado com sucesso!`, { duration: 1500 });
   };
 
   const handleAddNewEmployee = async () => {
@@ -564,6 +587,55 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
         )}
       </AnimatePresence>
 
+      {/* Dialog: Trocar Funcionário */}
+      <Dialog open={!!swapTarget} onOpenChange={(open) => { if (!open) { setSwapTarget(null); setSearchSwap(""); } }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ArrowLeftRight className="w-4 h-4" />
+              Trocar Funcionário
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-muted-foreground -mt-1">
+            Escolha quem vai substituir <strong>{scale.find(s => s.employeeId === swapTarget)?.full_name}</strong>. Função e valor serão mantidos.
+          </p>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nome ou função..."
+              value={searchSwap}
+              onChange={e => setSearchSwap(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <div className="max-h-64 overflow-y-auto space-y-1.5">
+            {(allEmployees || [])
+              .filter(emp =>
+                emp.id !== swapTarget &&
+                !scale.find(s => s.employeeId === emp.id) &&
+                (emp.full_name?.toLowerCase().includes(searchSwap.toLowerCase()) ||
+                 emp.role?.toLowerCase().includes(searchSwap.toLowerCase()))
+              )
+              .map(emp => (
+                <button
+                  key={emp.id}
+                  onClick={() => handleSwap(emp)}
+                  className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-accent transition-colors text-left"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                    {emp.full_name?.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{emp.full_name}</p>
+                    <p className="text-xs text-muted-foreground">{emp.role}</p>
+                  </div>
+                  <ArrowLeftRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                </button>
+              ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Dialog: Conferir Escala */}
       <Dialog open={showReview} onOpenChange={setShowReview}>
         <DialogContent className="max-w-sm">
@@ -593,6 +665,13 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
                   <p className="text-xs text-muted-foreground truncate">{emp.funcao}</p>
                 </div>
                 <span className="text-xs font-semibold text-emerald-700 shrink-0">R$ {emp.valor}</span>
+                <button
+                  onClick={() => { setSwapTarget(emp.employeeId); setSearchSwap(""); }}
+                  className="text-blue-400 hover:text-blue-600 p-0.5 shrink-0"
+                  title="Trocar funcionário"
+                >
+                  <ArrowLeftRight className="w-3.5 h-3.5" />
+                </button>
                 <button
                   onClick={() => handleRemove(emp.employeeId)}
                   className="text-destructive/50 hover:text-destructive p-0.5 shrink-0"
