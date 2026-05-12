@@ -97,8 +97,11 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
   const newEmpOpacity = useTransform(newEmpDragY, [0, 300], [1, 0]);
   const addEmpDragY = useMotionValue(0);
   const addEmpOpacity = useTransform(addEmpDragY, [0, 300], [1, 0]);
+  const swapDragY = useMotionValue(0);
+  const swapOpacity = useTransform(swapDragY, [0, 300], [1, 0]);
   const newEmpTouchStart = useRef(null);
   const addEmpTouchStart = useRef(null);
+  const swapTouchStart = useRef(null);
   const listRef = useRef(null);
   const reviewListRef = useRef(null);
   const dragStart = useRef(null);
@@ -587,54 +590,103 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
         )}
       </AnimatePresence>
 
-      {/* Dialog: Trocar Funcionário */}
-      <Dialog open={!!swapTarget} onOpenChange={(open) => { if (!open) { setSwapTarget(null); setSearchSwap(""); } }}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ArrowLeftRight className="w-4 h-4" />
-              Trocar Funcionário
-            </DialogTitle>
-          </DialogHeader>
-          <p className="text-xs text-muted-foreground -mt-1">
-            Escolha quem vai substituir <strong>{scale.find(s => s.employeeId === swapTarget)?.full_name}</strong>. Função e valor serão mantidos.
-          </p>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por nome ou função..."
-              value={searchSwap}
-              onChange={e => setSearchSwap(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <div className="max-h-64 overflow-y-auto space-y-1.5">
-            {(allEmployees || [])
-              .filter(emp =>
-                emp.id !== swapTarget &&
-                !scale.find(s => s.employeeId === emp.id) &&
-                (emp.full_name?.toLowerCase().includes(searchSwap.toLowerCase()) ||
-                 emp.role?.toLowerCase().includes(searchSwap.toLowerCase()))
-              )
-              .map(emp => (
-                <button
-                  key={emp.id}
-                  onClick={() => handleSwap(emp)}
-                  className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-accent transition-colors text-left"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                    {emp.full_name?.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{emp.full_name}</p>
-                    <p className="text-xs text-muted-foreground">{emp.role}</p>
-                  </div>
-                  <ArrowLeftRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                </button>
-              ))}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Tela cheia: Trocar Funcionário */}
+      <AnimatePresence>
+        {!!swapTarget && (
+          <motion.div
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 28, stiffness: 300 }}
+            style={{ y: swapDragY, opacity: swapOpacity }}
+            className="fixed inset-0 z-50 bg-background flex flex-col"
+          >
+            {/* Drag handle */}
+            <div
+              className="flex justify-center pt-4 pb-3 cursor-grab active:cursor-grabbing select-none"
+              style={{ touchAction: "none" }}
+              onTouchStart={(e) => { swapTouchStart.current = e.touches[0].clientY; }}
+              onTouchMove={(e) => {
+                if (swapTouchStart.current === null) return;
+                const dy = e.touches[0].clientY - swapTouchStart.current;
+                if (dy > 0) swapDragY.set(dy);
+              }}
+              onTouchEnd={() => {
+                if (swapDragY.get() > 100) {
+                  setSwapTarget(null);
+                  setSearchSwap("");
+                }
+                swapDragY.set(0);
+                swapTouchStart.current = null;
+              }}
+            >
+              <div className="w-12 h-1.5 rounded-full bg-muted-foreground/25" />
+            </div>
+
+            {/* Header */}
+            <div className="flex items-center px-4 pt-2 pb-4 border-b border-border gap-2">
+              <button
+                onClick={() => { setSwapTarget(null); setSearchSwap(""); swapDragY.set(0); }}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-1 p-1"
+              >
+                <ChevronLeft className="w-5 h-5" />
+                Voltar
+              </button>
+              <h2 className="font-bold text-base flex-1 text-center pr-16">Trocar Funcionário</h2>
+            </div>
+
+            {/* Info */}
+            <div className="px-4 pt-4 pb-2">
+              <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-200 to-blue-300 flex items-center justify-center text-base font-bold text-blue-700 shrink-0">
+                  {scale.find(s => s.employeeId === swapTarget)?.full_name?.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-xs text-blue-600 font-medium">Substituindo:</p>
+                  <p className="font-bold text-sm">{scale.find(s => s.employeeId === swapTarget)?.full_name}</p>
+                  <p className="text-xs text-muted-foreground">Função e valor serão mantidos</p>
+                </div>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome ou função..."
+                  value={searchSwap}
+                  onChange={e => setSearchSwap(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
+
+            {/* Lista */}
+            <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-2">
+              {(allEmployees || [])
+                .filter(emp =>
+                  emp.id !== swapTarget &&
+                  !scale.find(s => s.employeeId === emp.id) &&
+                  (emp.full_name?.toLowerCase().includes(searchSwap.toLowerCase()) ||
+                   emp.role?.toLowerCase().includes(searchSwap.toLowerCase()))
+                )
+                .map(emp => (
+                  <button
+                    key={emp.id}
+                    onClick={() => handleSwap(emp)}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-accent transition-colors text-left"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                      {emp.full_name?.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{emp.full_name}</p>
+                      <p className="text-xs text-muted-foreground">{emp.role}</p>
+                    </div>
+                    <ArrowLeftRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                  </button>
+                ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Dialog: Conferir Escala */}
       <Dialog open={showReview} onOpenChange={setShowReview}>
