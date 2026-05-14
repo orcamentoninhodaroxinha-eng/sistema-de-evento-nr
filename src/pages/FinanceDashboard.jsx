@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useLoginUser } from "@/hooks/useLoginUser";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { TrendingUp, TrendingDown, Minus, BarChart3, ArrowLeft, Loader2, FileSpreadsheet } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, BarChart3, ArrowLeft, Loader2, FileSpreadsheet, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import PageTransition from "@/components/PageTransition";
 import * as XLSX from "xlsx";
 
@@ -54,9 +55,12 @@ async function fetchScaleTotal(url) {
   }
 }
 
-function EventRow({ event }) {
+function EventRow({ event, onSaleValueChange }) {
   const [scaleTotal, setScaleTotal] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editValue, setEditValue] = useState("");
+  const [saving, setSaving] = useState(false);
   const csvUrl = event.unified_scale_csv_url || event.scale_csv_url;
   const saleNum = parseBRL(event.sale_value);
   const budget15 = saleNum * 0.15;
@@ -70,6 +74,27 @@ function EventRow({ event }) {
 
   const diff = scaleTotal !== null && saleNum > 0 ? budget15 - scaleTotal : null;
   const hasData = saleNum > 0 && scaleTotal !== null;
+
+  function startEdit() {
+    setEditValue(saleNum > 0 ? String(saleNum) : "");
+    setEditing(true);
+  }
+
+  async function saveEdit() {
+    setSaving(true);
+    const raw = editValue.replace(",", ".");
+    const num = parseFloat(raw);
+    const newValue = isNaN(num) ? "" : String(num);
+    await base44.entities.Event.update(event.id, { sale_value: newValue });
+    onSaleValueChange(event.id, newValue);
+    setSaving(false);
+    setEditing(false);
+  }
+
+  function cancelEdit() {
+    setEditing(false);
+    setEditValue("");
+  }
 
   return (
     <div className="bg-white rounded-xl border border-border px-4 py-3 space-y-2">
@@ -97,10 +122,38 @@ function EventRow({ event }) {
         )}
       </div>
 
-      {/* Valores */}
-      {!saleNum ? (
-        <p className="text-xs text-muted-foreground italic">Valor do evento não informado</p>
-      ) : loading ? (
+      {/* Edição do valor */}
+      {editing ? (
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground shrink-0">R$</span>
+          <Input
+            autoFocus
+            value={editValue}
+            onChange={e => setEditValue(e.target.value)}
+            inputMode="decimal"
+            className="h-8 text-sm"
+            placeholder="Ex: 5000"
+            onKeyDown={e => { if (e.key === "Enter") saveEdit(); if (e.key === "Escape") cancelEdit(); }}
+          />
+          <button onClick={saveEdit} disabled={saving} className="text-emerald-600 hover:text-emerald-700 p-1">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+          </button>
+          <button onClick={cancelEdit} className="text-muted-foreground hover:text-foreground p-1">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={startEdit}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group"
+        >
+          <span>{saleNum > 0 ? formatBRL(saleNum) : "Informar valor do evento"}</span>
+          <Pencil className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+        </button>
+      )}
+
+      {/* Valores calculados */}
+      {!saleNum && !editing ? null : loading ? (
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Loader2 className="w-3 h-3 animate-spin" /> Carregando escala...
         </div>
@@ -137,7 +190,7 @@ function EventRow({ event }) {
   );
 }
 
-function MonthBlock({ monthLabel, events, totals }) {
+function MonthBlock({ monthLabel, events, totals, onSaleValueChange }) {
   const { saleTotal, budget15Total, scaleTotal, diff } = totals;
   const hasFinance = saleTotal > 0 && scaleTotal > 0;
 
@@ -152,7 +205,9 @@ function MonthBlock({ monthLabel, events, totals }) {
 
       {/* Cards dos eventos */}
       <div className="space-y-2">
-        {events.map((ev) => <EventRow key={ev.id} event={ev} />)}
+        {events.map((ev) => (
+          <EventRow key={ev.id} event={ev} onSaleValueChange={onSaleValueChange} />
+        ))}
       </div>
 
       {/* Resumo do mês */}
@@ -194,11 +249,23 @@ export default function FinanceDashboard() {
   const loginUser = useLoginUser();
   const navigate = useNavigate();
   const [scaleTotals, setScaleTotals] = useState({});
+  const [localEvents, setLocalEvents] = useState(null);
 
   const { data: events, isLoading } = useQuery({
     queryKey: ["events-finance"],
     queryFn: () => base44.entities.Event.list("-date", 200),
   });
+
+  // Sincroniza localEvents quando events carrega pela primeira vez
+  useEffect(() => {
+    if (events && !localEvents) setLocalEvents(events);
+  }, [events]);
+
+  const displayEvents = localEvents || events || [];
+
+  function handleSaleValueChange(eventId, newValue) {
+    setLocalEvents(prev => prev.map(ev => ev.id === eventId ? { ...ev, sale_value: newValue } : ev));
+  }
 
   // Carrega todos os totais das escalas
   useEffect(() => {
@@ -213,11 +280,11 @@ export default function FinanceDashboard() {
   }, [events]);
 
   // Filtra só eventos com valor de venda (para o resumo geral)
-  const eventsWithData = (events || []).filter(ev => ev.sale_value);
+  const eventsWithData = displayEvents.filter(ev => ev.sale_value);
 
   // Agrupa por mês
   const groupedByMonth = {};
-  (events || []).forEach((ev) => {
+  displayEvents.forEach((ev) => {
     if (!ev.date) return;
     const key = ev.date.slice(0, 7); // "2026-05"
     if (!groupedByMonth[key]) groupedByMonth[key] = [];
@@ -313,6 +380,7 @@ export default function FinanceDashboard() {
                   monthLabel={monthLabel}
                   events={monthEvents}
                   totals={totals}
+                  onSaleValueChange={handleSaleValueChange}
                 />
               );
             })}
