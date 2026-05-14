@@ -145,10 +145,14 @@ function EventRow({ event, onSaleValueChange }) {
       ) : (
         <button
           onClick={startEdit}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group"
+          className="flex items-center gap-1.5 text-xs hover:opacity-80 transition-opacity"
         >
-          <span>{saleNum > 0 ? formatBRL(saleNum) : "Informar valor do evento"}</span>
-          <Pencil className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span className={`font-semibold ${saleNum > 0 ? "text-slate-700" : "text-primary"}`}>
+            {saleNum > 0 ? formatBRL(saleNum) : "Informar valor do evento"}
+          </span>
+          <span className="flex items-center justify-center w-5 h-5 rounded-md bg-primary/10 text-primary">
+            <Pencil className="w-3 h-3" />
+          </span>
         </button>
       )}
 
