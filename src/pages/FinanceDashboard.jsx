@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { TrendingUp, TrendingDown, Minus, BarChart3, ArrowLeft, Loader2, FileSpreadsheet, Pencil, Check, X } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, BarChart3, ArrowLeft, Loader2, FileSpreadsheet, Pencil, Check, X, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PageTransition from "@/components/PageTransition";
@@ -272,54 +272,54 @@ function EventRow({ event, onSaleValueChange }) {
 function MonthBlock({ monthLabel, events, totals, onSaleValueChange }) {
   const { saleTotal, budget15Total, scaleTotal, diff } = totals;
   const hasFinance = saleTotal > 0 && scaleTotal > 0;
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="space-y-3">
-      {/* Cabeçalho do mês */}
-      <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-border" />
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-2">{monthLabel}</span>
-        <div className="h-px flex-1 bg-border" />
-      </div>
+    <div className={`rounded-2xl border-2 overflow-hidden ${hasFinance ? (diff >= 0 ? "border-emerald-300" : "border-red-300") : "border-slate-200"}`}>
+      {/* Cabeçalho clicável */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={`w-full px-4 py-3 flex items-center justify-between gap-2 ${hasFinance ? (diff >= 0 ? "bg-emerald-50" : "bg-red-50") : "bg-slate-50"}`}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold capitalize text-slate-700">{monthLabel}</span>
+          <span className="text-xs text-muted-foreground">— {events.length} evento{events.length > 1 ? "s" : ""}</span>
+        </div>
+        <div className="flex items-center gap-3">
+          {hasFinance && (
+            <span className={`text-xs font-bold flex items-center gap-1 ${diff >= 0 ? "text-emerald-700" : "text-red-700"}`}>
+              {diff >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+              {formatBRL(Math.abs(diff))}
+            </span>
+          )}
+          {open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+        </div>
+      </button>
 
-      {/* Cards dos eventos */}
-      <div className="space-y-2">
-        {events.map((ev) => (
-          <EventRow key={ev.id} event={ev} onSaleValueChange={onSaleValueChange} />
-        ))}
-      </div>
-
-      {/* Resumo do mês */}
-      <div className={`rounded-xl border-2 px-4 py-3 ${hasFinance ? (diff >= 0 ? "border-emerald-300 bg-emerald-50" : "border-red-300 bg-red-50") : "border-slate-200 bg-slate-50"}`}>
-        <p className="text-xs font-bold uppercase tracking-wide mb-2 text-slate-600">
-          Resumo de {monthLabel} — {events.length} evento{events.length > 1 ? "s" : ""}
-        </p>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div>
-            <p className="text-muted-foreground">Total eventos</p>
-            <p className="font-bold text-slate-800">{saleTotal > 0 ? formatBRL(saleTotal) : "—"}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Limite 15%</p>
-            <p className="font-bold text-blue-700">{saleTotal > 0 ? formatBRL(budget15Total) : "—"}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Total escala</p>
-            <p className="font-bold text-orange-700">{scaleTotal > 0 ? formatBRL(scaleTotal) : "—"}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">{hasFinance ? (diff >= 0 ? "Sobra" : "Estouro") : "Resultado"}</p>
-            {hasFinance ? (
-              <p className={`font-bold flex items-center gap-1 ${diff >= 0 ? "text-emerald-700" : "text-red-700"}`}>
-                {diff > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                {formatBRL(Math.abs(diff))}
-              </p>
-            ) : (
-              <p className="font-bold text-slate-400">—</p>
-            )}
-          </div>
+      {/* Resumo do mês (sempre visível) */}
+      <div className="px-4 py-2.5 bg-white border-t border-border grid grid-cols-3 gap-2 text-xs">
+        <div>
+          <p className="text-muted-foreground">Total eventos</p>
+          <p className="font-bold text-slate-800">{saleTotal > 0 ? formatBRL(saleTotal) : "—"}</p>
+        </div>
+        <div>
+          <p className="text-muted-foreground">Limite 15%</p>
+          <p className="font-bold text-blue-700">{saleTotal > 0 ? formatBRL(budget15Total) : "—"}</p>
+        </div>
+        <div>
+          <p className="text-muted-foreground">Total escala</p>
+          <p className="font-bold text-orange-700">{scaleTotal > 0 ? formatBRL(scaleTotal) : "—"}</p>
         </div>
       </div>
+
+      {/* Eventos (colapsável) */}
+      {open && (
+        <div className="px-3 py-3 space-y-2 border-t border-border bg-background">
+          {events.map((ev) => (
+            <EventRow key={ev.id} event={ev} onSaleValueChange={onSaleValueChange} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
