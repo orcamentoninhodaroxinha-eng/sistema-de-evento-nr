@@ -474,19 +474,19 @@ export default function FinanceDashboard() {
     );
   }
 
-  // Totais gerais — soma todos com sale_value; escala soma o que tiver disponível
-  const eventsWithSale = displayEvents.filter(ev => parseBRL(ev.sale_value) > 0);
-  const grandSale = eventsWithSale.reduce((acc, ev) => acc + parseBRL(ev.sale_value), 0);
+  // Totais gerais — considera apenas eventos que têm sale_value E escala carregada
+  const eventsWithBoth = displayEvents.filter(ev => parseBRL(ev.sale_value) > 0 && scaleTotals[ev.id] != null);
+  const grandSale = eventsWithBoth.reduce((acc, ev) => acc + parseBRL(ev.sale_value), 0);
   const grandBudget = grandSale * 0.15;
-  const grandScale = displayEvents.reduce((acc, ev) => acc + (scaleTotals[ev.id] || 0), 0);
+  const grandScale = eventsWithBoth.reduce((acc, ev) => acc + (scaleTotals[ev.id] || 0), 0);
   const grandDiff = grandBudget - grandScale;
 
-  // Calcula totais por mês — soma tudo que tiver valor de venda; escala soma o que estiver disponível
+  // Calcula totais por mês — considera apenas eventos com sale_value E escala carregada
   function getMonthTotals(monthEvents) {
-    const withSale = monthEvents.filter(ev => parseBRL(ev.sale_value) > 0);
-    const saleTotal = withSale.reduce((acc, ev) => acc + parseBRL(ev.sale_value), 0);
+    const withBoth = monthEvents.filter(ev => parseBRL(ev.sale_value) > 0 && scaleTotals[ev.id] != null);
+    const saleTotal = withBoth.reduce((acc, ev) => acc + parseBRL(ev.sale_value), 0);
     const budget15Total = saleTotal * 0.15;
-    const scaleTotal = monthEvents.reduce((acc, ev) => acc + (scaleTotals[ev.id] || 0), 0);
+    const scaleTotal = withBoth.reduce((acc, ev) => acc + (scaleTotals[ev.id] || 0), 0);
     const diff = budget15Total - scaleTotal;
     return { saleTotal, budget15Total, scaleTotal, diff };
   }
