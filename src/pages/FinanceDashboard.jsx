@@ -55,7 +55,7 @@ async function fetchScaleTotal(url) {
   }
 }
 
-function EventRow({ event, onSaleValueChange }) {
+function EventRow({ event, onSaleValueChange, isAdmin }) {
   const [scaleTotal, setScaleTotal] = useState(null);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -146,7 +146,7 @@ function EventRow({ event, onSaleValueChange }) {
       </div>
 
       {/* Edição do valor */}
-      {editing ? (
+      {isAdmin && editing ? (
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground shrink-0">R$</span>
           <Input
@@ -165,7 +165,7 @@ function EventRow({ event, onSaleValueChange }) {
             <X className="w-4 h-4" />
           </button>
         </div>
-      ) : (
+      ) : isAdmin ? (
         <button
           onClick={startEdit}
           className="flex items-center gap-1.5 text-xs hover:opacity-80 transition-opacity"
@@ -177,7 +177,9 @@ function EventRow({ event, onSaleValueChange }) {
             <Pencil className="w-3 h-3" />
           </span>
         </button>
-      )}
+      ) : saleNum > 0 ? (
+        <span className="text-xs font-semibold text-slate-700">{formatBRL(saleNum)}</span>
+      ) : null}
 
       {/* Valores calculados */}
       {!saleNum && !editing ? null : loading ? (
@@ -186,8 +188,8 @@ function EventRow({ event, onSaleValueChange }) {
         </div>
       ) : !csvUrl && scaleTotal === null ? (
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground italic">Sem escala — informe o total:</span>
-          {editingScale ? (
+          <span className="text-xs text-muted-foreground italic">Sem escala — {isAdmin ? "informe o total:" : "total não informado"}</span>
+          {isAdmin && editingScale ? (
             <div className="flex items-center gap-1 flex-1">
               <Input
                 autoFocus
@@ -205,14 +207,14 @@ function EventRow({ event, onSaleValueChange }) {
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
-          ) : (
+          ) : isAdmin ? (
             <button onClick={startEditScale} className="flex items-center gap-1 text-xs font-semibold text-primary hover:opacity-80">
               <span className="flex items-center justify-center w-5 h-5 rounded-md bg-primary/10 text-primary">
                 <Pencil className="w-3 h-3" />
               </span>
               Informar
             </button>
-          )}
+          ) : null}
         </div>
       ) : hasData ? (
         <div className="grid grid-cols-3 gap-2">
@@ -226,7 +228,7 @@ function EventRow({ event, onSaleValueChange }) {
           </div>
           <div className="bg-orange-50 rounded-lg px-2.5 py-2 text-center">
             <p className="text-[10px] text-muted-foreground">Escala total</p>
-            {editingScale ? (
+            {isAdmin && editingScale ? (
               <div className="flex items-center gap-1 mt-0.5">
                 <Input
                   autoFocus
@@ -243,13 +245,15 @@ function EventRow({ event, onSaleValueChange }) {
                   <X className="w-3 h-3" />
                 </button>
               </div>
-            ) : (
+            ) : isAdmin ? (
               <button onClick={startEditScale} className="flex items-center justify-center gap-1 mx-auto hover:opacity-80 transition-opacity">
                 <span className="text-xs font-bold text-orange-700">{formatBRL(scaleTotal)}</span>
                 <span className="flex items-center justify-center w-4 h-4 rounded bg-orange-200 text-orange-700">
                   <Pencil className="w-2.5 h-2.5" />
                 </span>
               </button>
+            ) : (
+              <span className="text-xs font-bold text-orange-700">{formatBRL(scaleTotal)}</span>
             )}
           </div>
           <div className={`col-span-3 rounded-lg px-3 py-2 flex items-center justify-between ${diff >= 0 ? "bg-emerald-50 border border-emerald-200" : "bg-red-50 border border-red-200"}`}>
@@ -269,7 +273,7 @@ function EventRow({ event, onSaleValueChange }) {
   );
 }
 
-function MonthBlock({ monthLabel, events, totals, onSaleValueChange }) {
+function MonthBlock({ monthLabel, events, totals, onSaleValueChange, isAdmin }) {
   const { saleTotal, budget15Total, scaleTotal, diff } = totals;
   const hasFinance = saleTotal > 0 && scaleTotal > 0;
   const [open, setOpen] = useState(false);
@@ -316,7 +320,7 @@ function MonthBlock({ monthLabel, events, totals, onSaleValueChange }) {
       {open && (
         <div className="px-3 py-3 space-y-2 border-t border-border bg-background">
           {events.map((ev) => (
-            <EventRow key={ev.id} event={ev} onSaleValueChange={onSaleValueChange} />
+            <EventRow key={ev.id} event={ev} onSaleValueChange={onSaleValueChange} isAdmin={isAdmin} />
           ))}
         </div>
       )}
@@ -370,6 +374,8 @@ export default function FinanceDashboard() {
     groupedByMonth[key].push(ev);
   });
   const sortedMonths = Object.keys(groupedByMonth).sort((a, b) => b.localeCompare(a));
+
+  const isAdmin = loginUser?.role === "admin";
 
   // Acesso restrito ao AndreM (aprovador)
   if (loginUser?.role !== "aprovador" && loginUser?.role !== "admin") {
@@ -460,6 +466,7 @@ export default function FinanceDashboard() {
                   events={monthEvents}
                   totals={totals}
                   onSaleValueChange={handleSaleValueChange}
+                  isAdmin={isAdmin}
                 />
               );
             })}
