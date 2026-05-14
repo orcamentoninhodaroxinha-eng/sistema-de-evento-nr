@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { TrendingUp, TrendingDown, Minus, BarChart3, ArrowLeft, Loader2, FileSpreadsheet, Pencil, Check, X, ChevronDown, ChevronUp } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, BarChart3, ArrowLeft, Loader2, FileSpreadsheet, Pencil, Check, X, ChevronDown, ChevronUp, Plus, CalendarPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PageTransition from "@/components/PageTransition";
@@ -278,7 +278,7 @@ function EventRow({ event, onSaleValueChange, onScaleTotalChange, isAdmin }) {
   );
 }
 
-function MonthBlock({ monthLabel, events, totals, onSaleValueChange, onScaleTotalChange, isAdmin }) {
+function MonthBlock({ monthLabel, monthKey, events, totals, onSaleValueChange, onScaleTotalChange, isAdmin, onAddEvent }) {
   const { saleTotal, budget15Total, scaleTotal, diff } = totals;
   const hasFinance = saleTotal > 0 && scaleTotal > 0;
   const [open, setOpen] = useState(false);
@@ -327,8 +327,74 @@ function MonthBlock({ monthLabel, events, totals, onSaleValueChange, onScaleTota
           {events.map((ev) => (
             <EventRow key={ev.id} event={ev} onSaleValueChange={onSaleValueChange} onScaleTotalChange={onScaleTotalChange} isAdmin={isAdmin} />
           ))}
+          {isAdmin && (
+            <button
+              onClick={() => onAddEvent(monthKey)}
+              className="w-full flex items-center justify-center gap-1.5 text-xs text-primary border border-dashed border-primary/40 rounded-xl py-2.5 hover:bg-primary/5 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Adicionar evento neste mês
+            </button>
+          )}
         </div>
       )}
+    </div>
+  );
+}
+
+function AddEventModal({ onClose, onSave, defaultDate }) {
+  const [name, setName] = useState("");
+  const [date, setDate] = useState(defaultDate || "");
+  const [saleValue, setSaleValue] = useState("");
+  const [scaleValue, setScaleValue] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function handleSave() {
+    if (!name || !date) return;
+    setSaving(true);
+    const newEvent = await base44.entities.Event.create({
+      name,
+      date,
+      sale_value: saleValue ? String(parseFloat(saleValue.replace(",", "."))) : "",
+      status: "Concluído",
+    });
+    onSave(newEvent, scaleValue ? parseFloat(scaleValue.replace(",", ".")) : null);
+    setSaving(false);
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center" onClick={onClose}>
+      <div className="bg-background rounded-t-2xl w-full max-w-lg p-5 space-y-4 pb-8" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-base flex items-center gap-2"><CalendarPlus className="w-4 h-4 text-primary" /> Adicionar Evento</h2>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground">Nome do evento *</label>
+            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Casamento Silva" className="mt-1" />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground">Data *</label>
+            <Input type="date" value={date} onChange={e => setDate(e.target.value)} className="mt-1" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground">Valor do evento (R$)</label>
+              <Input value={saleValue} onChange={e => setSaleValue(e.target.value)} inputMode="decimal" placeholder="Ex: 8000" className="mt-1" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground">Total escala (R$)</label>
+              <Input value={scaleValue} onChange={e => setScaleValue(e.target.value)} inputMode="decimal" placeholder="Ex: 1200" className="mt-1" />
+            </div>
+          </div>
+        </div>
+        <Button onClick={handleSave} disabled={saving || !name || !date} className="w-full gap-2">
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+          {saving ? "Salvando..." : "Adicionar"}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -338,6 +404,8 @@ export default function FinanceDashboard() {
   const navigate = useNavigate();
   const [scaleTotals, setScaleTotals] = useState({});
   const [localEvents, setLocalEvents] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addModalDefaultDate, setAddModalDefaultDate] = useState("");
 
   const { data: events, isLoading } = useQuery({
     queryKey: ["events-finance"],
@@ -357,6 +425,25 @@ export default function FinanceDashboard() {
 
   function handleScaleTotalChange(eventId, newTotal) {
     setScaleTotals(prev => ({ ...prev, [eventId]: newTotal }));
+  }
+
+  function handleEventAdded(newEvent, scaleValue) {
+    setLocalEvents(prev => [newEvent, ...(prev || [])]);
+    if (scaleValue !== null) {
+      setScaleTotals(prev => ({ ...prev, [newEvent.id]: scaleValue }));
+    }
+  }
+
+  function openAddModal(monthKey) {
+    // Pré-preenche com o último dia do mês selecionado
+    if (monthKey) {
+      const [year, month] = monthKey.split("-");
+      const lastDay = new Date(parseInt(year), parseInt(month), 0).getDate();
+      setAddModalDefaultDate(`${year}-${month}-${String(lastDay).padStart(2, "0")}`);
+    } else {
+      setAddModalDefaultDate("");
+    }
+    setShowAddModal(true);
   }
 
 
@@ -412,12 +499,20 @@ export default function FinanceDashboard() {
           Voltar
         </Button>
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-primary" />
-            Dashboard Financeiro
-          </h1>
-          <p className="text-muted-foreground text-xs mt-1">Escala vs orçamento (15% do valor do evento)</p>
+        <div className="mb-6 flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+              <BarChart3 className="w-6 h-6 text-primary" />
+              Dashboard Financeiro
+            </h1>
+            <p className="text-muted-foreground text-xs mt-1">Escala vs orçamento (15% do valor do evento)</p>
+          </div>
+          {isAdmin && (
+            <Button size="sm" onClick={() => openAddModal(null)} className="gap-1.5 shrink-0 mt-1">
+              <Plus className="w-3.5 h-3.5" />
+              Evento
+            </Button>
+          )}
         </div>
 
         {isLoading ? (
@@ -463,12 +558,14 @@ export default function FinanceDashboard() {
               return (
                 <MonthBlock
                   key={monthKey}
+                  monthKey={monthKey}
                   monthLabel={monthLabel}
                   events={monthEvents}
                   totals={totals}
                   onSaleValueChange={handleSaleValueChange}
                   onScaleTotalChange={handleScaleTotalChange}
                   isAdmin={isAdmin}
+                  onAddEvent={openAddModal}
                 />
               );
             })}
@@ -481,6 +578,13 @@ export default function FinanceDashboard() {
           </div>
         )}
       </div>
+      {showAddModal && (
+        <AddEventModal
+          onClose={() => setShowAddModal(false)}
+          onSave={handleEventAdded}
+          defaultDate={addModalDefaultDate}
+        />
+      )}
     </PageTransition>
   );
 }
