@@ -61,6 +61,9 @@ function EventRow({ event, onSaleValueChange }) {
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState("");
   const [saving, setSaving] = useState(false);
+  const [editingScale, setEditingScale] = useState(false);
+  const [editScaleValue, setEditScaleValue] = useState("");
+  const [savingScale, setSavingScale] = useState(false);
   const csvUrl = event.unified_scale_csv_url || event.scale_csv_url;
   const saleNum = parseBRL(event.sale_value);
   const budget15 = saleNum * 0.15;
@@ -94,6 +97,26 @@ function EventRow({ event, onSaleValueChange }) {
   function cancelEdit() {
     setEditing(false);
     setEditValue("");
+  }
+
+  function startEditScale() {
+    setEditScaleValue(scaleTotal !== null ? String(scaleTotal) : "");
+    setEditingScale(true);
+  }
+
+  async function saveEditScale() {
+    setSavingScale(true);
+    const raw = editScaleValue.replace(",", ".");
+    const num = parseFloat(raw);
+    const newVal = isNaN(num) ? 0 : num;
+    setScaleTotal(newVal);
+    setSavingScale(false);
+    setEditingScale(false);
+  }
+
+  function cancelEditScale() {
+    setEditingScale(false);
+    setEditScaleValue("");
   }
 
   return (
@@ -175,7 +198,31 @@ function EventRow({ event, onSaleValueChange }) {
           </div>
           <div className="bg-orange-50 rounded-lg px-2.5 py-2 text-center">
             <p className="text-[10px] text-muted-foreground">Escala total</p>
-            <p className="text-xs font-bold text-orange-700">{formatBRL(scaleTotal)}</p>
+            {editingScale ? (
+              <div className="flex items-center gap-1 mt-0.5">
+                <Input
+                  autoFocus
+                  value={editScaleValue}
+                  onChange={e => setEditScaleValue(e.target.value)}
+                  inputMode="decimal"
+                  className="h-6 text-xs px-1 py-0"
+                  onKeyDown={e => { if (e.key === "Enter") saveEditScale(); if (e.key === "Escape") cancelEditScale(); }}
+                />
+                <button onClick={saveEditScale} disabled={savingScale} className="text-emerald-600 hover:text-emerald-700">
+                  {savingScale ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                </button>
+                <button onClick={cancelEditScale} className="text-muted-foreground hover:text-foreground">
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <button onClick={startEditScale} className="flex items-center justify-center gap-1 mx-auto hover:opacity-80 transition-opacity">
+                <span className="text-xs font-bold text-orange-700">{formatBRL(scaleTotal)}</span>
+                <span className="flex items-center justify-center w-4 h-4 rounded bg-orange-200 text-orange-700">
+                  <Pencil className="w-2.5 h-2.5" />
+                </span>
+              </button>
+            )}
           </div>
           <div className={`col-span-3 rounded-lg px-3 py-2 flex items-center justify-between ${diff >= 0 ? "bg-emerald-50 border border-emerald-200" : "bg-red-50 border border-red-200"}`}>
             <span className={`text-xs font-semibold ${diff >= 0 ? "text-emerald-700" : "text-red-700"}`}>
