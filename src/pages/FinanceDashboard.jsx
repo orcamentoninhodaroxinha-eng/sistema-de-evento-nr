@@ -55,7 +55,7 @@ async function fetchScaleTotal(url) {
   }
 }
 
-function EventRow({ event, onSaleValueChange, isAdmin }) {
+function EventRow({ event, onSaleValueChange, onScaleTotalChange, isAdmin }) {
   const [scaleTotal, setScaleTotal] = useState(null);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -71,7 +71,11 @@ function EventRow({ event, onSaleValueChange, isAdmin }) {
   useEffect(() => {
     if (csvUrl) {
       setLoading(true);
-      fetchScaleTotal(csvUrl).then((v) => { setScaleTotal(v); setLoading(false); });
+      fetchScaleTotal(csvUrl).then((v) => {
+        setScaleTotal(v);
+        setLoading(false);
+        if (v !== null) onScaleTotalChange(event.id, v);
+      });
     }
   }, [csvUrl]);
 
@@ -110,6 +114,7 @@ function EventRow({ event, onSaleValueChange, isAdmin }) {
     const num = parseFloat(raw);
     const newVal = isNaN(num) ? 0 : num;
     setScaleTotal(newVal);
+    onScaleTotalChange(event.id, newVal);
     setSavingScale(false);
     setEditingScale(false);
   }
@@ -273,7 +278,7 @@ function EventRow({ event, onSaleValueChange, isAdmin }) {
   );
 }
 
-function MonthBlock({ monthLabel, events, totals, onSaleValueChange, isAdmin }) {
+function MonthBlock({ monthLabel, events, totals, onSaleValueChange, onScaleTotalChange, isAdmin }) {
   const { saleTotal, budget15Total, scaleTotal, diff } = totals;
   const hasFinance = saleTotal > 0 && scaleTotal > 0;
   const [open, setOpen] = useState(false);
@@ -320,7 +325,7 @@ function MonthBlock({ monthLabel, events, totals, onSaleValueChange, isAdmin }) 
       {open && (
         <div className="px-3 py-3 space-y-2 border-t border-border bg-background">
           {events.map((ev) => (
-            <EventRow key={ev.id} event={ev} onSaleValueChange={onSaleValueChange} isAdmin={isAdmin} />
+            <EventRow key={ev.id} event={ev} onSaleValueChange={onSaleValueChange} onScaleTotalChange={onScaleTotalChange} isAdmin={isAdmin} />
           ))}
         </div>
       )}
@@ -350,17 +355,11 @@ export default function FinanceDashboard() {
     setLocalEvents(prev => prev.map(ev => ev.id === eventId ? { ...ev, sale_value: newValue } : ev));
   }
 
-  // Carrega todos os totais das escalas
-  useEffect(() => {
-    if (!events) return;
-    events.forEach(async (ev) => {
-      const csvUrl = ev.unified_scale_csv_url || ev.scale_csv_url;
-      if (csvUrl && scaleTotals[ev.id] === undefined) {
-        const total = await fetchScaleTotal(csvUrl);
-        setScaleTotals(prev => ({ ...prev, [ev.id]: total }));
-      }
-    });
-  }, [events]);
+  function handleScaleTotalChange(eventId, newTotal) {
+    setScaleTotals(prev => ({ ...prev, [eventId]: newTotal }));
+  }
+
+
 
   // Filtra só eventos com valor de venda (para o resumo geral)
   const eventsWithData = displayEvents.filter(ev => ev.sale_value);
@@ -466,6 +465,7 @@ export default function FinanceDashboard() {
                   events={monthEvents}
                   totals={totals}
                   onSaleValueChange={handleSaleValueChange}
+                  onScaleTotalChange={handleScaleTotalChange}
                   isAdmin={isAdmin}
                 />
               );
