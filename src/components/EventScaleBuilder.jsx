@@ -223,8 +223,8 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
       return;
     }
 
-    // Salva no banco de dados
-    let savedId = `new_${Date.now()}`;
+    // Salva no banco de dados — obrigatório antes de adicionar à escala
+    let savedId;
     try {
       const created = await base44.entities.Employee.create({
         full_name: newEmpName,
@@ -236,10 +236,12 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
         is_new: true,
       });
       savedId = created.id;
-      toast.success(`${newEmpName} cadastrado(a) no banco de dados!`, { duration: 2000 });
-    } catch {
-      toast.error("Erro ao salvar no banco, mas funcionário adicionado à escala.");
+    } catch (err) {
+      toast.error(`Erro ao salvar no banco de dados: ${err?.message || "tente novamente"}`);
+      return; // Não adiciona à escala se falhou
     }
+
+    toast.success(`${newEmpName} cadastrado(a) com sucesso!`, { duration: 2000 });
 
     const newEntry = {
       employeeId: savedId,
