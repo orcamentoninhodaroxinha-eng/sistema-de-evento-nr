@@ -403,6 +403,7 @@ export default function FinanceDashboard() {
   const loginUser = useLoginUser();
   const navigate = useNavigate();
   const [scaleTotals, setScaleTotals] = useState({});
+  const [scalesTotalLoading, setScalesTotalLoading] = useState(false);
   const [localEvents, setLocalEvents] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addModalDefaultDate, setAddModalDefaultDate] = useState("");
@@ -418,6 +419,27 @@ export default function FinanceDashboard() {
   }, [events]);
 
   const displayEvents = localEvents || events || [];
+
+  // Carrega todos os CSVs de escala de uma vez ao ter os eventos
+  useEffect(() => {
+    if (!displayEvents.length) return;
+    const eventsWithCsv = displayEvents.filter(ev => ev.unified_scale_csv_url || ev.scale_csv_url);
+    if (!eventsWithCsv.length) return;
+    setScalesTotalLoading(true);
+    Promise.all(
+      eventsWithCsv.map(ev => {
+        const url = ev.unified_scale_csv_url || ev.scale_csv_url;
+        return fetchScaleTotal(url).then(v => ({ id: ev.id, total: v }));
+      })
+    ).then(results => {
+      const newTotals = {};
+      results.forEach(({ id, total }) => {
+        if (total !== null) newTotals[id] = total;
+      });
+      setScaleTotals(prev => ({ ...prev, ...newTotals }));
+      setScalesTotalLoading(false);
+    });
+  }, [localEvents, events]);
 
   function handleSaleValueChange(eventId, newValue) {
     setLocalEvents(prev => prev.map(ev => ev.id === eventId ? { ...ev, sale_value: newValue } : ev));
@@ -474,19 +496,19 @@ export default function FinanceDashboard() {
     );
   }
 
-  // Totais gerais — considera apenas eventos que têm sale_value E escala carregada
-  const eventsWithBoth = displayEvents.filter(ev => parseBRL(ev.sale_value) > 0 && scaleTotals[ev.id] != null);
-  const grandSale = eventsWithBoth.reduce((acc, ev) => acc + parseBRL(ev.sale_value), 0);
+  // Totais gerais — soma todos os eventos com sale_value; escala usa o que foi carregado (0 se não tiver)
+  const eventsWithSale = displayEvents.filter(ev => parseBRL(ev.sale_value) > 0);
+  const grandSale = eventsWithSale.reduce((acc, ev) => acc + parseBRL(ev.sale_value), 0);
   const grandBudget = grandSale * 0.15;
-  const grandScale = eventsWithBoth.reduce((acc, ev) => acc + (scaleTotals[ev.id] || 0), 0);
+  const grandScale = eventsWithSale.reduce((acc, ev) => acc + (scaleTotals[ev.id] || 0), 0);
   const grandDiff = grandBudget - grandScale;
 
-  // Calcula totais por mês — considera apenas eventos com sale_value E escala carregada
+  // Calcula totais por mês — soma todos com sale_value; escala usa o que foi carregado
   function getMonthTotals(monthEvents) {
-    const withBoth = monthEvents.filter(ev => parseBRL(ev.sale_value) > 0 && scaleTotals[ev.id] != null);
-    const saleTotal = withBoth.reduce((acc, ev) => acc + parseBRL(ev.sale_value), 0);
+    const withSale = monthEvents.filter(ev => parseBRL(ev.sale_value) > 0);
+    const saleTotal = withSale.reduce((acc, ev) => acc + parseBRL(ev.sale_value), 0);
     const budget15Total = saleTotal * 0.15;
-    const scaleTotal = withBoth.reduce((acc, ev) => acc + (scaleTotals[ev.id] || 0), 0);
+    const scaleTotal = withSale.reduce((acc, ev) => acc + (scaleTotals[ev.id] || 0), 0);
     const diff = budget15Total - scaleTotal;
     return { saleTotal, budget15Total, scaleTotal, diff };
   }
@@ -524,7 +546,10 @@ export default function FinanceDashboard() {
             {/* Resumo Geral */}
             {grandSale > 0 && (
               <div className={`rounded-2xl border-2 p-4 ${grandDiff >= 0 ? "border-emerald-400 bg-emerald-50" : "border-red-400 bg-red-50"}`}>
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Resumo Geral — Todos os Eventos</p>
+                <div className="flex items-center gap-2 mb-3">
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Resumo Geral — Todos os Eventos</p>
+                  {scalesTotalLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />}
+                </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="bg-white rounded-xl p-3 border border-slate-100">
                     <p className="text-[11px] text-muted-foreground">Total eventos</p>
