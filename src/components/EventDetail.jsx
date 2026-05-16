@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import EventScaleBuilder from "./EventScaleBuilder";
@@ -60,6 +60,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [uploadingPdf, setUploadingPdf] = useState(false);
   const [pdfEmployees, setPdfEmployees] = useState([]);
   const [extractingPdf, setExtractingPdf] = useState(false);
+  const [salaoTeamList, setSalaoTeamList] = useState([]);
+  const [loadingSalaoTeam, setLoadingSalaoTeam] = useState(false);
   const [pdfReviewMode, setPdfReviewMode] = useState(false);
   const [showAddPdfDialog, setShowAddPdfDialog] = useState(false);
   const [searchPdfEmployee, setSearchPdfEmployee] = useState("");
@@ -75,6 +77,27 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const assignedEmployees = (allEmployees || []).filter(emp => 
     eventEmployeeIds.includes(emp.id)
   );
+
+  // Carrega a lista de funcionários da escala do salão a partir do CSV
+  useEffect(() => {
+    if (!isAndreF || !salaoScaleCsvUrl) return;
+    setLoadingSalaoTeam(true);
+    fetch(salaoScaleCsvUrl)
+      .then(r => r.text())
+      .then(text => {
+        const lines = text.trim().split("\n").slice(1);
+        const parsed = lines
+          .filter(l => l.trim() && !l.toUpperCase().startsWith("TOTAL"))
+          .map(line => {
+            const parts = line.split(";");
+            return { full_name: parts[0]?.trim(), funcao: parts[1]?.trim(), valor: parts[2]?.trim() };
+          })
+          .filter(e => e.full_name);
+        setSalaoTeamList(parsed);
+        setLoadingSalaoTeam(false);
+      })
+      .catch(() => setLoadingSalaoTeam(false));
+  }, [salaoScaleCsvUrl, isAndreF]);
 
   const handlePdfUpload = async (e) => {
     const file = e.target.files[0];
@@ -547,6 +570,35 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         <div className="mt-6 bg-red-50 border border-red-200 rounded-2xl p-4 space-y-1">
           <p className="text-sm text-red-700 font-medium">Motivo da reprovação:</p>
           <p className="text-sm text-red-600 bg-red-100 rounded-xl px-4 py-3">{event.salao_rejected_reason}</p>
+        </div>
+      )}
+
+      {/* AndreF: Lista da equipe da escala do salão */}
+      {isAndreF && salaoScaleCsvUrl && salaoTeamList.length > 0 && (
+        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-2xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-blue-800 flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Equipe do Salão ({salaoTeamList.length})
+            </h2>
+            {loadingSalaoTeam && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+          </div>
+          <div className="space-y-1.5">
+            {salaoTeamList.map((emp, i) => (
+              <div key={i} className="flex items-center gap-3 bg-white border border-blue-100 rounded-xl px-3 py-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-xs font-bold text-blue-700 shrink-0">
+                  {emp.full_name?.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{emp.full_name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{emp.funcao}</p>
+                </div>
+                {emp.valor && (
+                  <span className="text-xs font-semibold text-emerald-700 shrink-0">R$ {emp.valor}</span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
