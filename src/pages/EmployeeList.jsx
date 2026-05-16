@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Search, UserPlus, Users, Loader2 } from "lucide-react";
+import { Search, UserPlus, Users, Loader2, FileDown } from "lucide-react";
+import * as XLSX from "xlsx";
 import { Input } from "@/components/ui/input";
 import EmployeeCard from "../components/EmployeeCard";
 import EmployeeDetail from "../components/EmployeeDetail";
@@ -40,6 +41,24 @@ export default function EmployeeList() {
     );
   }
 
+  const exportExcel = () => {
+    const rows = employees.map(emp => ({
+      "Nome": emp.full_name || "",
+      "Cargo": emp.role || "",
+      "Departamento": emp.department || "",
+      "Telefone": emp.phone || "",
+      "E-mail": emp.email || "",
+      "CPF": emp.cpf || "",
+      "Pix": emp.pix || "",
+      "Data de Admissão": emp.hire_date || "",
+      "Status": emp.status || "Ativo",
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Funcionários");
+    XLSX.writeFile(wb, "funcionarios_ninho_da_roxinha.xlsx");
+  };
+
   const counts = {
     total: employees?.length || 0,
     salao: employees?.filter(e => e.role === 'Salão').length || 0,
@@ -60,13 +79,23 @@ export default function EmployeeList() {
               Gerencie todos os colaboradores cadastrados
             </p>
           </div>
-          <Link
-            to="/register"
-            className="inline-flex items-center justify-center gap-2 h-11 px-6 bg-gradient-to-r from-primary to-purple-600 text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-primary/30"
-          >
-            <UserPlus className="w-4 h-4" />
-            Novo Registro
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={exportExcel}
+              disabled={employees.length === 0}
+              className="inline-flex items-center justify-center gap-2 h-11 px-4 border border-border bg-white rounded-xl font-semibold text-sm hover:bg-accent transition-colors shadow-sm disabled:opacity-50"
+            >
+              <FileDown className="w-4 h-4 text-primary" />
+              Exportar Excel
+            </button>
+            <Link
+              to="/register"
+              className="inline-flex items-center justify-center gap-2 h-11 px-6 bg-gradient-to-r from-primary to-purple-600 text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-primary/30"
+            >
+              <UserPlus className="w-4 h-4" />
+              Novo Registro
+            </Link>
+          </div>
         </div>
 
         {/* Stats */}
