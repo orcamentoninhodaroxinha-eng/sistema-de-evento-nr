@@ -386,8 +386,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       </div>
 
-      {/* Juberly: Escala Aprovada com visualização da tabela */}
-      {isJuberly && scaleApproved && (
+      {/* Juberly / Ninho: Escala Aprovada com visualização da tabela */}
+      {(isJuberly || isNinho) && scaleApproved && (
         <ScalePreviewCard csvUrl={scaleCsvUrl} />
       )}
 
