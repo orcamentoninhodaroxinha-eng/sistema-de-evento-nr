@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import EventScale from "./EventScale";
 import UnifiedScaleAdminBox from "./UnifiedScaleAdminBox";
+import ScalePreviewCard from "./ScalePreviewCard";
 import EventEditForm from "./EventEditForm";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -385,15 +386,9 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       </div>
 
-      {/* Juberly: Escala Aprovada */}
+      {/* Juberly: Escala Aprovada com visualização da tabela */}
       {isJuberly && scaleApproved && (
-        <div className="mt-6 bg-emerald-50 border border-emerald-300 rounded-2xl p-5 flex items-center gap-3">
-          <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
-          <div>
-            <p className="font-semibold text-emerald-800">Escala da Cozinha Aprovada! ✅</p>
-            <p className="text-xs text-emerald-600 mt-0.5">O AndreM aprovou sua escala. Tudo certo!</p>
-          </div>
-        </div>
+        <ScalePreviewCard csvUrl={scaleCsvUrl} />
       )}
 
       {/* Juberly: Aviso de reprovação com motivo */}
