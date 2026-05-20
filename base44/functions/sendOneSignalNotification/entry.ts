@@ -8,28 +8,47 @@ Deno.serve(async (req) => {
     createClientFromRequest(req);
 
     const body = await req.json().catch(() => ({}));
-    const { title, message, url } = body;
+    const { title, message, target_roles, url } = body;
 
     if (!title || !message) {
       return Response.json({ error: 'title e message são obrigatórios' }, { status: 400 });
     }
 
+    // Monta os filtros de segmentação por role, se informados
+    let filters = undefined;
+    if (target_roles && target_roles.length > 0) {
+      filters = [];
+      target_roles.forEach((role, i) => {
+        if (i > 0) filters.push({ operator: "OR" });
+        filters.push({ field: "tag", key: "role", relation: "=", value: role });
+      });
+    }
+
+    const notifPayload = {
+      app_id: ONESIGNAL_APP_ID,
+      headings: { en: title, pt: title },
+      contents: { en: message, pt: message },
+      url: url || 'https://ninhodaroxinha.base44.app/',
+      small_icon: 'ic_stat_onesignal_default',
+      large_icon: 'https://media.base44.com/images/public/69cbd80727489d185bf14962/7cb5516e1_download.png',
+      chrome_web_icon: 'https://media.base44.com/images/public/69cbd80727489d185bf14962/7cb5516e1_download.png',
+    };
+
+    // Usa filtros por tag se tiver roles, senão manda para todos
+    if (filters && filters.length > 0) {
+      notifPayload.filters = filters;
+    } else {
+      notifPayload.included_segments = ['All'];
+    }
+
     const response = await fetch('https://onesignal.com/api/v1/notifications', {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${ONESIGNAL_API_KEY}`,
+        'Authorization': `Key ${ONESIGNAL_API_KEY}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({
-        app_id: ONESIGNAL_APP_ID,
-        included_segments: ['All'],
-        headings: { en: title, pt: title },
-        contents: { en: message, pt: message },
-        url: url || 'https://ninhodaroxinha.base44.app/',
-        small_icon: 'ic_stat_onesignal_default',
-        large_icon: 'https://media.base44.com/images/public/69cbd80727489d185bf14962/7cb5516e1_download.png',
-      }),
+      body: JSON.stringify(notifPayload),
     });
 
     const result = await response.json();

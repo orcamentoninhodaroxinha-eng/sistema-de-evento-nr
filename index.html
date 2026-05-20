@@ -11,6 +11,12 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <!-- OneSignal SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+    </script>
+
     <script>
       // Previne zoom acidental e comportamentos de desktop
       document.addEventListener('touchmove', (e) => {

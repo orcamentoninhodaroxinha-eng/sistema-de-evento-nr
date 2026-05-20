@@ -7,6 +7,8 @@ import { useLoginUser } from "@/hooks/useLoginUser";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import NotificationBell from "@/components/NotificationBell";
+import PushPermissionBanner from "@/components/PushPermissionBanner";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 export default function Layout() {
   const mainRef = useRef(null);
@@ -14,6 +16,11 @@ export default function Layout() {
   const loginUser = useLoginUser();
   const isAdmin = loginUser?.role === "admin" || loginUser?.role === "aprovador";
   useDeviceDetection();
+  const { permission, subscribed, loading: pushLoading, requestPermission } = usePushNotifications(loginUser);
+  const [bannerDismissed, setBannerDismissed] = useState(() => {
+    try { return localStorage.getItem("push_banner_dismissed") === "1"; } catch { return false; }
+  });
+  const showPushBanner = loginUser && !subscribed && permission !== "granted" && permission !== "denied" && !bannerDismissed;
   const { data: events } = useQuery({
     queryKey: ["events-approvals"],
     queryFn: () => base44.entities.Event.list("-date", 100),
@@ -136,6 +143,16 @@ export default function Layout() {
       </main>
 
 
+    {showPushBanner && (
+      <PushPermissionBanner
+        loading={pushLoading}
+        onRequest={requestPermission}
+        onDismiss={() => {
+          setBannerDismissed(true);
+          try { localStorage.setItem("push_banner_dismissed", "1"); } catch {}
+        }}
+      />
+    )}
     </div>);
 
 }
