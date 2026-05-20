@@ -8,20 +8,10 @@ Deno.serve(async (req) => {
     createClientFromRequest(req);
 
     const body = await req.json().catch(() => ({}));
-    const { title, message, target_roles, url } = body;
+    const { title, message, target_roles, url, include_player_ids } = body;
 
     if (!title || !message) {
       return Response.json({ error: 'title e message são obrigatórios' }, { status: 400 });
-    }
-
-    // Monta os filtros de segmentação por role, se informados
-    let filters = undefined;
-    if (target_roles && target_roles.length > 0) {
-      filters = [];
-      target_roles.forEach((role, i) => {
-        if (i > 0) filters.push({ operator: "OR" });
-        filters.push({ field: "tag", key: "role", relation: "=", value: role });
-      });
     }
 
     const notifPayload = {
@@ -34,8 +24,15 @@ Deno.serve(async (req) => {
       chrome_web_icon: 'https://media.base44.com/images/public/69cbd80727489d185bf14962/7cb5516e1_download.png',
     };
 
-    // Usa filtros por tag se tiver roles, senão manda para todos
-    if (filters && filters.length > 0) {
+    // Prioridade: player IDs específicos > filtros por role > todos
+    if (include_player_ids && include_player_ids.length > 0) {
+      notifPayload.include_player_ids = include_player_ids;
+    } else if (target_roles && target_roles.length > 0) {
+      const filters = [];
+      target_roles.forEach((role, i) => {
+        if (i > 0) filters.push({ operator: "OR" });
+        filters.push({ field: "tag", key: "role", relation: "=", value: role });
+      });
       notifPayload.filters = filters;
     } else {
       notifPayload.included_segments = ['All'];
