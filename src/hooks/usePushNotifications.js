@@ -59,17 +59,25 @@ export function usePushNotifications(loginUser) {
   }, [loginUser?.username]);
 
   const requestPermission = async () => {
-    if (!window.OneSignalDeferred) return;
     setLoading(true);
-    window.OneSignalDeferred.push(async function (OneSignal) {
-      try {
-        await OneSignal.Notifications.requestPermission();
-        const perm = OneSignal.Notifications.permission;
-        setPermission(perm ? "granted" : "denied");
-        setSubscribed(!!perm);
-      } catch {}
-      setLoading(false);
-    });
+    try {
+      // Usa a API nativa do browser diretamente — mais confiável
+      const result = await Notification.requestPermission();
+      setPermission(result);
+      setSubscribed(result === "granted");
+
+      // Tenta também via OneSignal se disponível e inicializado
+      if (result === "granted" && oneSignalInitialized && window.OneSignalDeferred) {
+        window.OneSignalDeferred.push(async function (OneSignal) {
+          try {
+            await OneSignal.Notifications.requestPermission();
+          } catch {}
+        });
+      }
+    } catch {
+      setPermission("denied");
+    }
+    setLoading(false);
   };
 
   return { permission, subscribed, loading, requestPermission };
