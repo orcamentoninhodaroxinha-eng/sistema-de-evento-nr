@@ -5,9 +5,19 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const { notification_id, username } = await req.json();
 
-    const notifications = await base44.asServiceRole.entities.Notification.filter({ id: notification_id });
+    if (!notification_id || !username) {
+      return Response.json({ error: 'notification_id e username são obrigatórios' }, { status: 400 });
+    }
+
+    // Busca a notificação com service role
+    let notifications;
+    try {
+      notifications = await base44.asServiceRole.entities.Notification.filter({ id: notification_id });
+    } catch {
+      return Response.json({ success: true }); // ID inválido — ignora
+    }
     if (!notifications || notifications.length === 0) {
-      return Response.json({ error: 'Notification not found' }, { status: 404 });
+      return Response.json({ success: true });
     }
 
     const notif = notifications[0];
@@ -19,6 +29,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ success: true });
   } catch (error) {
+    console.error('markNotificationRead error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
