@@ -1,72 +1,66 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
-// @ts-ignore
-import webpush from 'npm:web-push@3.6.7';
 
-const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY')!;
-const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY')!;
-
-webpush.setVapidDetails(
-  'mailto:contato@ninhodaroxinha.com.br',
-  VAPID_PUBLIC_KEY,
-  VAPID_PRIVATE_KEY
-);
+const ONESIGNAL_APP_ID = Deno.env.get('ONESIGNAL_APP_ID');
+const ONESIGNAL_API_KEY = Deno.env.get('ONESIGNAL_API_KEY');
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
+    createClientFromRequest(req);
 
     const body = await req.json().catch(() => ({}));
-    const { title, body: msgBody, url } = body;
+    const { title, body: msgBody, url, target_roles } = body;
 
     if (!title) {
       return Response.json({ error: 'title é obrigatório' }, { status: 400 });
     }
 
-    const subscriptions = await base44.asServiceRole.entities.PushSubscription.list();
-
-    if (!subscriptions || subscriptions.length === 0) {
-      return Response.json({ success: true, sent: 0, message: 'Nenhum assinante encontrado' });
+    // Monta filtros por role se informados
+    let filters = undefined;
+    if (target_roles && target_roles.length > 0) {
+      filters = [];
+      target_roles.forEach((role, i) => {
+        if (i > 0) filters.push({ operator: "OR" });
+        filters.push({ field: "tag", key: "role", relation: "=", value: role });
+      });
     }
 
-    const payload = JSON.stringify({
-      title,
-      body: msgBody || '',
+    const notifPayload = {
+      app_id: ONESIGNAL_APP_ID,
+      headings: { en: title, pt: title },
+      contents: { en: msgBody || title, pt: msgBody || title },
       url: url || 'https://ninhodaroxinha.base44.app/',
-      icon: 'https://media.base44.com/images/public/69cbd80727489d185bf14962/7cb5516e1_download.png',
+      small_icon: 'ic_stat_onesignal_default',
+      large_icon: 'https://media.base44.com/images/public/69cbd80727489d185bf14962/7cb5516e1_download.png',
+      chrome_web_icon: 'https://media.base44.com/images/public/69cbd80727489d185bf14962/7cb5516e1_download.png',
+    };
+
+    if (filters && filters.length > 0) {
+      notifPayload.filters = filters;
+    } else {
+      notifPayload.included_segments = ['All'];
+    }
+
+    const response = await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Key ${ONESIGNAL_API_KEY}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(notifPayload),
     });
 
-    let sent = 0;
-    let failed = 0;
-    const toDelete: string[] = [];
+    const result = await response.json();
 
-    for (const sub of subscriptions) {
-      if (!sub.endpoint || !sub.p256dh || !sub.auth) continue;
-
-      const pushSubscription = {
-        endpoint: sub.endpoint,
-        keys: { p256dh: sub.p256dh, auth: sub.auth },
-      };
-
-      try {
-        await webpush.sendNotification(pushSubscription, payload);
-        sent++;
-      } catch (err: any) {
-        console.warn(`Falhou para ${sub.username}: ${err.message}`);
-        if (err.statusCode === 410 || err.statusCode === 404) {
-          toDelete.push(sub.id);
-        }
-        failed++;
-      }
+    if (!response.ok) {
+      console.error('OneSignal error:', JSON.stringify(result));
+      return Response.json({ error: result }, { status: response.status });
     }
 
-    for (const id of toDelete) {
-      await base44.asServiceRole.entities.PushSubscription.delete(id).catch(() => {});
-    }
-
-    console.log(`Push enviado: ${sent} sucesso, ${failed} falha`);
-    return Response.json({ success: true, sent, failed });
-  } catch (error: any) {
-    console.error('Erro:', error.message);
+    console.log(`Push enviado via OneSignal: ${result.recipients || 0} destinatários`);
+    return Response.json({ success: true, recipients: result.recipients });
+  } catch (error) {
+    console.error('Erro sendPushNotification:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
