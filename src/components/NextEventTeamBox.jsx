@@ -53,15 +53,16 @@ export default function NextEventTeamBox({ area }) {
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
 
+  const csvUrl = nextEvent ? (area === "salao" ? nextEvent.salao_csv_url : nextEvent.scale_csv_url) : null;
+
   useEffect(() => {
-    if (!nextEvent) return;
-    const csvUrl = area === "salao" ? nextEvent.salao_csv_url : nextEvent.scale_csv_url;
+    if (!csvUrl) return;
     setLoadingTeam(true);
     parseCsv(csvUrl).then(data => {
       setTeam(data);
       setLoadingTeam(false);
     }).catch(() => setLoadingTeam(false));
-  }, [nextEvent?.id]);
+  }, [csvUrl]);
 
   if (isLoading) return null;
   if (!nextEvent) return null;
