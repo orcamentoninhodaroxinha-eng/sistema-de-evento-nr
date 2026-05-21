@@ -9,6 +9,7 @@ import { TrendingUp, TrendingDown, Minus, BarChart3, ArrowLeft, Loader2, FileSpr
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PageTransition from "@/components/PageTransition";
+import EmployeePixList from "@/components/EmployeePixList";
 import * as XLSX from "xlsx";
 
 function parseBRL(str = "") {
@@ -600,6 +601,9 @@ export default function FinanceDashboard() {
                 Nenhum evento cadastrado.
               </div>
             )}
+
+            {/* PIX dos funcionários */}
+            <EmployeePixList />
           </div>
         )}
       </div>
