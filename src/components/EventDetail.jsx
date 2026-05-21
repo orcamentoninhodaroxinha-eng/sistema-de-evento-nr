@@ -12,6 +12,7 @@ import {
 import EventScale from "./EventScale";
 import UnifiedScaleAdminBox from "./UnifiedScaleAdminBox";
 import ScalePreviewCard from "./ScalePreviewCard";
+import ScaleTeamList from "./ScaleTeamList";
 import EventEditForm from "./EventEditForm";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -81,7 +82,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
 
   // Carrega a lista de funcionários da escala do salão a partir do CSV
   useEffect(() => {
-    if (!isAndreF || !salaoScaleCsvUrl) return;
+    if (!salaoScaleCsvUrl) return;
     setLoadingSalaoTeam(true);
     fetch(salaoScaleCsvUrl)
       .then(r => r.text())
@@ -394,6 +395,18 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       {/* Ninho: Escala Salão Aprovada */}
       {isNinho && salaoApproved && (
         <ScalePreviewCard csvUrl={salaoScaleCsvUrl} title="Escala do Salão Aprovada! ✅" color="blue" />
+      )}
+
+      {/* Admin/Aprovador: listas das escalas aprovadas */}
+      {isAdmin && scaleApproved && scaleCsvUrl && (
+        <div className="mt-4">
+          <ScaleTeamList csvUrl={scaleCsvUrl} title="🍳 Equipe da Cozinha" color="orange" />
+        </div>
+      )}
+      {isAdmin && salaoApproved && salaoScaleCsvUrl && (
+        <div className="mt-2">
+          <ScaleTeamList csvUrl={salaoScaleCsvUrl} title="🍽️ Equipe do Salão" color="blue" />
+        </div>
       )}
 
       {/* Juberly: Aviso de reprovação com motivo */}
