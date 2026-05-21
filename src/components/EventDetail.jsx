@@ -387,10 +387,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       </div>
 
-      {/* Juberly: Escala Cozinha Aprovada */}
-      {isJuberly && scaleApproved && (
-        <ScalePreviewCard csvUrl={scaleCsvUrl} title="Escala da Cozinha Aprovada! ✅" color="emerald" />
-      )}
+
 
       {/* Ninho: listas das escalas aprovadas */}
       {isNinho && scaleApproved && scaleCsvUrl && (
@@ -581,34 +578,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       )}
 
-      {/* AndreF: Lista da equipe da escala do salão */}
-      {isAndreF && salaoScaleCsvUrl && salaoTeamList.length > 0 && (
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-2xl p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-blue-800 flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Equipe do Salão ({salaoTeamList.length})
-            </h2>
-            {loadingSalaoTeam && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
-          </div>
-          <div className="space-y-1.5">
-            {salaoTeamList.map((emp, i) => (
-              <div key={i} className="flex items-center gap-3 bg-white border border-blue-100 rounded-xl px-3 py-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-xs font-bold text-blue-700 shrink-0">
-                  {emp.full_name?.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{emp.full_name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{emp.funcao}</p>
-                </div>
-                {emp.valor && (
-                  <span className="text-xs font-semibold text-emerald-700 shrink-0">R$ {emp.valor}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {/* AndreF: Criar Escala do Salão */}
       {isAndreF && !salaoApproved && (
