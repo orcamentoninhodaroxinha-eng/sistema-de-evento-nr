@@ -23,7 +23,7 @@ export default function ScaleTeamList({ csvUrl, title, color = "emerald" }) {
           .filter(l => l.trim() && !l.toUpperCase().startsWith("TOTAL"))
           .map(line => {
             const parts = line.split(";");
-            return { full_name: parts[0]?.trim(), funcao: parts[1]?.trim(), valor: parts[2]?.trim() };
+            return { full_name: parts[0]?.trim(), funcao: parts[1]?.trim(), valor: parts[2]?.trim(), pix: parts[3]?.trim() };
           })
           .filter(e => e.full_name);
         setTeam(parsed);
@@ -53,6 +53,7 @@ export default function ScaleTeamList({ csvUrl, title, color = "emerald" }) {
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{emp.full_name}</p>
                 <p className="text-xs text-muted-foreground truncate">{emp.funcao}</p>
+                {emp.pix && <p className="text-xs text-primary/70 truncate">🔑 {emp.pix}</p>}
               </div>
               {emp.valor && (
                 <span className="text-xs font-semibold text-emerald-700 shrink-0">R$ {emp.valor}</span>
