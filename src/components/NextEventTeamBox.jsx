@@ -17,6 +17,8 @@ async function parseCsv(url) {
         full_name: parts[0]?.trim(),
         funcao: parts[1]?.trim(),
         valor: parts[2]?.trim(),
+        pix: parts[3]?.trim(),
+        celular: parts[4]?.trim(),
       };
     })
     .filter(e => e.full_name);
@@ -160,6 +162,9 @@ function EmployeeRow({ emp, color, highlight }) {
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-sm truncate">{emp.full_name}</p>
         <p className="text-xs text-muted-foreground truncate">{emp.funcao}</p>
+        {emp.pix && (
+          <p className="text-xs text-primary/70 truncate">🔑 {emp.pix}</p>
+        )}
       </div>
       <div className="text-right shrink-0">
         {emp.valor && (
