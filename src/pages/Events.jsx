@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import NextEventTeamBox from "@/components/NextEventTeamBox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -173,6 +174,8 @@ export default function Events() {
 
   const isAdmin = loginUser?.role === 'admin';
   const isNinho = loginUser?.username === 'Ninho';
+  const isAndreF = loginUser?.role === 'salao';
+  const isJuberly = loginUser?.role === 'cozinha';
 
   const handleReactivate = async (event) => {
     if (confirm(`Reativar o evento "${event.name}"?`)) {
@@ -185,6 +188,9 @@ export default function Events() {
     <PageTransition>
     <PullToRefresh onRefresh={() => queryClient.invalidateQueries(["events"])}>
     <div>
+      {isAndreF && <NextEventTeamBox area="salao" />}
+      {isJuberly && <NextEventTeamBox area="cozinha" />}
+
       <div className="mb-4">
         <div className="flex flex-col justify-between gap-4">
           <div className="flex items-center justify-between">
