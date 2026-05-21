@@ -13,12 +13,14 @@ async function parseCsv(url) {
     .filter(l => l.trim() && !l.toUpperCase().startsWith("TOTAL"))
     .map(line => {
       const parts = line.split(";");
+      const obs = parts[5]?.trim() || "";
       return {
         full_name: parts[0]?.trim(),
         funcao: parts[1]?.trim(),
         valor: parts[2]?.trim(),
         pix: parts[3]?.trim(),
         celular: parts[4]?.trim(),
+        isNew: obs.toUpperCase().includes("NOVO"),
       };
     })
     .filter(e => e.full_name);
@@ -72,15 +74,8 @@ export default function NextEventTeamBox({ area }) {
   const emoji = isSalao ? "🍽️" : "🍳";
   const areaLabel = isSalao ? "Equipe do Salão" : "Equipe da Cozinha";
 
-  // Separa novos dos demais (is_new não existe no CSV, então destacamos por função)
-  const newMembers = team.filter(e => {
-    const f = (e.funcao || "").toLowerCase();
-    return f.includes("novo") || f.includes("extra");
-  });
-  const regularMembers = team.filter(e => {
-    const f = (e.funcao || "").toLowerCase();
-    return !f.includes("novo") && !f.includes("extra");
-  });
+  const newMembers = team.filter(e => e.isNew);
+  const regularMembers = team.filter(e => !e.isNew);
 
   return (
     <div className={`rounded-2xl border-2 mb-5 overflow-hidden ${color.bg} ${color.border}`}>
@@ -155,22 +150,26 @@ export default function NextEventTeamBox({ area }) {
 
 function EmployeeRow({ emp, color, highlight }) {
   return (
-    <div className={`flex items-center gap-3 bg-white border rounded-xl px-3 py-2.5 ${color.row} ${highlight ? "ring-1 ring-yellow-300" : ""}`}>
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 ${color.badge}`}>
-        {emp.full_name?.charAt(0).toUpperCase()}
+    <div className={`bg-white border rounded-xl px-3 py-2.5 ${color.row} ${highlight ? "ring-1 ring-amber-300" : ""}`}>
+      <div className="flex items-center gap-3">
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 ${highlight ? "bg-amber-100 text-amber-700" : color.badge}`}>
+          {highlight ? "★" : emp.full_name?.charAt(0).toUpperCase()}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <p className="font-semibold text-sm truncate">{emp.full_name}</p>
+            {highlight && <span className="text-[10px] font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full shrink-0">NOVO</span>}
+          </div>
+          <p className="text-xs text-muted-foreground">{emp.funcao}</p>
+        </div>
+        <span className="text-xs font-bold text-emerald-700 shrink-0">{emp.valor ? `R$ ${emp.valor}` : ""}</span>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-semibold text-sm truncate">{emp.full_name}</p>
-        <p className="text-xs text-muted-foreground truncate">{emp.funcao}</p>
-        {emp.pix && (
-          <p className="text-xs text-primary/70 truncate">🔑 {emp.pix}</p>
-        )}
-      </div>
-      <div className="text-right shrink-0">
-        {emp.valor && (
-          <span className="text-xs font-bold text-emerald-700">R$ {emp.valor}</span>
-        )}
-      </div>
+      {(emp.pix || emp.celular) && (
+        <div className="mt-1.5 ml-12 flex flex-wrap gap-x-3 gap-y-0.5">
+          {emp.pix && <span className="text-xs text-primary/80">🔑 {emp.pix}</span>}
+          {emp.celular && <span className="text-xs text-muted-foreground">📱 {emp.celular}</span>}
+        </div>
+      )}
     </div>
   );
 }
