@@ -61,12 +61,16 @@ async function parseCsvFromUrl(url) {
       .filter(l => l.trim() && !l.toUpperCase().startsWith("TOTAL"))
       .map((line, i) => {
         const parts = line.split(";");
+        const obs = parts[5]?.trim() || "";
         return {
           employeeId: `csv_${i}_${Date.now()}`,
           full_name: parts[0]?.trim() || "",
           role: "",
           funcao: parts[1]?.trim() || "",
           valor: parts[2]?.trim() || "",
+          pix: parts[3]?.trim() || "",
+          celular: parts[4]?.trim() || "",
+          isNew: obs.toUpperCase().includes("NOVO"),
         };
       });
   } catch {
@@ -179,6 +183,8 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
       role: selectedEmp.role,
       funcao,
       valor,
+      pix: selectedEmp.pix || "",
+      celular: selectedEmp.phone || "",
     }];
     setScale(newScale);
     localStorage.setItem(scaleKey, JSON.stringify(newScale));
