@@ -392,13 +392,13 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         <ScalePreviewCard csvUrl={scaleCsvUrl} title="Escala da Cozinha Aprovada! ✅" color="emerald" />
       )}
 
-      {/* Admin/Aprovador/Ninho: listas das escalas aprovadas */}
-      {(isAdmin || isNinho) && scaleApproved && scaleCsvUrl && (
+      {/* Ninho: listas das escalas aprovadas */}
+      {isNinho && scaleApproved && scaleCsvUrl && (
         <div className="mt-4">
           <ScaleTeamList csvUrl={scaleCsvUrl} title="🍳 Equipe da Cozinha" color="orange" />
         </div>
       )}
-      {(isAdmin || isNinho) && salaoApproved && salaoScaleCsvUrl && (
+      {isNinho && salaoApproved && salaoScaleCsvUrl && (
         <div className="mt-2">
           <ScaleTeamList csvUrl={salaoScaleCsvUrl} title="🍽️ Equipe do Salão" color="blue" />
         </div>
