@@ -387,14 +387,9 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       </div>
 
-      {/* Juberly / Ninho: Escala Cozinha Aprovada */}
-      {(isJuberly || isNinho) && scaleApproved && (
+      {/* Juberly: Escala Cozinha Aprovada */}
+      {isJuberly && scaleApproved && (
         <ScalePreviewCard csvUrl={scaleCsvUrl} title="Escala da Cozinha Aprovada! ✅" color="emerald" />
-      )}
-
-      {/* Ninho: Escala Salão Aprovada */}
-      {isNinho && salaoApproved && (
-        <ScalePreviewCard csvUrl={salaoScaleCsvUrl} title="Escala do Salão Aprovada! ✅" color="blue" />
       )}
 
       {/* Admin/Aprovador/Ninho: listas das escalas aprovadas */}
