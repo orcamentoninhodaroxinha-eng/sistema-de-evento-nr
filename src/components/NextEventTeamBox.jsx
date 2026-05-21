@@ -162,14 +162,11 @@ function EmployeeRow({ emp, color, highlight }) {
           </div>
           <p className="text-xs text-muted-foreground">{emp.funcao}</p>
         </div>
+        {emp.pix && (
+          <span className="text-xs text-primary/80 truncate max-w-[120px] shrink-0 text-center">🔑 {emp.pix}</span>
+        )}
         <span className="text-xs font-bold text-emerald-700 shrink-0">{emp.valor ? `R$ ${emp.valor}` : ""}</span>
       </div>
-      {(emp.pix || emp.celular) && (
-        <div className="mt-1.5 ml-12 flex flex-wrap gap-x-3 gap-y-0.5">
-          {emp.pix && <span className="text-xs text-primary/80">🔑 {emp.pix}</span>}
-          {emp.celular && <span className="text-xs text-muted-foreground">📱 {emp.celular}</span>}
-        </div>
-      )}
     </div>
   );
 }
