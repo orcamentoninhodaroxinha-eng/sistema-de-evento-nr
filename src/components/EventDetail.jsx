@@ -68,10 +68,10 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [showAddPdfDialog, setShowAddPdfDialog] = useState(false);
   const [searchPdfEmployee, setSearchPdfEmployee] = useState("");
 
-  const { data: allEmployees } = useQuery({
+  const { data: allEmployees = [] } = useQuery({
     queryKey: ["employees"],
     queryFn: () => base44.entities.Employee.list("full_name", 500),
-    staleTime: 5 * 60 * 1000, // funcionários mudam raramente
+    staleTime: 5 * 60 * 1000,
   });
 
   const eventEmployeeIds = localEmployeeIds;
