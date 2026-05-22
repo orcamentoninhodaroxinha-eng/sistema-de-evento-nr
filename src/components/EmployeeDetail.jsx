@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ArrowLeft,
   User,
@@ -10,15 +11,29 @@ import {
   Hash,
   Wallet,
   Sparkles,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useLoginUser } from "@/hooks/useLoginUser";
+import EmployeeEditForm from "./EmployeeEditForm";
 
-export default function EmployeeDetail({ employee, onBack }) {
+export default function EmployeeDetail({ employee: initialEmployee, onBack }) {
+  const [employee, setEmployee] = useState(initialEmployee);
+  const [editing, setEditing] = useState(false);
   const loginUser = useLoginUser();
   const isAdmin = loginUser?.role === "admin";
+
+  if (editing) {
+    return (
+      <EmployeeEditForm
+        employee={employee}
+        onBack={() => setEditing(false)}
+        onSaved={(updated) => { setEmployee(updated); setEditing(false); }}
+      />
+    );
+  }
   const statusColors = {
     Ativo: "bg-emerald-50 text-emerald-700 border-emerald-200",
     Inativo: "bg-slate-50 text-slate-600 border-slate-200",
@@ -42,14 +57,27 @@ export default function EmployeeDetail({ employee, onBack }) {
 
   return (
     <div className="max-w-lg mx-auto">
-      <Button
-        variant="ghost"
-        onClick={onBack}
-        className="gap-2 mb-4 -ml-2 text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Voltar
-      </Button>
+      <div className="flex items-center justify-between mb-4">
+        <Button
+          variant="ghost"
+          onClick={onBack}
+          className="gap-2 -ml-2 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </Button>
+        {isAdmin && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setEditing(true)}
+            className="gap-2 rounded-xl"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+            Editar
+          </Button>
+        )}
+      </div>
 
       <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
         {/* Badge funcionário novo */}
