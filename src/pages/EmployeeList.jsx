@@ -121,7 +121,7 @@ export default function EmployeeList() {
                 </Link>
               </>
             )}
-            {/* Botão recolher/expandir para não-admins */}
+            {/* Botões para não-admins */}
             {!isAdmin && (
               <div className="flex items-center gap-2">
                 <button
@@ -131,13 +131,15 @@ export default function EmployeeList() {
                   <UserPlus className="w-3.5 h-3.5" />
                   Novo
                 </button>
-                <button
-                  onClick={() => setCollapsed(c => !c)}
-                  className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border bg-white text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
-                >
-                  {collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-                  {collapsed ? "Ver equipe" : "Recolher"}
-                </button>
+                {collapsed && (
+                  <button
+                    onClick={() => setCollapsed(false)}
+                    className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border bg-white text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                    Ver equipe
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -161,8 +163,8 @@ export default function EmployeeList() {
         )}
       </div>
 
-      {/* Conteúdo recolhível para não-admins */}
-      {collapsed && !isAdmin ? (
+      {/* Conteúdo recolhível — apenas para não-admins */}
+      {!isAdmin && collapsed ? (
         <div className="flex flex-col items-center justify-center py-12 text-center bg-accent/30 rounded-2xl border border-border/50">
           <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
             <Users className="w-7 h-7 text-primary/50" />
@@ -179,6 +181,16 @@ export default function EmployeeList() {
         </div>
       ) : (
         <>
+        {/* Botão voltar (recolher) — apenas para não-admins quando expandido */}
+        {!isAdmin && (
+          <button
+            onClick={() => setCollapsed(true)}
+            className="flex items-center gap-1.5 mb-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronUp className="w-4 h-4" />
+            Recolher equipe
+          </button>
+        )}
       {/* Search */}
       <div className="relative mb-5">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
