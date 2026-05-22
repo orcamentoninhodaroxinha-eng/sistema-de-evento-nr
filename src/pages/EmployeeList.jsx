@@ -32,8 +32,9 @@ export default function EmployeeList() {
   // Filtra por papel do usuário logado
   const roleFiltered = (employees || []).filter((emp) => {
     if (isAdmin) return true;
-    if (isAndreF) return ANDREF_ROLES.includes(emp.role);
-    if (isJuberly) return JUBERLY_ROLES.includes(emp.role);
+    const roleNorm = (emp.role || "").toLowerCase().trim();
+    if (isAndreF) return ANDREF_ROLES.map(r => r.toLowerCase()).includes(roleNorm);
+    if (isJuberly) return JUBERLY_ROLES.map(r => r.toLowerCase()).includes(roleNorm);
     return false;
   });
 
