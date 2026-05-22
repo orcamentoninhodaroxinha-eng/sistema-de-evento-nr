@@ -26,7 +26,7 @@ export default function EmployeeList() {
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["employees"],
     queryFn: ({ pageParam = 0 }) => base44.entities.Employee.list("-created_date", 100),
-    getNextPageParam: (lastPage, pages) => pages.length,
+    getNextPageParam: (lastPage, pages) => (lastPage?.length === 100 ? pages.length : undefined),
     initialPageParam: 0,
   });
 
