@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
-import { ClipboardCheck, LogOut, BarChart3, Package, Users } from "lucide-react";
+import { ClipboardCheck, LogOut, BarChart3, Package, Users, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import { useQuery } from "@tanstack/react-query";
@@ -30,6 +30,7 @@ export default function Layout() {
   const mainRef = useRef(null);
   const [touchStart, setTouchStart] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const loginUser = useLoginUser();
   const isAdmin = loginUser?.role === "admin" || loginUser?.role === "aprovador";
   useDeviceDetection();
@@ -103,6 +104,17 @@ export default function Layout() {
       
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-2xl border-b border-border/50 shadow-sm shadow-black/5">
         <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
+          {/* Botão voltar — aparece em sub-páginas como /employees */}
+          {location.pathname === "/employees" && (
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all px-2 py-2 rounded-xl min-h-[36px] active:scale-95 touch-manipulation hover:bg-accent shrink-0"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden xs:inline">Voltar</span>
+            </button>
+          )}
+
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group shrink-0">
             <div className="w-8 h-8 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform">
