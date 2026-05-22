@@ -188,8 +188,8 @@ export default function Events() {
     <PageTransition>
     <PullToRefresh onRefresh={() => queryClient.invalidateQueries(["events"])}>
     <div>
-      {isAndreF && <NextEventTeamBox area="salao" />}
-      {isJuberly && <NextEventTeamBox area="cozinha" />}
+      {(isAndreF || isAdmin) && <NextEventTeamBox area="salao" />}
+      {(isJuberly || isAdmin) && <NextEventTeamBox area="cozinha" />}
 
       <div className="mb-4">
         <div className="flex flex-col justify-between gap-4">

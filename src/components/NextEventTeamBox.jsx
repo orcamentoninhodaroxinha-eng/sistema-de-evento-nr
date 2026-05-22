@@ -53,8 +53,8 @@ export default function NextEventTeamBox({ area }) {
       if (!ev.date || ev.status === "Cancelado") return false;
       const evDate = new Date(ev.date + "T12:00:00");
       if (evDate < today) return false;
-      if (area === "salao") return ev.salao_approved && ev.salao_csv_url;
-      if (area === "cozinha") return ev.scale_approved && ev.scale_csv_url;
+      if (area === "salao") return ev.salao_csv_url;
+      if (area === "cozinha") return ev.scale_csv_url;
       return false;
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
