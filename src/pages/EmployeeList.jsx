@@ -21,7 +21,7 @@ export default function EmployeeList() {
 
   // Cargos visíveis por papel
   const ANDREF_ROLES = ["Salão", "Limpeza", "Segurança"];
-  const JUBERLY_ROLES = ["Cozinha"];
+  const JUBERLY_ROLES = ["Cozinha", "Ajudante", "Cozinheiro", "Cozinheira"];
 
   const { data: employees = [], isLoading } = useQuery({
     queryKey: ["employees"],
