@@ -156,16 +156,20 @@ function EmployeeRow({ emp, color, highlight }) {
         <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 ${highlight ? "bg-amber-100 text-amber-700" : color.badge}`}>
           {highlight ? "★" : emp.full_name?.charAt(0).toUpperCase()}
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="w-32 min-w-0 shrink-0">
           <div className="flex items-center gap-1.5 flex-wrap">
             <p className="font-semibold text-sm truncate">{emp.full_name}</p>
             {highlight && <span className="text-[10px] font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full shrink-0">NOVO</span>}
           </div>
-          <p className="text-xs text-muted-foreground">{emp.funcao}</p>
+          <p className="text-xs text-muted-foreground truncate">{emp.funcao}</p>
         </div>
-        {emp.pix && (
-          <span className="text-xs text-primary/80 truncate max-w-[120px] shrink-0 text-center">🔑 {emp.pix}</span>
-        )}
+        <div className="flex-1 flex items-center justify-center">
+          {emp.pix ? (
+            <span className="text-xs text-primary/80 truncate max-w-[160px] text-center">🔑 {emp.pix}</span>
+          ) : (
+            <span className="text-xs text-muted-foreground/40 text-center">—</span>
+          )}
+        </div>
         <span className="text-xs font-bold text-emerald-700 shrink-0">{emp.valor ? `R$ ${emp.valor}` : ""}</span>
       </div>
     </div>
