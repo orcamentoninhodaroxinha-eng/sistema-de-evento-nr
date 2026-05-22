@@ -20,7 +20,7 @@ export default function EmployeeList() {
   const isJuberly = loginUser?.role === "cozinha";
 
   // Cargos visíveis por papel
-  const ANDREF_ROLES = ["Salão", "Limpeza", "Segurança"];
+  const ANDREF_ROLES = ["Salão", "Limpeza", "Segurança", "Garçom", "Copeiro", "Recepção", "Recepcionista", "Mestre de Cerimônias", "DJ", "Assessor"];
   const JUBERLY_ROLES = ["Cozinha", "Ajudante", "Cozinheiro", "Cozinheira"];
 
   const { data: employees = [], isLoading } = useQuery({
