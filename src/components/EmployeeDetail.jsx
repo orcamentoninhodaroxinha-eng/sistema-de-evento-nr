@@ -14,8 +14,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useLoginUser } from "@/hooks/useLoginUser";
 
 export default function EmployeeDetail({ employee, onBack }) {
+  const loginUser = useLoginUser();
+  const isAdmin = loginUser?.role === "admin";
   const statusColors = {
     Ativo: "bg-emerald-50 text-emerald-700 border-emerald-200",
     Inativo: "bg-slate-50 text-slate-600 border-slate-200",
@@ -86,8 +89,8 @@ export default function EmployeeDetail({ employee, onBack }) {
 
         {/* Details */}
         <div className="p-6">
-          <InfoRow icon={Wallet} label="Chave Pix" value={employee.pix} />
-          <InfoRow icon={Hash} label="CPF" value={employee.cpf} />
+          {isAdmin && <InfoRow icon={Wallet} label="Chave Pix" value={employee.pix} />}
+          {isAdmin && <InfoRow icon={Hash} label="CPF" value={employee.cpf} />}
           <InfoRow icon={Building2} label="Departamento" value={employee.department} />
           <InfoRow icon={Phone} label="Telefone" value={employee.phone} />
           <InfoRow icon={Mail} label="E-mail" value={employee.email} />

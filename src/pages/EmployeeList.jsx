@@ -1,18 +1,21 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Search, UserPlus, Users, Loader2, FileDown } from "lucide-react";
+import { Search, UserPlus, Users, Loader2, FileDown, ChevronDown, ChevronUp } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Input } from "@/components/ui/input";
 import EmployeeCard from "../components/EmployeeCard";
 import EmployeeDetail from "../components/EmployeeDetail";
+import { useLoginUser } from "@/hooks/useLoginUser";
 
 export default function EmployeeList() {
   const [search, setSearch] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [collapsed, setCollapsed] = useState(true);
   const observerTarget = useRef(null);
-  const queryClient = useQueryClient();
+  const loginUser = useLoginUser();
+  const isAdmin = loginUser?.role === "admin";
 
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["employees"],
@@ -68,52 +71,82 @@ export default function EmployeeList() {
 
   return (
     <div>
-      {/* Hero Header */}
-      <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      {/* Header */}
+      <div className="mb-5">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              Funcionários
-            </h1>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Gerencie todos os colaboradores cadastrados
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight">Funcionários</h1>
+            <p className="text-muted-foreground mt-0.5 text-xs">{employees.length} colaboradores cadastrados</p>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={exportExcel}
-              disabled={employees.length === 0}
-              className="inline-flex items-center justify-center gap-2 h-11 px-4 border border-border bg-white rounded-xl font-semibold text-sm hover:bg-accent transition-colors shadow-sm disabled:opacity-50"
-            >
-              <FileDown className="w-4 h-4 text-primary" />
-              Exportar Excel
-            </button>
-            <Link
-              to="/register"
-              className="inline-flex items-center justify-center gap-2 h-11 px-6 bg-gradient-to-r from-primary to-purple-600 text-white rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-primary/30"
-            >
-              <UserPlus className="w-4 h-4" />
-              Novo Registro
-            </Link>
+            {isAdmin && (
+              <>
+                <button
+                  onClick={exportExcel}
+                  disabled={employees.length === 0}
+                  className="inline-flex items-center justify-center gap-2 h-9 px-3 border border-border bg-white rounded-xl font-semibold text-xs hover:bg-accent transition-colors shadow-sm disabled:opacity-50"
+                >
+                  <FileDown className="w-3.5 h-3.5 text-primary" />
+                  Exportar
+                </button>
+                <Link
+                  to="/register"
+                  className="inline-flex items-center justify-center gap-2 h-9 px-4 bg-gradient-to-r from-primary to-purple-600 text-white rounded-xl font-semibold text-xs hover:opacity-90 transition-opacity shadow-md shadow-primary/30"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  Novo
+                </Link>
+              </>
+            )}
+            {/* Botão recolher/expandir para não-admins */}
+            {!isAdmin && (
+              <button
+                onClick={() => setCollapsed(c => !c)}
+                className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border bg-white text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
+              >
+                {collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                {collapsed ? "Ver equipe" : "Recolher"}
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
-          {[
-            { label: "Total", value: counts.total, color: "from-primary/10 to-purple-100", text: "text-primary" },
-            { label: "Salão", value: counts.salao, color: "from-blue-50 to-blue-100", text: "text-blue-600" },
-            { label: "Cozinha", value: counts.cozinha, color: "from-orange-50 to-orange-100", text: "text-orange-600" },
-            { label: "Segurança", value: counts.seguranca, color: "from-red-50 to-red-100", text: "text-red-600" },
-          ].map(stat => (
-            <div key={stat.label} className={`bg-gradient-to-br ${stat.color} rounded-2xl p-4 border border-white/80`}>
-              <p className={`text-2xl font-bold ${stat.text}`}>{stat.value}</p>
-              <p className="text-xs text-muted-foreground mt-0.5 font-medium">{stat.label}</p>
-            </div>
-          ))}
-        </div>
+        {/* Stats — apenas admin ou quando expandido */}
+        {(isAdmin || !collapsed) && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+            {[
+              { label: "Total", value: counts.total, color: "from-primary/10 to-purple-100", text: "text-primary" },
+              { label: "Salão", value: counts.salao, color: "from-blue-50 to-blue-100", text: "text-blue-600" },
+              { label: "Cozinha", value: counts.cozinha, color: "from-orange-50 to-orange-100", text: "text-orange-600" },
+              { label: "Segurança", value: counts.seguranca, color: "from-red-50 to-red-100", text: "text-red-600" },
+            ].map(stat => (
+              <div key={stat.label} className={`bg-gradient-to-br ${stat.color} rounded-2xl p-3 border border-white/80`}>
+                <p className={`text-xl font-bold ${stat.text}`}>{stat.value}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 font-medium">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
+      {/* Conteúdo recolhível para não-admins */}
+      {collapsed && !isAdmin ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center bg-accent/30 rounded-2xl border border-border/50">
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
+            <Users className="w-7 h-7 text-primary/50" />
+          </div>
+          <p className="font-semibold text-sm">Lista de Equipe</p>
+          <p className="text-xs text-muted-foreground mt-1 mb-4">Toque em "Ver equipe" para expandir</p>
+          <button
+            onClick={() => setCollapsed(false)}
+            className="flex items-center gap-2 h-10 px-5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity shadow-md shadow-primary/20 active:scale-95"
+          >
+            <ChevronDown className="w-4 h-4" />
+            Ver equipe
+          </button>
+        </div>
+      ) : (
+        <>
       {/* Search */}
       <div className="relative mb-5">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -166,6 +199,8 @@ export default function EmployeeList() {
               <Loader2 className="w-5 h-5 animate-spin text-primary" />
             </div>
           )}
+        </>
+      )}
         </>
       )}
     </div>

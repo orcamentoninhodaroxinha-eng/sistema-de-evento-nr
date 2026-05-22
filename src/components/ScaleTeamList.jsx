@@ -53,7 +53,7 @@ export default function ScaleTeamList({ csvUrl, title, color = "emerald" }) {
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{emp.full_name}</p>
                 <p className="text-xs text-muted-foreground truncate">{emp.funcao}</p>
-                {emp.pix && <p className="text-xs text-primary/70 truncate">🔑 {emp.pix}</p>}
+
               </div>
               {emp.valor && (
                 <span className="text-xs font-semibold text-emerald-700 shrink-0">R$ {emp.valor}</span>
