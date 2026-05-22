@@ -7,12 +7,14 @@ import * as XLSX from "xlsx";
 import { Input } from "@/components/ui/input";
 import EmployeeCard from "../components/EmployeeCard";
 import EmployeeDetail from "../components/EmployeeDetail";
+import EmployeeAddForm from "../components/EmployeeAddForm";
 import { useLoginUser } from "@/hooks/useLoginUser";
 
 export default function EmployeeList() {
   const [search, setSearch] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [collapsed, setCollapsed] = useState(true);
+  const [addingNew, setAddingNew] = useState(false);
 
   const loginUser = useLoginUser();
   const isAdmin = loginUser?.role === "admin";
@@ -56,6 +58,15 @@ export default function EmployeeList() {
     );
   }
 
+  if (addingNew) {
+    return (
+      <EmployeeAddForm
+        onBack={() => setAddingNew(false)}
+        onSaved={() => setAddingNew(false)}
+      />
+    );
+  }
+
   const exportExcel = () => {
     const rows = employees.map(emp => ({
       "Nome": emp.full_name || "",
@@ -82,7 +93,7 @@ export default function EmployeeList() {
   };
 
   return (
-    <div>
+    <div className="flex flex-col min-h-0 h-full">
       {/* Header */}
       <div className="mb-5">
         <div className="flex items-center justify-between">
@@ -112,13 +123,22 @@ export default function EmployeeList() {
             )}
             {/* Botão recolher/expandir para não-admins */}
             {!isAdmin && (
-              <button
-                onClick={() => setCollapsed(c => !c)}
-                className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border bg-white text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
-              >
-                {collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-                {collapsed ? "Ver equipe" : "Recolher"}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setAddingNew(true)}
+                  className="inline-flex items-center justify-center gap-1.5 h-9 px-3 bg-gradient-to-r from-primary to-purple-600 text-white rounded-xl font-semibold text-xs hover:opacity-90 transition-opacity shadow-md shadow-primary/30"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  Novo
+                </button>
+                <button
+                  onClick={() => setCollapsed(c => !c)}
+                  className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border bg-white text-xs font-medium text-muted-foreground hover:bg-accent transition-colors"
+                >
+                  {collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                  {collapsed ? "Ver equipe" : "Recolher"}
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -196,7 +216,7 @@ export default function EmployeeList() {
         </div>
       ) : (
         <>
-          <div className="grid gap-2.5">
+          <div className="grid gap-2.5 overflow-y-auto pb-safe">
             {filtered.map((emp) => (
               <EmployeeCard
                 key={emp.id}
