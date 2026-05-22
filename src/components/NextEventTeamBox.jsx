@@ -26,7 +26,7 @@ async function parseCsv(url) {
     .filter(e => e.full_name);
 }
 
-export default function NextEventTeamBox({ area }) {
+export default function NextEventTeamBox({ area, isAdmin }) {
   // area: "salao" | "cozinha"
   const [team, setTeam] = useState([]);
   const [loadingTeam, setLoadingTeam] = useState(false);
@@ -136,7 +136,7 @@ export default function NextEventTeamBox({ area }) {
                     <Star className="w-3 h-3" /> Novos / Extras
                   </p>
                   {newMembers.map((emp, i) => (
-                    <EmployeeRow key={i} emp={emp} color={color} highlight />
+                    <EmployeeRow key={i} emp={emp} color={color} highlight isAdmin={isAdmin} />
                   ))}
                 </div>
               )}
@@ -150,7 +150,7 @@ export default function NextEventTeamBox({ area }) {
                     </p>
                   )}
                   {regularMembers.map((emp, i) => (
-                    <EmployeeRow key={i} emp={emp} color={color} />
+                    <EmployeeRow key={i} emp={emp} color={color} isAdmin={isAdmin} />
                   ))}
                 </div>
               )}
@@ -162,7 +162,7 @@ export default function NextEventTeamBox({ area }) {
   );
 }
 
-function EmployeeRow({ emp, color, highlight }) {
+function EmployeeRow({ emp, color, highlight, isAdmin }) {
   return (
     <div className={`bg-white border rounded-xl px-3 py-2.5 ${color.row} ${highlight ? "ring-1 ring-amber-300" : ""}`}>
       <div className="flex items-center gap-3">
@@ -176,14 +176,18 @@ function EmployeeRow({ emp, color, highlight }) {
           </div>
           <p className="text-xs text-muted-foreground truncate">{emp.funcao}</p>
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          {emp.pix ? (
-            <span className="text-xs text-primary/80 truncate max-w-[160px] text-center">🔑 {emp.pix}</span>
-          ) : (
-            <span className="text-xs text-muted-foreground/40 text-center">—</span>
-          )}
-        </div>
-        <span className="text-xs font-bold text-emerald-700 shrink-0">{emp.valor ? `R$ ${emp.valor}` : ""}</span>
+        {isAdmin ? (
+          <div className="flex-1 flex items-center justify-center">
+            {emp.pix ? (
+              <span className="text-xs text-primary/80 truncate max-w-[160px] text-center">🔑 {emp.pix}</span>
+            ) : (
+              <span className="text-xs text-muted-foreground/40 text-center">—</span>
+            )}
+          </div>
+        ) : (
+          <div className="flex-1" />
+        )}
+        {isAdmin && <span className="text-xs font-bold text-emerald-700 shrink-0">{emp.valor ? `R$ ${emp.valor}` : ""}</span>}
       </div>
     </div>
   );
