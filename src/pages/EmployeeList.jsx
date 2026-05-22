@@ -16,6 +16,12 @@ export default function EmployeeList() {
   const observerTarget = useRef(null);
   const loginUser = useLoginUser();
   const isAdmin = loginUser?.role === "admin";
+  const isAndreF = loginUser?.role === "salao";
+  const isJuberly = loginUser?.role === "cozinha";
+
+  // Cargos visíveis por papel
+  const ANDREF_ROLES = ["Salão", "Limpeza", "Segurança"];
+  const JUBERLY_ROLES = ["Cozinha"];
 
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["employees"],
@@ -26,7 +32,15 @@ export default function EmployeeList() {
 
   const employees = data?.pages?.flat() || [];
 
-  const filtered = (employees || []).filter((emp) => {
+  // Filtra por papel do usuário logado
+  const roleFiltered = (employees || []).filter((emp) => {
+    if (isAdmin) return true;
+    if (isAndreF) return ANDREF_ROLES.includes(emp.role);
+    if (isJuberly) return JUBERLY_ROLES.includes(emp.role);
+    return false;
+  });
+
+  const filtered = roleFiltered.filter((emp) => {
     const q = search.toLowerCase();
     return (
       emp.full_name?.toLowerCase().includes(q) ||
@@ -63,10 +77,10 @@ export default function EmployeeList() {
   };
 
   const counts = {
-    total: employees?.length || 0,
-    salao: employees?.filter(e => e.role === 'Salão').length || 0,
-    cozinha: employees?.filter(e => e.role === 'Cozinha').length || 0,
-    seguranca: employees?.filter(e => e.role === 'Segurança').length || 0,
+    total: roleFiltered?.length || 0,
+    salao: roleFiltered?.filter(e => e.role === 'Salão').length || 0,
+    cozinha: roleFiltered?.filter(e => e.role === 'Cozinha').length || 0,
+    seguranca: roleFiltered?.filter(e => e.role === 'Segurança').length || 0,
   };
 
   return (
@@ -76,7 +90,7 @@ export default function EmployeeList() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Funcionários</h1>
-            <p className="text-muted-foreground mt-0.5 text-xs">{employees.length} colaboradores cadastrados</p>
+            <p className="text-muted-foreground mt-0.5 text-xs">{roleFiltered.length} colaboradores cadastrados</p>
           </div>
           <div className="flex items-center gap-2">
             {isAdmin && (
