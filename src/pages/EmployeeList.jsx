@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Search, UserPlus, Users, Loader2, FileDown, ChevronDown, ChevronUp } from "lucide-react";
 import * as XLSX from "xlsx";
@@ -13,7 +13,7 @@ export default function EmployeeList() {
   const [search, setSearch] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [collapsed, setCollapsed] = useState(true);
-  const observerTarget = useRef(null);
+
   const loginUser = useLoginUser();
   const isAdmin = loginUser?.role === "admin";
   const isAndreF = loginUser?.role === "salao";
@@ -23,14 +23,11 @@ export default function EmployeeList() {
   const ANDREF_ROLES = ["Salão", "Limpeza", "Segurança"];
   const JUBERLY_ROLES = ["Cozinha"];
 
-  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
+  const { data: employees = [], isLoading } = useQuery({
     queryKey: ["employees"],
-    queryFn: ({ pageParam = 0 }) => base44.entities.Employee.list("-created_date", 100),
-    getNextPageParam: (lastPage, pages) => (lastPage?.length === 100 ? pages.length : undefined),
-    initialPageParam: 0,
+    queryFn: () => base44.entities.Employee.list("-created_date", 500),
+    staleTime: 5 * 60 * 1000,
   });
-
-  const employees = data?.pages?.flat() || [];
 
   // Filtra por papel do usuário logado
   const roleFiltered = (employees || []).filter((emp) => {
@@ -207,12 +204,7 @@ export default function EmployeeList() {
               />
             ))}
           </div>
-          <div ref={observerTarget} className="h-4" />
-          {isFetchingNextPage && (
-            <div className="flex justify-center py-4">
-              <Loader2 className="w-5 h-5 animate-spin text-primary" />
-            </div>
-          )}
+
         </>
       )}
         </>
