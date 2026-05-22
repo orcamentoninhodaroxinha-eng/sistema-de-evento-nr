@@ -38,6 +38,12 @@ export default function NextEventTeamBox({ area }) {
     staleTime: 60 * 1000,
   });
 
+  const { data: allEmployees } = useQuery({
+    queryKey: ["employees-pix"],
+    queryFn: () => base44.entities.Employee.list("full_name", 500),
+    staleTime: 5 * 60 * 1000,
+  });
+
   // Pega o próximo evento com escala aprovada para a área correspondente
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -64,6 +70,14 @@ export default function NextEventTeamBox({ area }) {
     }).catch(() => setLoadingTeam(false));
   }, [csvUrl]);
 
+  // Enriquece o time com PIX do banco quando o CSV não tem
+  const enrichedTeam = team.map(emp => {
+    if (emp.pix) return emp;
+    const normalize = s => (s || "").toLowerCase().trim().replace(/\s+/g, " ");
+    const found = (allEmployees || []).find(e => normalize(e.full_name) === normalize(emp.full_name));
+    return found?.pix ? { ...emp, pix: found.pix } : emp;
+  });
+
   if (isLoading) return null;
   if (!nextEvent) return null;
 
@@ -75,8 +89,8 @@ export default function NextEventTeamBox({ area }) {
   const emoji = isSalao ? "🍽️" : "🍳";
   const areaLabel = isSalao ? "Equipe do Salão" : "Equipe da Cozinha";
 
-  const newMembers = team.filter(e => e.isNew);
-  const regularMembers = team.filter(e => !e.isNew);
+  const newMembers = enrichedTeam.filter(e => e.isNew);
+  const regularMembers = enrichedTeam.filter(e => !e.isNew);
 
   return (
     <div className={`rounded-2xl border-2 mb-5 overflow-hidden ${color.bg} ${color.border}`}>
