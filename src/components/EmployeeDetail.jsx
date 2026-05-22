@@ -24,6 +24,7 @@ export default function EmployeeDetail({ employee: initialEmployee, onBack }) {
   const [editing, setEditing] = useState(false);
   const loginUser = useLoginUser();
   const isAdmin = loginUser?.role === "admin";
+  const canEdit = ["admin", "cozinha", "salao", "ninho"].includes(loginUser?.role);
 
   if (editing) {
     return (
@@ -66,7 +67,7 @@ export default function EmployeeDetail({ employee: initialEmployee, onBack }) {
           <ArrowLeft className="w-4 h-4" />
           Voltar
         </Button>
-        {isAdmin && (
+        {canEdit && (
           <Button
             variant="outline"
             size="sm"
