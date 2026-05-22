@@ -76,9 +76,9 @@ export default function EmployeeList() {
 
   const counts = {
     total: roleFiltered?.length || 0,
-    salao: roleFiltered?.filter(e => e.role === 'Salão').length || 0,
-    cozinha: roleFiltered?.filter(e => e.role === 'Cozinha').length || 0,
-    seguranca: roleFiltered?.filter(e => e.role === 'Segurança').length || 0,
+    salao: roleFiltered?.filter(e => ANDREF_ROLES.map(r => r.toLowerCase()).includes((e.role || "").toLowerCase().trim())).length || 0,
+    cozinha: roleFiltered?.filter(e => JUBERLY_ROLES.map(r => r.toLowerCase()).includes((e.role || "").toLowerCase().trim())).length || 0,
+    seguranca: roleFiltered?.filter(e => (e.role || "").toLowerCase().trim() === 'segurança').length || 0,
   };
 
   return (
