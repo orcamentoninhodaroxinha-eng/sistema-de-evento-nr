@@ -13,6 +13,7 @@ import EventDetailPage from './pages/EventDetailPage';
 import Approvals from './pages/Approvals';
 import FinanceDashboard from './pages/FinanceDashboard';
 import AprovadorHome from './pages/AprovadorHome';
+import Stock from './pages/Stock';
 
 const AuthenticatedApp = () => {
   return (
@@ -26,6 +27,7 @@ const AuthenticatedApp = () => {
         <Route path="/finance" element={<FinanceDashboard />} />
         <Route path="/aprovador" element={<AprovadorHome />} />
         <Route path="/roulette" element={<Roulette />} />
+        <Route path="/stock" element={<Stock />} />
       </Route>
     </Routes>
   );

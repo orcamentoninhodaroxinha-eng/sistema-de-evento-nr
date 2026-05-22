@@ -1,0 +1,37 @@
+{
+  "name": "StockMovement",
+  "type": "object",
+  "properties": {
+    "item_id": {
+      "type": "string",
+      "title": "Item"
+    },
+    "item_name": {
+      "type": "string",
+      "title": "Nome do Item"
+    },
+    "type": {
+      "type": "string",
+      "title": "Tipo",
+      "enum": [
+        "entrada",
+        "saida",
+        "ajuste"
+      ]
+    },
+    "quantity": {
+      "type": "number",
+      "title": "Quantidade"
+    },
+    "reason": {
+      "type": "string",
+      "title": "Motivo / Observa\u00e7\u00e3o"
+    }
+  },
+  "required": [
+    "item_id",
+    "item_name",
+    "type",
+    "quantity"
+  ]
+}

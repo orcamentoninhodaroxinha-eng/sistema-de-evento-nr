@@ -1,0 +1,55 @@
+{
+  "name": "StockItem",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Nome do Item"
+    },
+    "category": {
+      "type": "string",
+      "title": "Categoria",
+      "enum": [
+        "Gr\u00e3os e Cereais",
+        "Farinhas e Amidos",
+        "A\u00e7\u00facares e Ado\u00e7antes",
+        "\u00d3leos e Gorduras",
+        "Temperos e Condimentos",
+        "Enlatados e Conservas",
+        "Massas e Biscoitos",
+        "Outros"
+      ]
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unidade",
+      "enum": [
+        "kg",
+        "g",
+        "L",
+        "ml",
+        "un",
+        "cx",
+        "pct",
+        "sc"
+      ]
+    },
+    "quantity": {
+      "type": "number",
+      "title": "Quantidade Atual"
+    },
+    "min_quantity": {
+      "type": "number",
+      "title": "Estoque M\u00ednimo"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Observa\u00e7\u00f5es"
+    }
+  },
+  "required": [
+    "name",
+    "unit",
+    "quantity"
+  ]
+}

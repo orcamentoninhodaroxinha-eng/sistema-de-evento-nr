@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
-import { ClipboardCheck, LogOut, BarChart3 } from "lucide-react";
+import { ClipboardCheck, LogOut, BarChart3, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import { useQuery } from "@tanstack/react-query";
@@ -101,6 +101,10 @@ export default function Layout() {
           </Link>
           <div className="flex items-center gap-2">
             <NotificationBell />
+            <Link to="/stock" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-xl hover:bg-accent min-h-[40px]">
+              <Package className="w-4 h-4 shrink-0" />
+              <span className="hidden xs:inline">Estoque</span>
+            </Link>
             {(loginUser?.role === "aprovador" || loginUser?.role === "admin") &&
               <Link to="/finance" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-xl hover:bg-accent min-h-[40px]">
                 <BarChart3 className="w-4 h-4 shrink-0" />
