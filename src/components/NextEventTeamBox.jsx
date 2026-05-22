@@ -70,12 +70,11 @@ export default function NextEventTeamBox({ area }) {
     }).catch(() => setLoadingTeam(false));
   }, [csvUrl]);
 
-  // Enriquece o time com PIX do banco quando o CSV não tem
+  // Sempre usa o PIX do banco (substitui o do CSV)
+  const normalize = s => (s || "").toLowerCase().trim().replace(/\s+/g, " ");
   const enrichedTeam = team.map(emp => {
-    if (emp.pix) return emp;
-    const normalize = s => (s || "").toLowerCase().trim().replace(/\s+/g, " ");
     const found = (allEmployees || []).find(e => normalize(e.full_name) === normalize(emp.full_name));
-    return found?.pix ? { ...emp, pix: found.pix } : emp;
+    return { ...emp, pix: found?.pix || emp.pix || "" };
   });
 
   if (isLoading) return null;
