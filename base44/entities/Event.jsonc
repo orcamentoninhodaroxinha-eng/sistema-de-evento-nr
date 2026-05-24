@@ -46,6 +46,14 @@
       "type": "string",
       "title": "Hora de T\u00e9rmino da Festa"
     },
+    "after_start": {
+      "type": "string",
+      "title": "Hora de In\u00edcio do After"
+    },
+    "after_end": {
+      "type": "string",
+      "title": "Hora de T\u00e9rmino do After"
+    },
     "guest_count": {
       "type": "number",
       "title": "Quantidade de Convidados"

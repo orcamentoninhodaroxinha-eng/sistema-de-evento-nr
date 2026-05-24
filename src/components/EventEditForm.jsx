@@ -26,6 +26,8 @@ export default function EventEditForm({ event, onSuccess, onCancel }) {
     ceremony_end: event.ceremony_end || "",
     party_start: event.party_start || "",
     party_end: event.party_end || "",
+    after_start: event.after_start || "",
+    after_end: event.after_end || "",
     guest_count: event.guest_count || "",
     sale_value: event.sale_value || "",
   });
@@ -123,6 +125,14 @@ export default function EventEditForm({ event, onSuccess, onCancel }) {
         <div className="space-y-1">
           <Label className="text-xs font-semibold flex items-center gap-1"><Clock className="w-3 h-3" /> Festa fim</Label>
           <Input type="time" value={formData.party_end} onChange={(e) => handleChange("party_end", e.target.value)} className="h-9 rounded-lg text-sm" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold flex items-center gap-1">🎶 After início</Label>
+          <Input type="time" value={formData.after_start} onChange={(e) => handleChange("after_start", e.target.value)} className="h-9 rounded-lg text-sm" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold flex items-center gap-1">🎶 After fim</Label>
+          <Input type="time" value={formData.after_end} onChange={(e) => handleChange("after_end", e.target.value)} className="h-9 rounded-lg text-sm" />
         </div>
       </div>
 

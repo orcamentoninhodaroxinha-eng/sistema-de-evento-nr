@@ -26,6 +26,8 @@ export default function EventForm({ onSuccess, isAdmin = false }) {
     ceremony_end: "",
     party_start: "",
     party_end: "",
+    after_start: "",
+    after_end: "",
     guest_count: "",
     sale_value: "",
   });
@@ -135,6 +137,14 @@ export default function EventForm({ onSuccess, isAdmin = false }) {
         <div className="space-y-1">
           <Label className="text-xs font-semibold flex items-center gap-1"><Clock className="w-3 h-3" /> Festa fim</Label>
           <Input id="party_end" type="time" value={formData.party_end} onChange={(e) => handleChange("party_end", e.target.value)} className="h-9 rounded-lg text-sm" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold flex items-center gap-1">🎶 After início</Label>
+          <Input id="after_start" type="time" value={formData.after_start} onChange={(e) => handleChange("after_start", e.target.value)} className="h-9 rounded-lg text-sm" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-semibold flex items-center gap-1">🎶 After fim</Label>
+          <Input id="after_end" type="time" value={formData.after_end} onChange={(e) => handleChange("after_end", e.target.value)} className="h-9 rounded-lg text-sm" />
         </div>
       </div>
 

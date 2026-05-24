@@ -339,7 +339,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           )}
 
           {/* Horários e convidados — visível para todos */}
-          {(event.ceremony_start || event.ceremony_end || event.party_start || event.party_end || event.guest_count) && (
+          {(event.ceremony_start || event.ceremony_end || event.party_start || event.party_end || event.after_start || event.after_end || event.guest_count) && (
             <div className="mt-3 pt-3 border-t border-border space-y-2">
               {(event.ceremony_start || event.ceremony_end) && (
                 <div className="flex items-center gap-3 text-sm">
@@ -356,6 +356,15 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                   <span className="text-muted-foreground">Festa:</span>
                   <span className="font-medium">
                     {event.party_start || "--:--"} às {event.party_end || "--:--"}
+                  </span>
+                </div>
+              )}
+              {(event.after_start || event.after_end) && (
+                <div className="flex items-center gap-3 text-sm">
+                  <span className="text-base shrink-0">🎶</span>
+                  <span className="text-muted-foreground">After:</span>
+                  <span className="font-medium">
+                    {event.after_start || "--:--"} às {event.after_end || "--:--"}
                   </span>
                 </div>
               )}
