@@ -17,7 +17,7 @@ function removeAccents(str = "") {
 }
 
 const KITCHEN_ROLES = ["cozinheiro", "cozinheira", "ajudante", "auxiliar", "cozinha"];
-const SALAO_ROLES = ["garçom", "garçonete", "garcom", "garconete", "salão", "salao", "atendente", "barman", "bartender", "recepcionista"];
+const SALAO_ROLES = ["garçom", "garçonete", "garcom", "garconete", "salão", "salao", "atendente", "barman", "bartender", "recepcionista", "limpeza", "copeiro", "recepção", "recepcao", "segurança", "seguranca", "mestre", "dj", "assessor", "gestor"];
 
 function isKitchenRole(role = "") {
   return KITCHEN_ROLES.some(r => role.toLowerCase().includes(r));
