@@ -7,8 +7,9 @@ import {
   ArrowLeft, MapPin, CalendarDays, FileText, Users,
   Plus, X, Search, Loader2, UserCheck, CheckCircle2, ShieldCheck, PlayCircle,
   Paperclip, ExternalLink, Upload, FileDown, FileSpreadsheet, ClipboardCheck,
-  Clock, DollarSign, Bell
+  Clock, DollarSign, Bell, RotateCcw
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import EventScale from "./EventScale";
 import UnifiedScaleAdminBox from "./UnifiedScaleAdminBox";
 import ScalePreviewCard from "./ScalePreviewCard";
@@ -67,6 +68,10 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [pdfReviewMode, setPdfReviewMode] = useState(false);
   const [showAddPdfDialog, setShowAddPdfDialog] = useState(false);
   const [searchPdfEmployee, setSearchPdfEmployee] = useState("");
+  const [showReturnCozinhaDialog, setShowReturnCozinhaDialog] = useState(false);
+  const [showReturnSalaoDialog, setShowReturnSalaoDialog] = useState(false);
+  const [returnReason, setReturnReason] = useState("");
+  const [returning, setReturning] = useState(false);
 
   const { data: allEmployees = [] } = useQuery({
     queryKey: ["employees"],
@@ -398,15 +403,31 @@ export default function EventDetail({ event, onBack, onRefresh }) {
 
 
 
-      {/* Ninho: listas das escalas aprovadas */}
+      {/* Ninho: listas das escalas aprovadas + opção de devolver */}
       {isNinho && scaleApproved && scaleCsvUrl && (
-        <div className="mt-4">
+        <div className="mt-4 space-y-2">
           <ScaleTeamList csvUrl={scaleCsvUrl} title="🍳 Equipe da Cozinha" color="orange" />
+          <Button
+            variant="outline"
+            onClick={() => { setReturnReason(""); setShowReturnCozinhaDialog(true); }}
+            className="w-full h-10 rounded-xl gap-2 border-orange-300 text-orange-700 hover:bg-orange-50 text-sm"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Devolver Escala da Cozinha ao Juberly
+          </Button>
         </div>
       )}
       {isNinho && salaoApproved && salaoScaleCsvUrl && (
-        <div className="mt-2">
+        <div className="mt-2 space-y-2">
           <ScaleTeamList csvUrl={salaoScaleCsvUrl} title="🍽️ Equipe do Salão" color="blue" />
+          <Button
+            variant="outline"
+            onClick={() => { setReturnReason(""); setShowReturnSalaoDialog(true); }}
+            className="w-full h-10 rounded-xl gap-2 border-blue-300 text-blue-700 hover:bg-blue-50 text-sm"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Devolver Escala do Salão ao AndreF
+          </Button>
         </div>
       )}
 
@@ -891,6 +912,92 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                 </button>
               ))
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Devolver Escala Cozinha Dialog */}
+      <Dialog open={showReturnCozinhaDialog} onOpenChange={setShowReturnCozinhaDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Devolver Escala da Cozinha</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground mb-2">Informe o motivo para o Juberly corrigir e reenviar.</p>
+          <Textarea
+            placeholder="Ex: Faltou informar o valor do João..."
+            value={returnReason}
+            onChange={(e) => setReturnReason(e.target.value)}
+            className="min-h-[80px] rounded-xl text-sm mb-3"
+          />
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowReturnCozinhaDialog(false)} className="flex-1 rounded-xl">Cancelar</Button>
+            <Button
+              disabled={returning || !returnReason.trim()}
+              onClick={async () => {
+                setReturning(true);
+                await base44.entities.Event.update(event.id, {
+                  scale_approved: false,
+                  scale_submitted: false,
+                  scale_rejected: true,
+                  scale_rejected_reason: returnReason.trim(),
+                });
+                setScaleApproved(false);
+                setScaleSubmitted(false);
+                setScaleRejected(true);
+                event.scale_rejected_reason = returnReason.trim();
+                setReturning(false);
+                setShowReturnCozinhaDialog(false);
+                toast({ title: "Escala devolvida ao Juberly!" });
+                onRefresh();
+              }}
+              className="flex-1 rounded-xl bg-orange-600 hover:bg-orange-700 text-white gap-2"
+            >
+              {returning ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+              Devolver
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Devolver Escala Salão Dialog */}
+      <Dialog open={showReturnSalaoDialog} onOpenChange={setShowReturnSalaoDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Devolver Escala do Salão</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground mb-2">Informe o motivo para o AndreF corrigir e reenviar.</p>
+          <Textarea
+            placeholder="Ex: Faltou informar o valor do Carlos..."
+            value={returnReason}
+            onChange={(e) => setReturnReason(e.target.value)}
+            className="min-h-[80px] rounded-xl text-sm mb-3"
+          />
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowReturnSalaoDialog(false)} className="flex-1 rounded-xl">Cancelar</Button>
+            <Button
+              disabled={returning || !returnReason.trim()}
+              onClick={async () => {
+                setReturning(true);
+                await base44.entities.Event.update(event.id, {
+                  salao_approved: false,
+                  salao_submitted: false,
+                  salao_rejected: true,
+                  salao_rejected_reason: returnReason.trim(),
+                });
+                setSalaoApproved(false);
+                setSalaoSubmitted(false);
+                setSalaoRejected(true);
+                event.salao_rejected_reason = returnReason.trim();
+                setReturning(false);
+                setShowReturnSalaoDialog(false);
+                toast({ title: "Escala devolvida ao AndreF!" });
+                onRefresh();
+              }}
+              className="flex-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white gap-2"
+            >
+              {returning ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+              Devolver
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
