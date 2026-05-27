@@ -983,6 +983,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                   salao_submitted: false,
                   salao_rejected: true,
                   salao_rejected_reason: returnReason.trim(),
+                  unified_scale_csv_url: "",
                 });
                 setSalaoApproved(false);
                 setSalaoSubmitted(false);
