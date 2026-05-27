@@ -158,11 +158,16 @@ export default function EventDetail({ event, onBack, onRefresh }) {
     );
   }
 
-  const availableEmployees = (allEmployees || []).filter(emp => 
-    !eventEmployeeIds.includes(emp.id) &&
-    (emp.full_name?.toLowerCase().includes(searchEmployee.toLowerCase()) ||
-     emp.role?.toLowerCase().includes(searchEmployee.toLowerCase()))
-  );
+  const ANDREF_ROLE_KEYWORDS = ["salão","salao","garçom","garcom","garçonete","garconete","recepcionista","recepção","recepcao","limpeza","segurança","seguranca","copeiro","atendente","barman","bartender","mestre","dj","assessor","gestor"];
+
+  const availableEmployees = (allEmployees || []).filter(emp => {
+    if (eventEmployeeIds.includes(emp.id)) return false;
+    const matchesSearch = emp.full_name?.toLowerCase().includes(searchEmployee.toLowerCase()) ||
+      emp.role?.toLowerCase().includes(searchEmployee.toLowerCase());
+    if (!matchesSearch) return false;
+    if (isAndreF) return ANDREF_ROLE_KEYWORDS.some(k => (emp.role || "").toLowerCase().includes(k));
+    return true;
+  });
 
   const addEmployee = async (employeeId) => {
     // Optimistic update
@@ -609,6 +614,61 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       )}
 
 
+
+      {/* AndreF: Gerenciar Equipe do Salão */}
+      {isAndreF && (
+        <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-primary" />
+              <h2 className="font-semibold">Equipe do Salão</h2>
+              {assignedEmployees.filter(e => {
+                const r = (e.role || "").toLowerCase();
+                return r.includes("salão") || r.includes("salao") || r.includes("garçom") || r.includes("garcom") || r.includes("garçonete") || r.includes("garconete") || r.includes("recepcionista") || r.includes("recepção") || r.includes("recepcao") || r.includes("limpeza") || r.includes("segurança") || r.includes("seguranca") || r.includes("copeiro") || r.includes("atendente") || r.includes("barman") || r.includes("bartender") || r.includes("mestre") || r.includes("dj") || r.includes("assessor") || r.includes("gestor");
+              }).length > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  ({assignedEmployees.filter(e => {
+                    const r = (e.role || "").toLowerCase();
+                    return r.includes("salão") || r.includes("salao") || r.includes("garçom") || r.includes("garcom") || r.includes("garçonete") || r.includes("garconete") || r.includes("recepcionista") || r.includes("recepção") || r.includes("recepcao") || r.includes("limpeza") || r.includes("segurança") || r.includes("seguranca") || r.includes("copeiro") || r.includes("atendente") || r.includes("barman") || r.includes("bartender") || r.includes("mestre") || r.includes("dj") || r.includes("assessor") || r.includes("gestor");
+                  }).length} pessoas)
+                </span>
+              )}
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => { setShowAddDialog(true); setSearchEmployee(""); }}
+              className="gap-1.5 rounded-xl text-xs h-8"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Adicionar
+            </Button>
+          </div>
+          {(() => {
+            const ANDREF_ROLE_KEYWORDS = ["salão","salao","garçom","garcom","garçonete","garconete","recepcionista","recepção","recepcao","limpeza","segurança","seguranca","copeiro","atendente","barman","bartender","mestre","dj","assessor","gestor"];
+            const team = assignedEmployees.filter(e => ANDREF_ROLE_KEYWORDS.some(k => (e.role || "").toLowerCase().includes(k)));
+            if (team.length === 0) return <p className="text-sm text-muted-foreground text-center py-3">Nenhum funcionário adicionado ainda</p>;
+            return (
+              <div className="space-y-2">
+                {team.map(emp => (
+                  <div key={emp.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/40">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-xs font-bold text-blue-700 shrink-0">
+                      {emp.full_name?.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{emp.full_name}</p>
+                      <p className="text-xs text-muted-foreground">{emp.role}</p>
+                    </div>
+                    <button onClick={() => removeEmployee(emp.id)} className="text-destructive/40 hover:text-destructive transition-colors p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </div>
+      )}
 
       {/* AndreF: Criar Escala do Salão */}
       {isAndreF && !salaoApproved && (
