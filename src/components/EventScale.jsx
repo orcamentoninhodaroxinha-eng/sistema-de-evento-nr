@@ -309,7 +309,9 @@ export default function EventScale({ event, employees, onBack }) {
 
     if (updatedPending.length === 0) {
       // Gera PDF automaticamente ao finalizar todos
-      setTimeout(() => generatePDFForCompleted(updatedCompleted), 300);
+      generatePDFForCompleted(updatedCompleted).catch((err) => {
+        toast.error("Erro ao gerar PDF: " + err.message);
+      });
     } else {
       setSelectMode(true);
     }
@@ -332,7 +334,7 @@ export default function EventScale({ event, employees, onBack }) {
     const contentW = pageW - margin * 2;
 
     const eventDateStr = event.date
-      ? format(new Date(event.date), "dd/MM/yyyy")
+      ? format(new Date(event.date + "T12:00:00"), "dd/MM/yyyy")
       : "___/___/______";
     const todayStr = format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
 
@@ -429,24 +431,29 @@ export default function EventScale({ event, employees, onBack }) {
 
   const generatePDFForCompleted = async (completedList) => {
     setGeneratingPdf(true);
-    const doc = await buildPDF(completedList);
-    const fileName = `recibos_${event.name.replace(/\s+/g, "_")}.pdf`;
-    const pdfBlob = doc.output("blob");
+    try {
+      const doc = await buildPDF(completedList);
+      const fileName = `recibos_${event.name.replace(/\s+/g, "_")}.pdf`;
+      const pdfBlob = doc.output("blob");
 
-    const localUrl = URL.createObjectURL(pdfBlob);
-    setPdfDownloadUrl(localUrl);
-    setPdfFileName(fileName);
+      const localUrl = URL.createObjectURL(pdfBlob);
+      setPdfDownloadUrl(localUrl);
+      setPdfFileName(fileName);
 
-    const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
-    const [uploadRes] = await Promise.all([
-      base44.integrations.Core.UploadFile({ file: pdfFile }),
-      base44.entities.Event.update(event.id, { status: "Concluído" }),
-    ]);
-    await base44.entities.Event.update(event.id, { receipts_pdf_url: uploadRes.file_url });
+      const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
+      const [uploadRes] = await Promise.all([
+        base44.integrations.Core.UploadFile({ file: pdfFile }),
+        base44.entities.Event.update(event.id, { status: "Concluído" }),
+      ]);
+      await base44.entities.Event.update(event.id, { receipts_pdf_url: uploadRes.file_url });
 
-    clearSession();
-    setGeneratingPdf(false);
-    toast.success("PDF gerado e evento finalizado!");
+      clearSession();
+      toast.success("PDF gerado e evento finalizado!");
+    } catch (err) {
+      toast.error("Erro ao gerar PDF: " + err.message);
+    } finally {
+      setGeneratingPdf(false);
+    }
   };
 
   const generatePDF = async () => {

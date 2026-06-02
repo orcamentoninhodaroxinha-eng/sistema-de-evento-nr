@@ -9,6 +9,7 @@ import {
   Paperclip, ExternalLink, Upload, FileDown, FileSpreadsheet, ClipboardCheck,
   Clock, DollarSign, Bell, RotateCcw
 } from "lucide-react";
+import FinanceCalcBox from "./FinanceCalcBox";
 import { Textarea } from "@/components/ui/textarea";
 import EventScale from "./EventScale";
 import UnifiedScaleAdminBox from "./UnifiedScaleAdminBox";
@@ -748,6 +749,21 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       {/* Excel Unificado - ambas escalas aprovadas - apenas admin */}
       {isAdmin && scaleApproved && salaoApproved && (event.unified_scale_csv_url || scaleCsvUrl) && (
         <UnifiedScaleAdminBox event={event} scaleCsvUrl={scaleCsvUrl} />
+      )}
+
+      {/* Cálculo 15% - apenas Ninho */}
+      {isNinho && event.sale_value && (
+        <div className="mt-6 bg-emerald-50 border border-emerald-200 rounded-2xl p-5 shadow-sm">
+          <h2 className="font-semibold text-emerald-800 mb-3 flex items-center gap-2">
+            <DollarSign className="w-4 h-4" />
+            Financeiro do Evento
+          </h2>
+          <FinanceCalcBox
+            event={event}
+            csvUrl={event.unified_scale_csv_url || event.scale_csv_url}
+            editable={true}
+          />
+        </div>
       )}
 
       {/* Botão notificar - apenas admin */}
