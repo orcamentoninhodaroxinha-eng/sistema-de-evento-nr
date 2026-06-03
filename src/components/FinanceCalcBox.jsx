@@ -13,6 +13,10 @@ function formatBRL(val) {
   return val.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+// Lê o total da escala do CSV/XLSX gerado pelo EventScaleBuilder.
+// Formato CSV: Nome;Funcao;Valor (R$);Pix;Celular;Obs
+// Linha de total: TOTAL GERAL;;1234,56;;;
+// O valor total está SEMPRE na coluna índice 2.
 async function fetchXlsxGrandTotal(url) {
   try {
     const isXlsx = url.includes(".xlsx") || url.includes(".xls");
@@ -24,30 +28,23 @@ async function fetchXlsxGrandTotal(url) {
       for (const row of rows) {
         const label = String(row[0] || "").toUpperCase().trim();
         if (label.includes("TOTAL GERAL")) {
-          // Pega o último valor numérico da linha
-          let lastNum = null;
-          for (let i = 1; i < row.length; i++) {
-            const v = parseFloat(String(row[i]).replace(",", "."));
-            if (!isNaN(v) && v > 0) lastNum = v;
-          }
-          if (lastNum !== null) return lastNum;
+          // Coluna 2 (índice 2) é sempre o Valor (R$) no formato gerado
+          const raw = String(row[2] || "").replace(",", ".").trim();
+          const v = parseFloat(raw);
+          if (!isNaN(v) && v > 0) return v;
         }
       }
       return 0;
     } else {
-      // CSV
+      // CSV — formato: TOTAL GERAL;;1234,56;;;
       const text = await fetch(url).then((r) => r.text());
       const lines = text.trim().split("\n");
       for (const line of lines) {
-        if (line.toUpperCase().includes("TOTAL GERAL")) {
+        if (line.toUpperCase().startsWith("TOTAL GERAL")) {
           const parts = line.split(";");
-          // Pega o último valor numérico da linha
-          let lastNum = null;
-          for (let i = 1; i < parts.length; i++) {
-            const v = parseFloat(parts[i]?.replace(",", "."));
-            if (!isNaN(v) && v > 0) lastNum = v;
-          }
-          if (lastNum !== null) return lastNum;
+          const raw = String(parts[2] || "").replace(",", ".").trim();
+          const v = parseFloat(raw);
+          if (!isNaN(v) && v > 0) return v;
         }
       }
       return 0;
