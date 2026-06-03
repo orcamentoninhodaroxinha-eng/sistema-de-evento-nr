@@ -25,16 +25,21 @@ function formatBRL(val) {
 async function fetchScaleTotal(url) {
   if (!url) return null;
   try {
-    if (url.endsWith(".xlsx") || url.includes(".xlsx")) {
+    const isXlsx = url.includes(".xlsx") || url.includes(".xls");
+    if (isXlsx) {
       const buffer = await fetch(url).then((r) => r.arrayBuffer());
       const wb = XLSX.read(buffer, { type: "array" });
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
       for (const row of rows) {
         const label = String(row[0] || "").toUpperCase().trim();
-        if (label === "TOTAL GERAL") {
-          const val = parseFloat(row[2]);
-          if (!isNaN(val)) return val;
+        if (label.includes("TOTAL GERAL")) {
+          let lastNum = null;
+          for (let i = 1; i < row.length; i++) {
+            const v = parseFloat(String(row[i]).replace(",", "."));
+            if (!isNaN(v) && v > 0) lastNum = v;
+          }
+          if (lastNum !== null) return lastNum;
         }
       }
       return 0;
@@ -45,8 +50,12 @@ async function fetchScaleTotal(url) {
       for (const line of lines) {
         if (line.toUpperCase().includes("TOTAL GERAL")) {
           const parts = line.split(";");
-          const val = parseFloat(parts[2]?.replace(",", "."));
-          if (!isNaN(val)) return val;
+          let lastNum = null;
+          for (let i = 1; i < parts.length; i++) {
+            const v = parseFloat(parts[i]?.replace(",", "."));
+            if (!isNaN(v) && v > 0) lastNum = v;
+          }
+          if (lastNum !== null) return lastNum;
         }
       }
       return 0;

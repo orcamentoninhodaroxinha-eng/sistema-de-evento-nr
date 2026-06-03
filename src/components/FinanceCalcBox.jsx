@@ -15,19 +15,43 @@ function formatBRL(val) {
 
 async function fetchXlsxGrandTotal(url) {
   try {
-    const buffer = await fetch(url).then((r) => r.arrayBuffer());
-    const wb = XLSX.read(buffer, { type: "array" });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
-    // Procura linha "TOTAL GERAL" e pega o valor na coluna C (índice 2)
-    for (const row of rows) {
-      const label = String(row[0] || "").toUpperCase().trim();
-      if (label === "TOTAL GERAL") {
-        const val = parseFloat(row[2]);
-        if (!isNaN(val)) return val;
+    const isXlsx = url.includes(".xlsx") || url.includes(".xls");
+    if (isXlsx) {
+      const buffer = await fetch(url).then((r) => r.arrayBuffer());
+      const wb = XLSX.read(buffer, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+      for (const row of rows) {
+        const label = String(row[0] || "").toUpperCase().trim();
+        if (label.includes("TOTAL GERAL")) {
+          // Pega o último valor numérico da linha
+          let lastNum = null;
+          for (let i = 1; i < row.length; i++) {
+            const v = parseFloat(String(row[i]).replace(",", "."));
+            if (!isNaN(v) && v > 0) lastNum = v;
+          }
+          if (lastNum !== null) return lastNum;
+        }
       }
+      return 0;
+    } else {
+      // CSV
+      const text = await fetch(url).then((r) => r.text());
+      const lines = text.trim().split("\n");
+      for (const line of lines) {
+        if (line.toUpperCase().includes("TOTAL GERAL")) {
+          const parts = line.split(";");
+          // Pega o último valor numérico da linha
+          let lastNum = null;
+          for (let i = 1; i < parts.length; i++) {
+            const v = parseFloat(parts[i]?.replace(",", "."));
+            if (!isNaN(v) && v > 0) lastNum = v;
+          }
+          if (lastNum !== null) return lastNum;
+        }
+      }
+      return 0;
     }
-    return 0;
   } catch {
     return 0;
   }
