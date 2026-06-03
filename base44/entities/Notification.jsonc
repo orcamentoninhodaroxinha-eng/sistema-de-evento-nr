@@ -49,5 +49,30 @@
     "title",
     "message",
     "type"
-  ]
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.target_roles": {
+            "$in": [
+              "{{user.role}}"
+            ]
+          }
+        }
+      ]
+    },
+    "update": null,
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }

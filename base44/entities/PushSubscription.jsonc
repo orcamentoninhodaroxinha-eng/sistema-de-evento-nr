@@ -26,5 +26,19 @@
   "required": [
     "username",
     "endpoint"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "data.username": "{{user.email}}"
+    },
+    "read": {
+      "data.username": "{{user.email}}"
+    },
+    "update": {
+      "data.username": "{{user.email}}"
+    },
+    "delete": {
+      "data.username": "{{user.email}}"
+    }
+  }
 }

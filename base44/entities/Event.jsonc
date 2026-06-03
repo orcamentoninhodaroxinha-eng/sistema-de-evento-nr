@@ -136,5 +136,60 @@
   "required": [
     "name",
     "date"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "aprovador"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "role": "cozinha"
+              }
+            },
+            {
+              "data.status": {
+                "$ne": "Conclu\u00eddo"
+              }
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "role": "salao"
+              }
+            },
+            {
+              "data.status": {
+                "$ne": "Conclu\u00eddo"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "update": null,
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }
