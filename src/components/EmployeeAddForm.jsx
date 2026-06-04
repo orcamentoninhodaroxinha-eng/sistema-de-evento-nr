@@ -25,12 +25,20 @@ export default function EmployeeAddForm({ onBack, onSaved }) {
 
   const set = (field, value) => setForm(f => ({ ...f, [field]: value }));
 
+  const [error, setError] = useState(null);
+
   const handleSave = async () => {
     setSaving(true);
-    const created = await base44.entities.Employee.create(form);
-    queryClient.invalidateQueries({ queryKey: ["employees"] });
-    setSaving(false);
-    onSaved(created);
+    setError(null);
+    try {
+      const created = await base44.entities.Employee.create(form);
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      onSaved(created);
+    } catch (err) {
+      setError(err?.message || "Erro ao salvar. Verifique sua conexão.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const Field = ({ label, field, type = "text", placeholder = "" }) => (
@@ -89,6 +97,10 @@ export default function EmployeeAddForm({ onBack, onSaved }) {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Dados Profissionais</p>
           <Field label="Data de Admissão" field="hire_date" type="date" />
         </div>
+
+        {error && (
+          <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
+        )}
 
         <Button
           onClick={handleSave}
