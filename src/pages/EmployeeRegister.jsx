@@ -71,31 +71,41 @@ export default function EmployeeRegister() {
 
   const handleSubmit = async () => {
     setSaving(true);
-    let signatureUrl = "";
-    let photoUrl = "";
+    try {
+      let signatureUrl = "";
+      let photoUrl = "";
 
-    if (signatureFile) {
-      const res = await base44.integrations.Core.UploadFile({ file: signatureFile });
-      signatureUrl = res.file_url;
+      if (signatureFile) {
+        const res = await base44.integrations.Core.UploadFile({ file: signatureFile });
+        signatureUrl = res.file_url;
+      }
+      if (photoFile) {
+        const res = await base44.integrations.Core.UploadFile({ file: photoFile });
+        photoUrl = res.file_url;
+      }
+
+      await base44.entities.Employee.create({
+        ...form,
+        signature_url: signatureUrl,
+        photo_url: photoUrl,
+      });
+
+      toast({
+        title: "Funcionário registrado!",
+        description: `${form.full_name} foi cadastrado com sucesso.`,
+        duration: 2000,
+      });
+      navigate("/employees");
+    } catch (err) {
+      toast({
+        title: "Erro ao salvar",
+        description: err?.message || "Verifique sua conexão e tente novamente.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    } finally {
+      setSaving(false);
     }
-    if (photoFile) {
-      const res = await base44.integrations.Core.UploadFile({ file: photoFile });
-      photoUrl = res.file_url;
-    }
-
-    await base44.entities.Employee.create({
-      ...form,
-      signature_url: signatureUrl,
-      photo_url: photoUrl,
-    });
-
-    setSaving(false);
-    toast({
-      title: "Funcionário registrado!",
-      description: `${form.full_name} foi cadastrado com sucesso.`,
-      duration: 2000,
-    });
-    navigate("/");
   };
 
   return (
