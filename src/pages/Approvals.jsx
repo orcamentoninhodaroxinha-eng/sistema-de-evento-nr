@@ -125,10 +125,10 @@ export default function Approvals() {
                   <div className="flex items-center gap-2">
                     <div className="w-10 h-10 rounded-lg flex flex-col items-center justify-center shrink-0 bg-gradient-to-br from-primary/20 to-purple-200">
                       <span className="text-[9px] font-medium uppercase text-primary/70">
-                        {ev.date ? format(new Date(ev.date), "MMM", { locale: ptBR }) : "---"}
+                        {ev.date ? format(new Date(ev.date + "T12:00:00"), "MMM", { locale: ptBR }) : "---"}
                       </span>
                       <span className="text-sm font-bold leading-none text-primary">
-                        {ev.date ? format(new Date(ev.date), "dd") : "--"}
+                        {ev.date ? format(new Date(ev.date + "T12:00:00"), "dd") : "--"}
                       </span>
                     </div>
                     <div>
@@ -245,10 +245,10 @@ export default function Approvals() {
                     <div className="flex items-center gap-2">
                       <div className={`w-10 h-10 rounded-lg flex flex-col items-center justify-center shrink-0 ${isSalao ? "bg-gradient-to-br from-blue-100 to-blue-200" : "bg-gradient-to-br from-orange-100 to-orange-200"}`}>
                         <span className={`text-[9px] font-medium uppercase ${isSalao ? "text-blue-600" : "text-orange-600"}`}>
-                          {item.date ? format(new Date(item.date), "MMM", { locale: ptBR }) : "---"}
+                          {item.date ? format(new Date(item.date + "T12:00:00"), "MMM", { locale: ptBR }) : "---"}
                         </span>
                         <span className={`text-sm font-bold leading-none ${isSalao ? "text-blue-700" : "text-orange-700"}`}>
-                          {item.date ? format(new Date(item.date), "dd") : "--"}
+                          {item.date ? format(new Date(item.date + "T12:00:00"), "dd") : "--"}
                         </span>
                       </div>
                       <div>
