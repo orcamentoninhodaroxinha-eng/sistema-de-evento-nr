@@ -133,9 +133,7 @@ export default function Events() {
   const { data: events, isLoading, error, refetch } = useQuery({
     queryKey: ["events"],
     queryFn: async () => {
-      // Usa filter com objeto vazio (mais confiável em mobile/PWA)
-      const result = await base44.entities.Event.filter({}, "-date", 100);
-      // Garante que é um array
+      const result = await base44.entities.Event.list("-date", 100);
       if (!result) return [];
       if (Array.isArray(result)) return result;
       if (result.data && Array.isArray(result.data)) return result.data;
