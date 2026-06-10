@@ -130,13 +130,22 @@ export default function Events() {
     }
   }, [loginUser, navigate]);
 
-  const { data: events, isLoading, error } = useQuery({
+  const { data: events, isLoading, error, refetch } = useQuery({
     queryKey: ["events"],
-    queryFn: () => base44.entities.Event.list("-date", 100),
+    queryFn: async () => {
+      // Usa filter com objeto vazio (mais confiável em mobile/PWA)
+      const result = await base44.entities.Event.filter({}, "-date", 100);
+      // Garante que é um array
+      if (!result) return [];
+      if (Array.isArray(result)) return result;
+      if (result.data && Array.isArray(result.data)) return result.data;
+      return [];
+    },
     staleTime: 0,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    retry: 3,
+    retry: 5,
+    retryDelay: 1000,
   });
 
   useEffect(() => {
@@ -189,7 +198,7 @@ export default function Events() {
 
   return (
     <PageTransition>
-    <PullToRefresh onRefresh={() => queryClient.invalidateQueries(["events"])}>
+    <PullToRefresh onRefresh={() => { queryClient.invalidateQueries(["events"]); refetch(); }}>
     <div>
       <div className="mb-4">
         <div className="flex flex-col justify-between gap-4">
@@ -229,8 +238,11 @@ export default function Events() {
         </div>
       ) : error ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-sm text-destructive font-medium">Erro ao carregar eventos.</p>
-          <button onClick={() => queryClient.invalidateQueries(["events"])} className="mt-3 text-sm text-primary underline">Tentar novamente</button>
+          <p className="text-sm text-destructive font-medium mb-1">Erro ao carregar eventos.</p>
+          <p className="text-xs text-muted-foreground mb-4">Verifique sua conexão e tente novamente.</p>
+          <button onClick={() => { queryClient.invalidateQueries(["events"]); refetch(); }} className="px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:opacity-90 active:scale-95 transition-all">
+            🔄 Tentar novamente
+          </button>
         </div>
       ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -295,6 +307,9 @@ export default function Events() {
                   <CalendarDays className="w-8 h-8 text-primary/40" />
                 </div>
                 <h3 className="font-semibold text-lg">Nenhum evento agendado</h3>
+                <button onClick={() => { queryClient.invalidateQueries(["events"]); refetch(); }} className="mt-4 px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:opacity-90 active:scale-95 transition-all">
+                  🔄 Atualizar eventos
+                </button>
               </div>
             )}
           </TabsContent>
@@ -349,6 +364,9 @@ export default function Events() {
                   <CalendarDays className="w-8 h-8 text-primary/40" />
                 </div>
                 <h3 className="font-semibold text-lg">Nenhum evento concluído</h3>
+                <button onClick={() => { queryClient.invalidateQueries(["events"]); refetch(); }} className="mt-4 px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:opacity-90 active:scale-95 transition-all">
+                  🔄 Atualizar eventos
+                </button>
               </div>
             )}
           </TabsContent>
