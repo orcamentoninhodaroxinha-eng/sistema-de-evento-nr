@@ -130,10 +130,13 @@ export default function Events() {
     }
   }, [loginUser, navigate]);
 
-  const { data: events, isLoading } = useQuery({
+  const { data: events, isLoading, error } = useQuery({
     queryKey: ["events"],
     queryFn: () => base44.entities.Event.list("-date", 100),
-    staleTime: 30 * 1000,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    retry: 3,
   });
 
   useEffect(() => {
@@ -223,6 +226,11 @@ export default function Events() {
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-7 h-7 animate-spin text-primary" />
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <p className="text-sm text-destructive font-medium">Erro ao carregar eventos.</p>
+          <button onClick={() => queryClient.invalidateQueries(["events"])} className="mt-3 text-sm text-primary underline">Tentar novamente</button>
         </div>
       ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
