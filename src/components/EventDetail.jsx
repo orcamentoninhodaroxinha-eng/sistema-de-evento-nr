@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { base44 } from "@/api/base44Client";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import EventScaleBuilder from "./EventScaleBuilder";
@@ -801,30 +802,62 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           <div className="flex items-center gap-2 mb-3">
             <Users className="w-4 h-4 text-primary" />
             <h2 className="font-semibold">Funcionários Alocados ({assignedEmployees.length})</h2>
+            <span className="text-xs text-muted-foreground ml-auto">arraste para reordenar</span>
           </div>
-          <div className="space-y-2 max-h-80 overflow-y-auto">
-            {assignedEmployees.map(emp => (
-              <div key={emp.id} className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                    {emp.full_name?.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm truncate">{emp.full_name}</p>
-                    <p className="text-xs text-muted-foreground">{emp.role}</p>
-                  </div>
+          <DragDropContext
+            onDragEnd={async (result) => {
+              if (!result.destination) return;
+              const reordered = [...localEmployeeIds];
+              const [moved] = reordered.splice(result.source.index, 1);
+              reordered.splice(result.destination.index, 0, moved);
+              setLocalEmployeeIds(reordered);
+              event.employees = reordered;
+              await base44.entities.Event.update(event.id, { employees: reordered });
+              onRefresh();
+            }}
+          >
+            <Droppable droppableId="employee-list">
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2 max-h-80 overflow-y-auto">
+                  {assignedEmployees.map((emp, index) => (
+                    <Draggable key={emp.id} draggableId={emp.id} index={index}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={`flex items-center justify-between gap-2 p-2.5 rounded-xl transition-shadow ${
+                            snapshot.isDragging ? "bg-primary/5 shadow-lg border border-primary/20" : "bg-muted/40"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                            </div>
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                              {emp.full_name?.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm truncate">{emp.full_name}</p>
+                              <p className="text-xs text-muted-foreground">{emp.role}</p>
+                            </div>
+                          </div>
+                          <IndividualReceiptButton
+                            event={event}
+                            employee={emp}
+                            onOpenScale={(emp) => {
+                              setPdfEmployees([{ ...emp, _key: emp.id }]);
+                              setShowScale(true);
+                            }}
+                          />
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
                 </div>
-                <IndividualReceiptButton
-                  event={event}
-                  employee={emp}
-                  onOpenScale={(emp) => {
-                    setPdfEmployees([{ ...emp, _key: emp.id }]);
-                    setShowScale(true);
-                  }}
-                />
-              </div>
-            ))}
-          </div>
+              )}
+            </Droppable>
+          </DragDropContext>
         </div>
       )}
 
