@@ -891,27 +891,26 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                               <p className="text-xs text-muted-foreground">{csvOnly ? "da escala" : emp.role}</p>
                             </div>
                           </div>
-                          {csvOnly ? (
-                            <span className="text-xs text-muted-foreground/60 px-2 py-1 rounded-lg bg-slate-100 shrink-0">não cadastrado</span>
-                          ) : (
-                            <div className="flex items-center gap-2 shrink-0">
-                              {emp.signature_url ? (
-                                <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg font-medium flex items-center gap-1">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                  Assinado
-                                </span>
-                              ) : (
-                                <IndividualReceiptButton
-                                  event={event}
-                                  employee={emp}
-                                  onOpenScale={(emp) => {
-                                    setPdfEmployees([{ ...emp, _key: emp.id }]);
-                                    setShowScale(true);
-                                  }}
-                                />
-                              )}
-                            </div>
-                          )}
+                          <div className="flex items-center gap-2 shrink-0">
+                            {csvOnly && (
+                              <span className="text-xs text-muted-foreground/60 px-2 py-1 rounded-lg bg-slate-100 shrink-0">não cadastrado</span>
+                            )}
+                            {emp.signature_url ? (
+                              <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg font-medium flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                Assinado
+                              </span>
+                            ) : (
+                              <IndividualReceiptButton
+                                event={event}
+                                employee={emp}
+                                onOpenScale={(emp) => {
+                                  setPdfEmployees([{ ...emp, _key: emp.id }]);
+                                  setShowScale(true);
+                                }}
+                              />
+                            )}
+                          </div>
                         </div>
                       )}}
                     </Draggable>
