@@ -124,8 +124,9 @@ export default function EventDetail({ event, onBack, onRefresh }) {
     const csvOnly = csvEmployeeNames.filter(name => !existing.has(name.toLowerCase().trim()));
     const csvMatched = csvOnly.map(name => {
       const found = (allEmployees || []).find(e => e.full_name?.toLowerCase().trim() === name.toLowerCase().trim());
-      // Mark CSV employees not manually added as _csvOnly so they get muted style + no receipt button
-      return found ? { ...found, _csvOnly: true } : { id: name, full_name: name, role: "Escala", _csvOnly: true };
+      // Found = cadastrado → treat as regular (receipt button, full style)
+      // Not found = only in CSV → muted style, no receipt button
+      return found ? { ...found } : { id: name, full_name: name, role: "Escala", _csvOnly: true };
     });
     return [...assignedEmployees, ...csvMatched];
   })();
