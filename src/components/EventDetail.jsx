@@ -118,9 +118,12 @@ export default function EventDetail({ event, onBack, onRefresh }) {
     }
   }, [scaleCsvUrl, salaoScaleCsvUrl, isAdmin, isAndreF]);
 
-  // Merge CSV employees that aren't already in assignedEmployees
+  // Merge CSV employees that aren't already in assignedEmployees (admin only)
   const mergedEmployees = (() => {
     const existing = new Set(assignedEmployees.map(e => e.full_name?.toLowerCase().trim()));
+    // AndreF: only show manually added employees, no CSV auto-merge
+    if (isAndreF) return assignedEmployees;
+    // Admin: merge CSV employees for full visibility
     const csvOnly = csvEmployeeNames.filter(name => !existing.has(name.toLowerCase().trim()));
     const csvMatched = csvOnly.map(name => {
       const found = (allEmployees || []).find(e => e.full_name?.toLowerCase().trim() === name.toLowerCase().trim());
