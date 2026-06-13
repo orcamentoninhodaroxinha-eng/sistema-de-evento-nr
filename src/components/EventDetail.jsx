@@ -76,6 +76,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [returnReason, setReturnReason] = useState("");
   const [returning, setReturning] = useState(false);
   const allocatedListRef = useRef(null);
+  const [allocatedTouchStart, setAllocatedTouchStart] = useState(0);
 
   const { data: allEmployees = [] } = useQuery({
     queryKey: ["employees"],
@@ -858,6 +859,19 @@ export default function EventDetail({ event, onBack, onRefresh }) {
             <h2 className="font-semibold">Funcionários Alocados ({mergedEmployees.length})</h2>
             <span className="text-xs text-muted-foreground ml-auto">arraste para reordenar</span>
           </div>
+          <div
+            ref={allocatedListRef}
+            className="max-h-80 overflow-y-auto"
+            style={{ WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' }}
+            onTouchStart={(e) => setAllocatedTouchStart(e.touches[0].clientY)}
+            onTouchEnd={(e) => {
+              const touchEnd = e.changedTouches[0].clientY;
+              const diff = allocatedTouchStart - touchEnd;
+              if (Math.abs(diff) > 10 && allocatedListRef.current) {
+                allocatedListRef.current.scrollBy({ top: diff * 0.8, behavior: 'smooth' });
+              }
+            }}
+          >
           <DragDropContext
             onDragEnd={async (result) => {
               if (!result.destination) return;
@@ -876,10 +890,9 @@ export default function EventDetail({ event, onBack, onRefresh }) {
             <Droppable droppableId="employee-list">
               {(provided) => (
                 <div
-                  ref={(node) => { provided.innerRef(node); allocatedListRef.current = node; }}
+                  ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="space-y-2 max-h-80 overflow-y-auto"
-                  style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
+                  className="space-y-2"
                 >
                   {mergedEmployees.map((emp, index) => {
                     const isCsvOnly = emp._csvOnly;
@@ -937,6 +950,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
               )}
             </Droppable>
           </DragDropContext>
+          </div>
         </div>
       )}
 
