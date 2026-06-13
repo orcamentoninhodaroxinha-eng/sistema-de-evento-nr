@@ -89,16 +89,19 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   );
 
   // Merge employees from scale CSVs into assigned list
-  const [csvEmployeeNames, setCsvEmployeeNames] = useState([]);
+  const [csvEmployeeMap, setCsvEmployeeMap] = useState({}); // { "Nome": { funcao, valor } }
   useEffect(() => {
-    const names = new Set();
+    const map = {};
     const fetchers = [];
     if (isAdmin && scaleCsvUrl) {
       fetchers.push(
         fetch(scaleCsvUrl).then(r => r.text()).then(text => {
           text.trim().split("\n").slice(1).forEach(line => {
-            const name = line.split(";")[0]?.trim();
-            if (name && !name.toUpperCase().startsWith("TOTAL")) names.add(name);
+            const parts = line.split(";");
+            const name = parts[0]?.trim();
+            if (name && !name.toUpperCase().startsWith("TOTAL")) {
+              map[name] = { funcao: parts[1]?.trim() || "", valor: parts[2]?.trim() || "" };
+            }
           });
         }).catch(() => {})
       );
@@ -107,26 +110,33 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       fetchers.push(
         fetch(salaoScaleCsvUrl).then(r => r.text()).then(text => {
           text.trim().split("\n").slice(1).forEach(line => {
-            const name = line.split(";")[0]?.trim();
-            if (name && !name.toUpperCase().startsWith("TOTAL")) names.add(name);
+            const parts = line.split(";");
+            const name = parts[0]?.trim();
+            if (name && !name.toUpperCase().startsWith("TOTAL")) {
+              map[name] = { funcao: parts[1]?.trim() || "", valor: parts[2]?.trim() || "" };
+            }
           });
         }).catch(() => {})
       );
     }
     if (fetchers.length > 0) {
-      Promise.all(fetchers).then(() => setCsvEmployeeNames([...names]));
+      Promise.all(fetchers).then(() => setCsvEmployeeMap(map));
     }
   }, [scaleCsvUrl, salaoScaleCsvUrl, isAdmin, isAndreF]);
 
   // Merge CSV employees that aren't already in assignedEmployees
   const mergedEmployees = (() => {
     const existing = new Set(assignedEmployees.map(e => e.full_name?.toLowerCase().trim()));
-    const csvOnly = csvEmployeeNames.filter(name => !existing.has(name.toLowerCase().trim()));
+    const csvNames = Object.keys(csvEmployeeMap);
+    const csvOnly = csvNames.filter(name => !existing.has(name.toLowerCase().trim()));
     const csvMatched = csvOnly.map(name => {
+      const csvData = csvEmployeeMap[name] || {};
       const found = (allEmployees || []).find(e => e.full_name?.toLowerCase().trim() === name.toLowerCase().trim());
-      // Found = cadastrado → treat as regular (receipt button, full style)
-      // Not found = only in CSV → muted style, no receipt button
-      return found ? { ...found } : { id: name, full_name: name, role: "Escala", _csvOnly: true };
+      // Found = cadastrado → treat as regular (receipt button, full style) + csv data
+      // Not found = only in CSV → muted style, but still has valor/funcao from CSV
+      return found
+        ? { ...found, funcao: csvData.funcao || found.funcao || "", valor: csvData.valor || "" }
+        : { id: name, full_name: name, role: csvData.funcao || "Escala", valor: csvData.valor || "", funcao: csvData.funcao || "", _csvOnly: true };
     });
     return [...assignedEmployees, ...csvMatched];
   })();
