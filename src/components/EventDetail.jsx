@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { base44 } from "@/api/base44Client";
 import { useLoginUser } from "@/hooks/useLoginUser";
@@ -75,6 +75,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [showReturnSalaoDialog, setShowReturnSalaoDialog] = useState(false);
   const [returnReason, setReturnReason] = useState("");
   const [returning, setReturning] = useState(false);
+  const allocatedListRef = useRef(null);
+  const [allocatedTouchStart, setAllocatedTouchStart] = useState(0);
 
   const { data: allEmployees = [] } = useQuery({
     queryKey: ["employees"],
@@ -874,7 +876,19 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           >
             <Droppable droppableId="employee-list">
               {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2 max-h-80 overflow-y-auto">
+                <div
+                  ref={(node) => { provided.innerRef(node); allocatedListRef.current = node; }}
+                  {...provided.droppableProps}
+                  className="space-y-2 max-h-80 overflow-y-auto"
+                  onTouchStart={(e) => setAllocatedTouchStart(e.touches[0].clientY)}
+                  onTouchEnd={(e) => {
+                    const touchEnd = e.changedTouches[0].clientY;
+                    const diff = allocatedTouchStart - touchEnd;
+                    if (Math.abs(diff) > 10 && allocatedListRef.current) {
+                      allocatedListRef.current.scrollTop += diff * 0.5;
+                    }
+                  }}
+                >
                   {mergedEmployees.map((emp, index) => {
                     const isCsvOnly = emp._csvOnly;
                     return (
