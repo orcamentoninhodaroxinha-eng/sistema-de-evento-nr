@@ -13,6 +13,7 @@ import FinanceCalcBox from "./FinanceCalcBox";
 import { Textarea } from "@/components/ui/textarea";
 import EventScale from "./EventScale";
 import UnifiedScaleAdminBox from "./UnifiedScaleAdminBox";
+import IndividualReceiptButton from "./IndividualReceiptButton";
 import ScalePreviewCard from "./ScalePreviewCard";
 import ScaleTeamList from "./ScaleTeamList";
 import EventEditForm from "./EventEditForm";
@@ -791,6 +792,32 @@ export default function EventDetail({ event, onBack, onRefresh }) {
             {sendingNotif ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
             {sendingNotif ? "Enviando..." : "Notificar Todos sobre este Evento"}
           </Button>
+        </div>
+      )}
+
+      {/* Funcionários Alocados - admin gera recibos individuais */}
+      {isAdmin && assignedEmployees.length > 0 && (
+        <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <Users className="w-4 h-4 text-primary" />
+            <h2 className="font-semibold">Funcionários Alocados ({assignedEmployees.length})</h2>
+          </div>
+          <div className="space-y-2 max-h-80 overflow-y-auto">
+            {assignedEmployees.map(emp => (
+              <div key={emp.id} className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                    {emp.full_name?.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm truncate">{emp.full_name}</p>
+                    <p className="text-xs text-muted-foreground">{emp.role}</p>
+                  </div>
+                </div>
+                <IndividualReceiptButton event={event} employee={emp} />
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
