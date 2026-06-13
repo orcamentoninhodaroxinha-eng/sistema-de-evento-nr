@@ -795,8 +795,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       )}
 
-      {/* Funcionários Alocados - admin gera recibos individuais */}
-      {isAdmin && assignedEmployees.length > 0 && (
+      {/* Funcionários Alocados - admin e AndreF geram recibos individuais */}
+      {(isAdmin || isAndreF) && assignedEmployees.length > 0 && (
         <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <Users className="w-4 h-4 text-primary" />
