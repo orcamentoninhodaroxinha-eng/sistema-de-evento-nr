@@ -76,7 +76,6 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [returnReason, setReturnReason] = useState("");
   const [returning, setReturning] = useState(false);
   const allocatedListRef = useRef(null);
-  const [allocatedTouchStart, setAllocatedTouchStart] = useState(0);
 
   const { data: allEmployees = [] } = useQuery({
     queryKey: ["employees"],
@@ -880,14 +879,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                   ref={(node) => { provided.innerRef(node); allocatedListRef.current = node; }}
                   {...provided.droppableProps}
                   className="space-y-2 max-h-80 overflow-y-auto"
-                  onTouchStart={(e) => setAllocatedTouchStart(e.touches[0].clientY)}
-                  onTouchEnd={(e) => {
-                    const touchEnd = e.changedTouches[0].clientY;
-                    const diff = allocatedTouchStart - touchEnd;
-                    if (Math.abs(diff) > 10 && allocatedListRef.current) {
-                      allocatedListRef.current.scrollTop += diff * 0.5;
-                    }
-                  }}
+                  style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
                 >
                   {mergedEmployees.map((emp, index) => {
                     const isCsvOnly = emp._csvOnly;
