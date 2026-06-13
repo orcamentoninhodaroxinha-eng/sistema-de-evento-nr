@@ -814,7 +814,14 @@ export default function EventDetail({ event, onBack, onRefresh }) {
                     <p className="text-xs text-muted-foreground">{emp.role}</p>
                   </div>
                 </div>
-                <IndividualReceiptButton event={event} employee={emp} />
+                <IndividualReceiptButton
+                  event={event}
+                  employee={emp}
+                  onOpenScale={(emp) => {
+                    setPdfEmployees([{ ...emp, _key: emp.id }]);
+                    setShowScale(true);
+                  }}
+                />
               </div>
             ))}
           </div>
