@@ -269,7 +269,7 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
 
   const handleConfirmAndExport = async () => {
     setSaving(true);
-    const ids = scale.filter(s => !s.isNew).map(s => s.employeeId);
+    const ids = scale.map(s => s.employeeId);
 
     // Gera o CSV em memória e faz upload para armazenar a URL
     const bom = "\uFEFF";
