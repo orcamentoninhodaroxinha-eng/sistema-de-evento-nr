@@ -289,20 +289,17 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
     const uploadRes = await base44.integrations.Core.UploadFile({ file: csvFile });
 
     const updatePayload = isSalao
-      ? { salao_csv_url: uploadRes.file_url }
-      : { employees: ids, scale_csv_url: uploadRes.file_url };
+      ? { salao_csv_url: uploadRes.file_url, salao_submitted: true, salao_rejected: false }
+      : { employees: ids, scale_csv_url: uploadRes.file_url, scale_submitted: true, scale_rejected: false };
     await base44.entities.Event.update(event.id, updatePayload);
     queryClient.invalidateQueries(["events"]);
     queryClient.invalidateQueries(["event", event.id]);
-
-    // Também dispara o download local
-    generateExcel(scale, event.name);
 
     // Limpa escala do localStorage
     localStorage.removeItem(scaleKey);
 
     setSaving(false);
-    toast.success("Escala confirmada e Excel gerado!");
+    toast.success("Escala salva e enviada para aprovação!");
     setShowReview(false);
     onBack();
   };
@@ -758,8 +755,8 @@ export default function EventScaleBuilder({ event, area = "cozinha", onBack }) {
               Adicionar
             </Button>
             <Button onClick={handleConfirmAndExport} disabled={saving} className="flex-1 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
-              {saving ? "Salvando..." : "Confirmar e Gerar Excel"}
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+              {saving ? "Salvando..." : "Salvar e Enviar para Aprovação"}
             </Button>
           </div>
         </DialogContent>

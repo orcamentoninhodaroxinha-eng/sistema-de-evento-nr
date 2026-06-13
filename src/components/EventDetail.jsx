@@ -129,6 +129,10 @@ export default function EventDetail({ event, onBack, onRefresh }) {
           const updated = await base44.entities.Event.filter({ id: event.id });
           if (updated?.[0]?.scale_csv_url) setScaleCsvUrl(updated[0].scale_csv_url);
           if (updated?.[0]?.salao_csv_url) setSalaoScaleCsvUrl(updated[0].salao_csv_url);
+          if (updated?.[0]?.scale_submitted !== undefined) setScaleSubmitted(updated[0].scale_submitted);
+          if (updated?.[0]?.salao_submitted !== undefined) setSalaoSubmitted(updated[0].salao_submitted);
+          if (updated?.[0]?.scale_rejected !== undefined) setScaleRejected(updated[0].scale_rejected);
+          if (updated?.[0]?.salao_rejected !== undefined) setSalaoRejected(updated[0].salao_rejected);
           setShowScaleBuilder(false);
           setSalaoScaleBuilder(false);
           onRefresh();
