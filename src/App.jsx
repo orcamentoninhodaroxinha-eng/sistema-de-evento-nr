@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '@/lib/AuthContext';
 import LoginGate from './components/LoginGate';
 import Layout from './components/Layout.jsx';
-import Events from './pages/Events';
+import RoleHome from './components/RoleHome';
 import Roulette from './components/Roulette';
 import EventFormPage from './pages/EventFormPage';
 import AccountDeletion from './pages/AccountDeletion';
@@ -20,7 +20,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Events />} />
+        <Route path="/" element={<RoleHome />} />
         <Route path="/events/new" element={<EventFormPage />} />
         <Route path="/events/:id" element={<EventDetailPage />} />
         <Route path="/account/delete" element={<AccountDeletion />} />
