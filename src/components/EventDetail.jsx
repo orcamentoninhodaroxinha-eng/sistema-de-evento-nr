@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from "react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useLoginUser } from "@/hooks/useLoginUser";
 import EventScaleBuilder from "./EventScaleBuilder";
@@ -14,8 +13,6 @@ import FinanceCalcBox from "./FinanceCalcBox";
 import { Textarea } from "@/components/ui/textarea";
 import EventScale from "./EventScale";
 import UnifiedScaleAdminBox from "./UnifiedScaleAdminBox";
-import IndividualReceiptButton from "./IndividualReceiptButton";
-import ScalePreviewCard from "./ScalePreviewCard";
 import ScaleTeamList from "./ScaleTeamList";
 import EventEditForm from "./EventEditForm";
 import { format } from "date-fns";
@@ -75,8 +72,6 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const [showReturnSalaoDialog, setShowReturnSalaoDialog] = useState(false);
   const [returnReason, setReturnReason] = useState("");
   const [returning, setReturning] = useState(false);
-  const allocatedListRef = useRef(null);
-  const [allocatedTouchStart, setAllocatedTouchStart] = useState(0);
 
   const { data: allEmployees = [] } = useQuery({
     queryKey: ["employees"],
@@ -90,58 +85,6 @@ export default function EventDetail({ event, onBack, onRefresh }) {
     eventEmployeeIds.includes(emp.id)
   );
 
-  // Merge employees from scale CSVs into assigned list
-  const [csvEmployeeMap, setCsvEmployeeMap] = useState({}); // { "Nome": { funcao, valor } }
-  useEffect(() => {
-    const map = {};
-    const fetchers = [];
-    if (isAdmin && scaleCsvUrl) {
-      fetchers.push(
-        fetch(scaleCsvUrl).then(r => r.text()).then(text => {
-          text.trim().split("\n").slice(1).forEach(line => {
-            const parts = line.split(";");
-            const name = parts[0]?.trim();
-            if (name && !name.toUpperCase().startsWith("TOTAL")) {
-              map[name] = { funcao: parts[1]?.trim() || "", valor: parts[2]?.trim() || "" };
-            }
-          });
-        }).catch(() => {})
-      );
-    }
-    if ((isAdmin || isAndreF) && salaoScaleCsvUrl) {
-      fetchers.push(
-        fetch(salaoScaleCsvUrl).then(r => r.text()).then(text => {
-          text.trim().split("\n").slice(1).forEach(line => {
-            const parts = line.split(";");
-            const name = parts[0]?.trim();
-            if (name && !name.toUpperCase().startsWith("TOTAL")) {
-              map[name] = { funcao: parts[1]?.trim() || "", valor: parts[2]?.trim() || "" };
-            }
-          });
-        }).catch(() => {})
-      );
-    }
-    if (fetchers.length > 0) {
-      Promise.all(fetchers).then(() => setCsvEmployeeMap(map));
-    }
-  }, [scaleCsvUrl, salaoScaleCsvUrl, isAdmin, isAndreF]);
-
-  // Merge CSV employees that aren't already in assignedEmployees
-  const mergedEmployees = (() => {
-    const existing = new Set(assignedEmployees.map(e => e.full_name?.toLowerCase().trim()));
-    const csvNames = Object.keys(csvEmployeeMap);
-    const csvOnly = csvNames.filter(name => !existing.has(name.toLowerCase().trim()));
-    const csvMatched = csvOnly.map(name => {
-      const csvData = csvEmployeeMap[name] || {};
-      const found = (allEmployees || []).find(e => e.full_name?.toLowerCase().trim() === name.toLowerCase().trim());
-      // Found = cadastrado → treat as regular (receipt button, full style) + csv data
-      // Not found = only in CSV → muted style, but still has valor/funcao from CSV
-      return found
-        ? { ...found, funcao: csvData.funcao || found.funcao || "", valor: csvData.valor || "" }
-        : { id: name, full_name: name, role: csvData.funcao || "Escala", valor: csvData.valor || "", funcao: csvData.funcao || "", _csvOnly: true };
-    });
-    return [...assignedEmployees, ...csvMatched];
-  })();
 
   // Carrega a lista de funcionários da escala do salão a partir do CSV
   useEffect(() => {
@@ -851,108 +794,7 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       )}
 
-      {/* Funcionários Alocados - admin e AndreF geram recibos individuais */}
-      {(isAdmin || isAndreF) && assignedEmployees.length > 0 && (
-        <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <Users className="w-4 h-4 text-primary" />
-            <h2 className="font-semibold">Funcionários Alocados ({mergedEmployees.length})</h2>
-            <span className="text-xs text-muted-foreground ml-auto">arraste para reordenar</span>
-          </div>
-          <div
-            ref={allocatedListRef}
-            className="max-h-80 overflow-y-auto"
-            style={{ WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' }}
-            onTouchStart={(e) => setAllocatedTouchStart(e.touches[0].clientY)}
-            onTouchEnd={(e) => {
-              const touchEnd = e.changedTouches[0].clientY;
-              const diff = allocatedTouchStart - touchEnd;
-              if (Math.abs(diff) > 10 && allocatedListRef.current) {
-                allocatedListRef.current.scrollBy({ top: diff * 0.8, behavior: 'smooth' });
-              }
-            }}
-          >
-          <DragDropContext
-            onDragEnd={async (result) => {
-              if (!result.destination) return;
-              if (result.source.index === result.destination.index) return;
-              // Reorder mergedEmployees, then extract real IDs
-              const reordered = [...mergedEmployees];
-              const [moved] = reordered.splice(result.source.index, 1);
-              reordered.splice(result.destination.index, 0, moved);
-              const newOrder = reordered.filter(e => !e._csvOnly).map(e => e.id);
-              setLocalEmployeeIds(newOrder);
-              event.employees = newOrder;
-              await base44.entities.Event.update(event.id, { employees: newOrder });
-              onRefresh();
-            }}
-          >
-            <Droppable droppableId="employee-list">
-              {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className="space-y-2"
-                >
-                  {mergedEmployees.map((emp, index) => {
-                    const isCsvOnly = emp._csvOnly;
-                    return (
-                    <Draggable key={emp.id} draggableId={emp.id} index={index} isDragDisabled={isCsvOnly}>
-                      {(provided, snapshot) => {
-                        const csvOnly = emp._csvOnly;
-                        return (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className={`flex items-center justify-between gap-2 p-2.5 rounded-xl transition-shadow ${
-                            csvOnly ? "bg-muted/30 opacity-70" : snapshot.isDragging ? "bg-primary/5 shadow-lg border border-primary/20" : "bg-muted/40"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div {...provided.dragHandleProps} className={`shrink-0 ${csvOnly ? "text-muted-foreground/30 cursor-default" : "cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors"}`}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                            </div>
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${csvOnly ? "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500" : "bg-gradient-to-br from-primary/20 to-purple-200 text-primary"}`}>
-                              {emp.full_name?.charAt(0).toUpperCase()}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-medium text-sm truncate">{emp.full_name}</p>
-                              <p className="text-xs text-muted-foreground">{csvOnly ? "da escala" : emp.role}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            {csvOnly && (
-                              <span className="text-xs text-muted-foreground/60 px-2 py-1 rounded-lg bg-slate-100 shrink-0">não cadastrado</span>
-                            )}
-                            {emp.signature_url ? (
-                              <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg font-medium flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                Assinado
-                              </span>
-                            ) : (
-                              <IndividualReceiptButton
-                                event={event}
-                                employee={emp}
-                                onOpenScale={(emp) => {
-                                  setPdfEmployees([{ ...emp, _key: emp.id }]);
-                                  setShowScale(true);
-                                }}
-                              />
-                            )}
-                          </div>
-                        </div>
-                      )}}
-                    </Draggable>
-                  );
-                  })}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-          </div>
-        </div>
-      )}
+
 
       {/* PDF da Escala - apenas admin */}
       {isAdmin && <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
