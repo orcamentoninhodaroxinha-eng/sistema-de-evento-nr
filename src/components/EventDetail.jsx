@@ -5,8 +5,8 @@ import EventScaleBuilder from "./EventScaleBuilder";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft, MapPin, CalendarDays, FileText, Users,
-  Plus, X, Search, Loader2, UserCheck, CheckCircle2, ShieldCheck, PlayCircle,
-  Paperclip, ExternalLink, Upload, FileDown, FileSpreadsheet, ClipboardCheck,
+  Plus, Search, Loader2, CheckCircle2, PlayCircle,
+  ExternalLink, Upload, FileDown, FileSpreadsheet, ClipboardCheck,
   Clock, DollarSign, Bell, RotateCcw
 } from "lucide-react";
 import FinanceCalcBox from "./FinanceCalcBox";
@@ -35,12 +35,8 @@ export default function EventDetail({ event, onBack, onRefresh }) {
   const isNinho = loginUser?.username === "Ninho";
   const [showEditForm, setShowEditForm] = useState(false);
   const [showScaleBuilder, setShowScaleBuilder] = useState(false);
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [searchEmployee, setSearchEmployee] = useState("");
-  const [saving, setSaving] = useState(false);
   const [teamConfirmed, setTeamConfirmed] = useState(event.team_confirmed || false);
   const [localEmployeeIds, setLocalEmployeeIds] = useState(event.employees || []);
-  const [confirming, setConfirming] = useState(false);
   const hasActiveSession = !!localStorage.getItem(`event_scale_${event.id}`);
   const [showScale, setShowScale] = useState(hasActiveSession);
   const [scalePdfUrl, setScalePdfUrl] = useState(event.scale_pdf_url || "");
@@ -79,12 +75,9 @@ export default function EventDetail({ event, onBack, onRefresh }) {
     staleTime: 5 * 60 * 1000,
   });
 
-  const eventEmployeeIds = localEmployeeIds;
-  
   const assignedEmployees = (allEmployees || []).filter(emp => 
-    eventEmployeeIds.includes(emp.id)
+    localEmployeeIds.includes(emp.id)
   );
-
 
   // Carrega a lista de funcionários da escala do salão a partir do CSV
   useEffect(() => {
@@ -162,52 +155,6 @@ export default function EventDetail({ event, onBack, onRefresh }) {
       />
     );
   }
-
-  const ANDREF_ROLE_KEYWORDS = ["salão","salao","garçom","garcom","garçonete","garconete","recepcionista","recepção","recepcao","limpeza","segurança","seguranca","copeiro","atendente","barman","bartender","mestre","dj","assessor","gestor"];
-
-  const availableEmployees = (allEmployees || []).filter(emp => {
-    if (eventEmployeeIds.includes(emp.id)) return false;
-    const matchesSearch = emp.full_name?.toLowerCase().includes(searchEmployee.toLowerCase()) ||
-      emp.role?.toLowerCase().includes(searchEmployee.toLowerCase());
-    if (!matchesSearch) return false;
-    if (isAndreF) return ANDREF_ROLE_KEYWORDS.some(k => (emp.role || "").toLowerCase().includes(k));
-    return true;
-  });
-
-  const addEmployee = async (employeeId) => {
-    // Optimistic update
-    const updated = [...localEmployeeIds, employeeId];
-    setLocalEmployeeIds(updated);
-    event.employees = updated;
-    toast({ title: "Funcionário adicionado ao evento!" });
-    base44.entities.Event.update(event.id, { employees: updated }).then(onRefresh);
-  };
-
-  const removeEmployee = async (employeeId) => {
-    // Optimistic update
-    const updated = localEmployeeIds.filter(id => id !== employeeId);
-    setLocalEmployeeIds(updated);
-    event.employees = updated;
-    if (teamConfirmed) setTeamConfirmed(false);
-    toast({ title: "Funcionário removido do evento" });
-    const ops = [base44.entities.Event.update(event.id, { employees: updated })];
-    if (teamConfirmed) ops.push(base44.entities.Event.update(event.id, { team_confirmed: false }));
-    Promise.all(ops).then(onRefresh);
-  };
-
-  const handleConfirmTeam = async () => {
-    if (assignedEmployees.length === 0) {
-      toast({ title: "Adicione ao menos um funcionário antes de confirmar", variant: "destructive" });
-      return;
-    }
-    setConfirming(true);
-    await base44.entities.Event.update(event.id, { team_confirmed: true });
-    event.team_confirmed = true;
-    setTeamConfirmed(true);
-    onRefresh();
-    setConfirming(false);
-    toast({ title: "Equipe confirmada com sucesso!" });
-  };
 
   const statusColors = {
     "Planejado": "bg-blue-50 text-blue-700 border-blue-200",
@@ -620,60 +567,6 @@ export default function EventDetail({ event, onBack, onRefresh }) {
 
 
 
-      {/* AndreF: Gerenciar Equipe do Salão */}
-      {isAndreF && (
-        <div className="mt-6 bg-card rounded-2xl border border-border p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-primary" />
-              <h2 className="font-semibold">Equipe do Salão</h2>
-              {assignedEmployees.filter(e => {
-                const r = (e.role || "").toLowerCase();
-                return r.includes("salão") || r.includes("salao") || r.includes("garçom") || r.includes("garcom") || r.includes("garçonete") || r.includes("garconete") || r.includes("recepcionista") || r.includes("recepção") || r.includes("recepcao") || r.includes("limpeza") || r.includes("segurança") || r.includes("seguranca") || r.includes("copeiro") || r.includes("atendente") || r.includes("barman") || r.includes("bartender") || r.includes("mestre") || r.includes("dj") || r.includes("assessor") || r.includes("gestor");
-              }).length > 0 && (
-                <span className="text-xs text-muted-foreground">
-                  ({assignedEmployees.filter(e => {
-                    const r = (e.role || "").toLowerCase();
-                    return r.includes("salão") || r.includes("salao") || r.includes("garçom") || r.includes("garcom") || r.includes("garçonete") || r.includes("garconete") || r.includes("recepcionista") || r.includes("recepção") || r.includes("recepcao") || r.includes("limpeza") || r.includes("segurança") || r.includes("seguranca") || r.includes("copeiro") || r.includes("atendente") || r.includes("barman") || r.includes("bartender") || r.includes("mestre") || r.includes("dj") || r.includes("assessor") || r.includes("gestor");
-                  }).length} pessoas)
-                </span>
-              )}
-            </div>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => { setShowAddDialog(true); setSearchEmployee(""); }}
-              className="gap-1.5 rounded-xl text-xs h-8"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Adicionar
-            </Button>
-          </div>
-          {(() => {
-            const ANDREF_ROLE_KEYWORDS = ["salão","salao","garçom","garcom","garçonete","garconete","recepcionista","recepção","recepcao","limpeza","segurança","seguranca","copeiro","atendente","barman","bartender","mestre","dj","assessor","gestor"];
-            const team = assignedEmployees.filter(e => ANDREF_ROLE_KEYWORDS.some(k => (e.role || "").toLowerCase().includes(k)));
-            if (team.length === 0) return <p className="text-sm text-muted-foreground text-center py-3">Nenhum funcionário adicionado ainda</p>;
-            return (
-              <div className="space-y-2">
-                {team.map(emp => (
-                  <div key={emp.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/40">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-xs font-bold text-blue-700 shrink-0">
-                      {emp.full_name?.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{emp.full_name}</p>
-                      <p className="text-xs text-muted-foreground">{emp.role}</p>
-                    </div>
-                    <button onClick={() => removeEmployee(emp.id)} className="text-destructive/40 hover:text-destructive transition-colors p-1">
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            );
-          })()}
-        </div>
-      )}
 
       {/* AndreF: Criar Escala do Salão */}
       {isAndreF && !salaoApproved && (
@@ -941,62 +834,6 @@ export default function EventDetail({ event, onBack, onRefresh }) {
         </div>
       )}
 
-      {/* Add Employee Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Adicionar Funcionário</DialogTitle>
-          </DialogHeader>
-          
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar funcionário..."
-              value={searchEmployee}
-              onChange={(e) => setSearchEmployee(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-
-          <div className="max-h-80 overflow-y-auto space-y-2">
-            {availableEmployees.length === 0 ? (
-              <p className="text-center text-sm text-muted-foreground py-4">
-                {searchEmployee ? "Nenhum funcionário encontrado" : "Todos os funcionários já estão alocados"}
-              </p>
-            ) : (
-              availableEmployees.map((emp) => (
-                <button
-                  key={emp.id}
-                  onClick={() => {
-                    addEmployee(emp.id);
-                    setShowAddDialog(false);
-                    setSearchEmployee("");
-                  }}
-                  disabled={saving}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-accent transition-colors text-left"
-                >
-                  {emp.photo_url ? (
-                    <img src={emp.photo_url} alt={emp.full_name} className="w-10 h-10 rounded-lg object-cover" />
-                  ) : (
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-200 flex items-center justify-center">
-                      <span className="text-primary font-bold text-sm">
-                        {emp.full_name?.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{emp.full_name}</p>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded ${roleColors[emp.role] || 'bg-slate-50 text-slate-600'}`}>
-                      {emp.role}
-                    </span>
-                  </div>
-                  <Plus className="w-4 h-4 text-muted-foreground" />
-                </button>
-              ))
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Devolver Escala Cozinha Dialog */}
       <Dialog open={showReturnCozinhaDialog} onOpenChange={setShowReturnCozinhaDialog}>
